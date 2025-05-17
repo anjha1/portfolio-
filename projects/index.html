@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="OZg3Z_fhGyx8x2_WwYAvI0VNYr1vObwIowBJEiRDy2Y" />
+    <title>Projects - Achhuta Nand Jha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color:  #e9cfb7ab;;
+            color: #333;
+        }
+
+        header {
+            background-color: black;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        section {
+            padding: 20px;
+            margin: 20px;
+            background-color:  #d18e413b;;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            
+        }
+
+        .project-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow:  0 4px 40px rgb(8, 254, 69);;
+            flex: 1;
+            min-width: 300px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 12px rgba(255, 0, 0, 3);
+            border: 2px solid rgba(15, 25, 230, 3); 
+            border-radius: 8px; 
+        }
+
+        .project-card h2 {
+            margin-top: 0;
+            color: #7105e4;
+        }
+
+        .project-card p {
+            line-height: 1.6;
+        }
+
+        .project-card ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+
+        .project-card ul li {
+            margin-bottom: 10px;
+        }
+
+        .project-card a {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 10px 5px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .project-card a:hover {
+            background-color: #cd1010;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #333;
+            color: #fff;
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .cta-section h2 {
+            margin-top: 0;
+        }
+
+        .cta-section a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #1197cd;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .cta-section a:hover {
+            background-color: #29a8cf;
+        }
+        /* .scrolling-text {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            position: relative;
+            animation: move-text 20s linear infinite;
+        }
+
+        @keyframes move-text {
+            from {
+                transform: translateX(-100%);
+            }
+            to {
+                transform: translateX(100%);
+            }
+        } */
+
+        /* Mobile-first approach */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+                display: none;
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            nav ul li {
+                text-align: center;
+                padding: 10px;
+                background-color: #333;
+                border-radius: 5px;
+            }
+
+            .hamburger {
+                display: block;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                cursor: pointer;
+                color: white;
+                font-size: 1.5rem;
+            }
+
+            .about-section {
+                margin: 20px auto;
+                padding: 20px;
+                width: 90%;
+            }
+
+            footer {
+                position: relative;
+                margin-top: 40px;
+            }
+
+            .contact-button {
+                display: block;
+                margin: 10px auto;
+                text-align: center;
+                width: 80%;
+            }
+
+            img[src="a1.jpg"] {
+                width: 120px;
+                height: 120px;
+            }
+
+            /* Adjust hitwebcounter image */
+            .hitwebcounter img {
+                width: 100%;
+                height: auto;
+            }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .hamburger {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="hamburger" onclick="toggleMenu()">☰</div>
+        <h1>My Projects</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="experience/index.html">Experience</a></li>
+                <li><a href="contact/index.html">Contact</a></li>
+                 <li><a href="certification/index.html">Certification</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="projects">
+        <!-- <h1 style="text-align: center; font-size: 30px">My Projects</h1> -->
+       <h4 class="scrolling-text" style="text-align: center;color: rgb(106, 0, 0);">Please note: The website will take approximately 1 minute to load after clicking 'Show Project'. Kindly wait while the system initializes.</h4>
+     
+        <div class="project-grid">
+            <div class="project-card">
+                <h2> Zapkart - Smart Self-Checkout Solution 🛒💡 </h2>
+                <ul>
+                    <li>Eliminates long checkout queues with a smart self-checkout system.</li>
+                    <li>Interactive display panel for easy item location and seamless shopping.</li>
+                    <li>Automated billing system to enhance retail efficiency and save time.</li>
+                </ul>
+                <a href="https://anjha1.github.io/zapkart/" target="_blank">Show Project</a>
+                <a href="https://github.com/anjha1/zapkart" target="_blank">GitHub</a>
+                <a href="https://docs.google.com/presentation/d/1geJfFOGlF-iX1cvcfIpRPQxvAQbkvoQu/present?slide=id.p1" target="_blank">Project Details</a>
+            </div>
+            
+            <!-- Project 1: SMS Spam Detection App -->
+            <div class="project-card">
+                <h2>SMS Spam Detection App</h2>
+                <ul>
+                    <li>Real-time SMS classification using TF-IDF vectorization and supervised ML models.</li>
+                    <li>Python-built app with Flask/Streamlit for an interactive interface.</li>
+                    <li>Enhances communication by reducing spam with high accuracy.</li>
+                </ul>
+                <a href="https://sms-spam-detection-app-necs.onrender.com" target="_blank">Show Project</a>
+                <a href="https://github.com/anjha1/SMS-Spam-Detection-App" target="_blank">GitHub</a>
+                <a href="https://drive.google.com/file/d/1pIJjT69SP-pT_BAJcyFYpI1qlRhRzQfJ/view" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project 2: Alpha Thalassemia Classifier -->
+            <div class="project-card">
+                <h2>Alpha Thalassemia Classifier</h2>
+                <ul>
+                    <li>Predicts alpha-thalassemia phenotypes with 98% accuracy using XGBoost.</li>
+                    <li>Focused on clinical data processing and healthcare application.</li>
+                    <li>Features a user-friendly web interface for professionals.</li>
+                </ul>
+                <a href="https://github.com/anjha1/Alpha-Thalassemia-Classifier-A-Machine-Learning-Approach" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/Alpha-Thalassemia-Classifier-A-Machine-Learning-Approach" target="_blank">GitHub</a>
+                <a href="https://drive.google.com/file/d/1g8pjfos0hW1T6rGAPE9Z0sQk23RInM_2/view" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project 3: Forest Fire Prediction and Analysis -->
+            <div class="project-card">
+                <h2>Forest Fire Prediction and Analysis</h2>
+                <ul>
+                    <li>Predicted forest fires using AutoAI and environmental data analysis.</li>
+                    <li>Achieved high R2 (0.9830) with a Linear Regression model.</li>
+                    <li>Demonstrates ML's potential in disaster management.</li>
+                </ul>
+                <a href="https://fwi-fire-weather-index-prediction-project-pa24.onrender.com" target="_blank">Show Project</a>
+                <a href="https://github.com/anjha1/FWI-Fire-Weather-Index-Prediction-project/tree/master" target="_blank">GitHub</a>
+                <a href="https://docs.google.com/presentation/d/1H4SC7LzhdlLmLjnB8Uwgz9UG711DRrGT/present?slide=id.p1" target="_blank">Project Details</a>
+            </div>
+            <div class="project-card">
+                <h2>Book Recommendation System</h2>
+                <ul>
+                    <li>Implemented a hybrid Book Recommendation System using Collaborative Filtering (cosine similarity on user ratings) and Content-Based Filtering (TF-IDF on book metadata).</li>
+                    <li>Achieved over 92% accuracy in recommending relevant books based on user preferences.</li>
+                    <li>Deployed using Flask, with a clean UI to showcase top 50 books and personalized suggestions based on selected titles.</li>
+                </ul>
+                <a href="https://book-recommendation-system-anjha.onrender.com" target="_blank">Show Project</a>
+                <a href="https://github.com/anjha1/Book-Recommendation-System" target="_blank">GitHub</a>
+                <a href="https://docs.google.com/presentation/d/1kHPt2pCdlIo2NrbOR7aCWPyRVy8jdndM/edit?usp=sharing&ouid=113285117088012313521&rtpof=true&sd=true" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project 4: Employee Burnout Prediction -->
+            <div class="project-card">
+                <h2>Employee Burnout Prediction</h2>
+                <ul>
+                    <li>Predicts employee burnout risk using regression and ML techniques.</li>
+                    <li>Integrates Kaggle data for detailed analysis and real-time predictions.</li>
+                    <li>Provides actionable insights to enhance employee well-being.</li>
+                </ul>
+                <a href="https://employee-burnout-prediction-and-analysis-ga4d.onrender.com" target="_blank">Show Project</a>
+                <a href="https://github.com/anjha1/Employee-Burnout-Prediction-And-Analysis" target="_blank">GitHub</a>
+                <a href="https://docs.google.com/presentation/d/14FPMzLCGXlcPNu76mgrqzxUI_1qKScGa/present?slide=id.p1" target="_blank">Project Details</a>
+            </div>
+             <!-- Project 6: Weather App -->
+             <div class="project-card">
+                <h2>Email Resume Sender</h2>
+                <ul>
+                    <li>Allows users to send personalized job application emails directly to recruiters.</li>
+                    <li>Automatically attaches the user's resume and custom message to each email.</li>
+                    <li>Includes a simple and user-friendly interface for easy input and submission.</li>
+                </ul>                
+                <a href="https://email-resume-sender-kyne.onrender.com" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/Email-Resume-Sender" target="_blank">GitHub</a>
+                <a href="https://github.com/anjha1/Email-Resume-Sender" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project 5: Tic Tac Toe Game -->
+            <div class="project-card">
+                <h2>Tic Tac Toe Game</h2>
+                <ul>
+                    <li>Developed a 2-player game with a clean and intuitive interface.</li>
+                    <li>Automates winner detection and supports real-time gameplay.</li>
+                    <li>Built with HTML/CSS/JavaScript, emphasizing UI/UX skills.</li>
+                </ul>
+                <a href="https://anjha1.github.io/Tic-Tac-Toe-Game/" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/Tic-Tac-Toe-Game" target="_blank">GitHub</a>
+                <a href="https://docs.google.com/presentation/d/1upjlKgQoBF2-NaXNUbCXQxQbSVonIkeJ/present?slide=id.p1" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project 6: Weather App -->
+            <div class="project-card">
+                <h2>Weather App</h2>
+                <ul>
+                    <li>Provides real-time weather updates, forecasts, and alerts.</li>
+                    <li>Features API integration for seamless location-based data retrieval.</li>
+                    <li>Focuses on responsive design using HTML, CSS, and JavaScript.</li>
+                </ul>
+                <a href="https://anjha1.github.io/Weather-App/" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/Weather-App" target="_blank">GitHub</a>
+                <a href="https://docs.google.com/presentation/d/1fV4H0zuityk3jdtoujIX4LihdZOlTx2Y/present?slide=id.p1" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project 7: DevDetective for GitHub -->
+            <div class="project-card">
+                <h2>DevDetective for GitHub</h2>
+                <ul>
+                    <li>Fetches and displays GitHub profile data, repositories, and contributions.</li>
+                    <li>Useful for exploring developer expertise and activity.</li>
+                    <li>Enhances GitHub data access via a user-friendly interface.</li>
+                </ul>
+                <a href="https://anjha1.github.io/DevDetective/" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/DevDetective" target="_blank">GitHub</a>
+                <a href="https://github.com/anjha1/DevDetective" target="_blank">Project Details</a>
+            </div>
+            <!-- Project : DevDetective for GitHub -->
+            <div class="project-card">
+                <h2>Covid-19 india Data Analysis Report</h2>
+                <ul>
+                    <li>Key insights: Variable distributions, correlations, missing values, and data types.</li>
+                    <li>This report, generated using Pandas Profiling (YData Profiling), provides a comprehensive automated EDA to support further research and analysis.</li>
+                </ul>
+                <a href="https://anjha1.github.io/Covid-19-india-Data-Analysis-Report/" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/Covid-19-india-Data-Analysis-Report" target="_blank">GitHub</a>
+                <a href="https://anjha1.github.io/Covid-19-india-Data-Analysis-Report/" target="_blank">Project Details</a>
+            </div>
+
+            <div class="project-card">
+                <h2>Custom DAI with Multiple Random Ads</h2>
+                <ul>
+                    <li>Randomized Ad Selection: The system uses multiple random ads to create a diverse and engaging experience, reducing ad fatigue and increasing ad effectiveness.</li>
+                    <li>Dynamic Ad Insertion (DAI): Ads are seamlessly integrated into video streams at precise intervals without interrupting the viewing experience.</li>
+                </ul>
+                <a href="https://anjha1.github.io/Custom-DAI-with-Multiple-Random-Ads/" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/Custom-DAI-with-Multiple-Random-Ads" target="_blank">GitHub</a>
+                <a href="https://anjha1.github.io/Custom-DAI-with-Multiple-Random-Ads/" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project 8: Vehicle Fleet Management Optimization -->
+            <div class="project-card">
+                <h2>Vehicle Fleet Management Optimization</h2>
+                <ul>
+                    <li>Analyzes fleet usage, fuel costs, and maintenance for cost reduction.</li>
+                    <li>Recommends fuel-efficient vehicles and optimized schedules.</li>
+                    <li>Promotes sustainability through actionable fleet management insights.</li>
+                </ul>
+                <a href="https://anjha1.github.io/DevDetective/" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/Covid-19-india-Data-Analysis-Report">GitHub</a>
+                <a href="https://github.com/anjha1/DevDetective" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project 9: Tata Data Visualization Simulation -->
+            <!-- <div class="project-card">
+                <h2>Tata Data Visualization Simulation</h2>
+                <ul>
+                    <li>Created impactful visualizations for executive decision-making.</li>
+                    <li>Prepared insightful queries for client leadership meetings.</li>
+                    <li>Enhanced presentation and data storytelling for business insights.</li>
+                </ul>
+                <a href="#">View Project</a>
+            </div> -->
+
+            <!-- Project 10: Quantium Data Analytics Simulation -->
+            <!-- <div class="project-card">
+                <h2>Quantium Data Analytics Simulation</h2>
+                <ul>
+                    <li>Utilized transaction datasets to derive commercial insights.</li>
+                    <li>Conducted uplift testing for layout optimization in retail stores.</li>
+                    <li>Delivered evidence-based recommendations to improve outcomes.</li>
+                </ul>
+                <a href="#">View Project</a>
+            </div> -->
+
+            <!-- Project 11: PwC Power BI Simulation -->
+            <!-- <div class="project-card">
+                <h2>PwC Power BI Simulation</h2>
+                <ul>
+                    <li>Designed Power BI dashboards showcasing KPIs effectively.</li>
+                    <li>Analyzed HR data to address gender balance at executive levels.</li>
+                    <li>Strengthened communication with actionable data-driven insights.</li>
+                </ul>
+                <a href="#">View Project</a>
+            </div> -->
+
+            <!-- Project 12: AWS Architecture Design Simulation -->
+            <!-- <div class="project-card">
+                <h2>AWS Architecture Design Simulation</h2>
+                <ul>
+                    <li>Developed a scalable hosting architecture using Elastic Beanstalk.</li>
+                    <li>Simplified architecture for client understanding and cost analysis.</li>
+                    <li>Addressed performance issues for a growing client effectively.</li>
+                </ul>
+                <a href="#">View Project</a>
+            </div> -->
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    
+
+    <footer>
+        <p>&copy; 2025 Achhuta Nand Jha. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // You can add interactivity here if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Document is ready!');
+        });
+            window.watsonAssistantChatOptions = {
+              integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449", // The ID of this integration.
+              region: "au-syd", // The region your integration is hosted in.
+              serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb", // The ID of your service instance.
+              onLoad: async (instance) => { await instance.render(); }
+            };
+            setTimeout(function(){
+              const t=document.createElement('script');
+              t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+              document.head.appendChild(t);
+            });
+    </script>
+    <script>
+        function toggleMenu() {
+            const navUl = document.querySelector('nav ul');
+            navUl.classList.toggle('active');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navUl = document.querySelector('nav ul');
+            const hamburger = document.querySelector('.hamburger');
+            if (!event.target.closest('nav') && !event.target.closest('.hamburger')) {
+                navUl.classList.remove('active');
+            }
+        });
+    </script>
+    
+</body>
+</html>

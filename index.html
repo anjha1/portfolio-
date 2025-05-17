@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me - Achhuta Nand Jha</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #95b1b245;
+            color: #333;
+        }
+
+        header {
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 5rem;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .about-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            background-color: #fff;
+            max-width: 800px;
+            margin: 40px auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-section img {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border: 5px solid #333;
+        }
+
+        .about-section h2 {
+            font-size: 1.8rem;
+            margin: 20px 0 10px;
+        }
+
+        .about-section p {
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        .contact-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .contact-button:hover {
+            background-color: #b30000;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #000;
+            color: #fff;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        footer p {
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+                display: none;
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            nav ul li {
+                text-align: center;
+                padding: 10px;
+                background-color: #333;
+                border-radius: 5px;
+            }
+
+            .hamburger {
+                display: block;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                cursor: pointer;
+                color: white;
+                font-size: 1.5rem;
+            }
+
+            .about-section {
+                margin: 20px auto;
+                padding: 20px;
+                width: 90%;
+            }
+
+            footer {
+                position: relative;
+                margin-top: 40px;
+            }
+
+            .contact-button {
+                display: block;
+                margin: 10px auto;
+                text-align: center;
+                width: 80%;
+            }
+
+            img[src="a1.jpg"] {
+                width: 120px;
+                height: 120px;
+            }
+
+            /* Adjust hitwebcounter image */
+            .hitwebcounter img {
+                width: 100%;
+                height: auto;
+            }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .hamburger {
+                display: none;
+            }
+        }
+        
+    </style>
+    <meta name="google-adsense-account" content="ca-pub-6401601872924423">
+   <meta name="google-site-verification" content="OZg3Z_fhGyx8x2_WwYAvI0VNYr1vObwIowBJEiRDy2Y" />
+</head>
+<body>
+    <header>
+        <div class="hamburger" onclick="toggleMenu()">☰</div>
+        <h1>About Me</h1>
+        <nav>
+            <ul>
+                <li><a href="projects/">Projects</a></li>
+                <li><a href="experience/">Experience</a></li>
+                <li><a href="contact/">Contact</a></li>
+                <li><a href="certification/">Certification</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="about-section">
+        <img src="a1.jpg" alt="Achhuta Nand Jha">
+        <h2>Achhuta Nand Jha</h2>
+        <p>
+            Hello! I'm Achhuta Nand Jha, a diligent and enthusiastic B.Tech student majoring in Data Analytics at GLA University, hailing from Bihar, India. With a passion for coding and deriving insights from data, I've complemented my academic journey with certifications from reputable platforms like Google Skill Shop and GUVI Geek Networks.
+        </p>
+        <p>
+            My academic achievements include securing 72.4% in Intermediate from Marwari College and 67.4% in high school from C.K.N High School. Beyond academics, I am deeply passionate about Data Science, Data Analytics, Google technologies, Digital Marketing, and continuously honing my skills in Data Analytics.
+        </p>
+        <p>
+            When I'm not immersed in data or code, you can find me on the cricket field or engrossed in the pages of a captivating book. My ultimate goal is to secure a position in a respected company where I can contribute meaningfully and further my professional growth.
+        </p>
+        <p>
+        <a href="https://sites.google.com/view/achhuta-nand-jha/my-activity" class="contact-button">My Activity</a>
+        <a href="http://wa.me/918439131459" class="contact-button">WhatsApp Me</a>
+        <a href="https://anjha1.github.io/Anjha-3D-Resume/" target="_blank"  class="contact-button">My Resume</a>
+        </p>
+        <script>
+            function toggleMenu() {
+                const navUl = document.querySelector('nav ul');
+                navUl.classList.toggle('active');
+            }
+    
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const navUl = document.querySelector('nav ul');
+                const hamburger = document.querySelector('.hamburger');
+                if (!event.target.closest('nav') && !event.target.closest('.hamburger')) {
+                    navUl.classList.remove('active');
+                }
+            });
+        </script>
+        
+        <script>
+            window.watsonAssistantChatOptions = {
+              integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449", // The ID of this integration.
+              region: "au-syd", // The region your integration is hosted in.
+              serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb", // The ID of your service instance.
+              onLoad: async (instance) => { await instance.render(); }
+            };
+            setTimeout(function(){
+              const t=document.createElement('script');
+              t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+              document.head.appendChild(t);
+            });
+          </script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6401601872924423"
+     crossorigin="anonymous"></script>
+        <!-- hitwebcounter Code START -->
+                   
+    </section>
+    
+    <footer>
+        <p>&copy; 2025 Achhuta Nand Jha. All rights reserved.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="https://www.hitwebcounter.com" target="_blank">
+                <img src="https://hitwebcounter.com/counter/counter.php?page=19934730&style=0005&nbdigits=9&type=ip&initCount=1000" 
+                     title="Counter Widget" 
+                     alt="Visit counter For Websites" 
+                     border="0" />
+            </a>
+        
+    </p>
+    </footer>
+</body>
+</html>

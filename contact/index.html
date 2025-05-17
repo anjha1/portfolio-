@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Info</title>
+    <style>
+        /* Common Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #607272d8;
+            color: #333;
+        }
+
+        header {
+            background-color: #000000;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav {
+            background-color: #02008e;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .contact-item {
+            background-color: #404040;
+            color: #fff;
+            border: none;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact-item img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .contact-item a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .contact-item:hover {
+            background-color: #ce174bc8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 80px rgb(54, 23, 169);
+        }
+
+        .contact-item:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #000;
+            color: #fff;
+        }
+
+        /* Android-Specific Styles */
+        .android .contact-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .android .contact-item {
+            padding: 15px;
+            font-size: 16px;
+        }
+
+        .android .contact-item img {
+            width: 80px;
+            height: 80px;
+        }
+
+        .android .contact-item a {
+            font-size: 1rem;
+        }
+
+        .android header h1 {
+            font-size: 24px;
+        }
+
+        .android nav a {
+            font-size: 1rem;
+            margin: 0 10px;
+        }
+
+        /* Windows-Specific Styles */
+        .windows .contact-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .windows .contact-item {
+            padding: 25px;
+            font-size: 20px;
+        }
+
+        .windows .contact-item img {
+            width: 150px;
+            height: 150px;
+        }
+
+        .windows .contact-item a {
+            font-size: 1.2rem;
+        }
+
+        .windows header h1 {
+            font-size: 28px;
+        }
+
+        .windows nav a {
+            font-size: 1.2rem;
+            margin: 0 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Contact Info</h1>
+    </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="experience/index.html">Experience</a>
+        <a href="projects/index.html">Projects</a>
+        
+        <li><a href="certification/index.html">Certification</a></li>
+    </nav>
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-item">
+                <a href="https://www.linkedin.com/in/achhuta-nand-jha-2b10a5248/" target="_blank">
+                    <img src="linkedin.jpg" alt="LinkedIn">
+                    <span>LinkedIn</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://github.com/anjha1" target="_blank">
+                    <img src="github.png" alt="GitHub">
+                    <span>GitHub</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://leetcode.com/u/anjha1/" target="_blank">
+                    <img src="leetcode.jpg" alt="LeetCode">
+                    <span>LeetCode</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://platform.stratascratch.com/user/anjha1" target="_blank">
+                    <img src="strata.jpg" alt="StrataScratch">
+                    <span>StrataScratch</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://hyperskill.org/profile/612304328" target="_blank">
+                    <img src="hyperskill.jpg" alt="Hyperskill">
+                    <span>Hyperskill</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://codeforces.com/profile/anjha1" target="_blank">
+                    <img src="codeforces.jpg" alt="Codeforces">
+                    <span>Codeforces</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://www.codechef.com/users/anjha1" target="_blank">
+                    <img src="codechef.jpg" alt="CodeChef">
+                    <span>CodeChef</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://www.cloudskillsboost.google/public_profiles/99890850-3610-4c1b-9218-88d7e84a0b88" target="_blank">
+                    <img src="GCP.jpg" alt="Google Cloud Skills Boost">
+                    <span>Google Cloud Skills Boost</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://learn.microsoft.com/en-in/users/achhutanandjha-4800/" target="_blank">
+                    <img src="microsoft-learning.jpg" alt="Microsoft Learning">
+                    <span>Microsoft Learning</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://www.hackerrank.com" target="_blank">
+                    <img src="hackerrank.jpg" alt="HackerRank">
+                    <span>HackerRank</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://app.opengig.work/anjha1" target="_blank">
+                    <img src="opengig.jpg" alt="Open Gig">
+                    <span>Open Gig</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://medium.com/@achhutanandj" target="_blank">
+                    <img src="medium.jpg" alt="Medium">
+                    <span>Medium</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://stackoverflow.com/users/24956427/achhuta-nand-jha?tab=profile" target="_blank">
+                    <img src="stackoverflow.jpg" alt="Stack Overflow">
+                    <span>Stack Overflow</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://hashnode.com/@anjha1" target="_blank">
+                    <img src="hashnode.jpg" alt="Hashnode">
+                    <span>Hashnode</span>
+                </a>
+            </div>
+            <div class="contact-item">
+                <a href="https://www.youth4work.com/y/anjhaa" target="_blank">
+                    <img src="youth4work.jpg" alt="Youth4work">
+                    <span>Youth4work</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Detect the user's device
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isWindows = /Windows/i.test(navigator.userAgent);
+
+        // Add a class to the body based on the device
+        if (isAndroid) {
+            document.body.classList.add('android');
+        } else if (isWindows) {
+            document.body.classList.add('windows');
+        }
+    </script>
+     <script>
+        window.watsonAssistantChatOptions = {
+          integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449", // The ID of this integration.
+          region: "au-syd", // The region your integration is hosted in.
+          serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb", // The ID of your service instance.
+          onLoad: async (instance) => { await instance.render(); }
+        };
+        setTimeout(function(){
+          const t=document.createElement('script');
+          t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+          document.head.appendChild(t);
+        });
+      </script>
+    <footer>
+        <p>&copy; 2025 Achhuta Nand Jha. All rights reserved.</p>
+    </footer>
+</body>
+</html>
