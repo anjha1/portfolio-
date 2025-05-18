@@ -19,6 +19,7 @@
             color: #fff;
             padding: 20px 0;
             text-align: center;
+            position: relative;
         }
 
         /* Navigation Styles */
@@ -31,6 +32,7 @@
         nav ul {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         nav ul li {
@@ -118,90 +120,72 @@
             color: #fff;
         }
 
-        /* Project Card Styles */
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        /* Mobile Menu Styles */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 1.5rem;
+            z-index: 1000;
         }
 
-        .project-card {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 40px rgb(8, 254, 69);
-            flex: 1;
-            min-width: 300px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
 
-        .project-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 6px 12px rgba(255, 0, 0, 3);
-            border: 2px solid rgba(15, 25, 230, 3); 
-            border-radius: 8px; 
-        }
+            .hamburger {
+                display: block;
+            }
+            
 
-        .project-card h2 {
-            margin-top: 0;
-            color: #7105e4;
-        }
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background-color: #a29f9f;
+                z-index: 999;
+                flex-direction: column;
+                gap: 0;
+                padding: 10px 0;
+                flex-direction: column;
+                gap: 10px;
+                display: none;
+            }
 
-        .project-card p {
-            line-height: 1.6;
-        }
+            nav ul.active {
+                display: flex;
+            }
 
-        .project-card ul {
-            list-style-type: disc;
-            margin-left: 20px;
-        }
+            /* nav ul li {
+                display: block;
+                text-align: center;
+                padding: 10px;
+                margin: 0;
+            } */
 
-        .project-card ul li {
-            margin-bottom: 10px;
-        }
+            nav ul li a {
+                display: block;
+                padding: 10px;
+            }
+             
 
-        .project-card a {
-            display: inline-block;
-            margin-top: 5px;
-            padding: 10px 5px;
-            background-color: #333;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
+            nav ul.active {
+                display: flex;
+            }
 
-        .project-card a:hover {
-            background-color: #cd1010;
-        }
-
-        /* CTA Section Styles */
-        .cta-section {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: #333;
-            color: #fff;
-            margin: 20px;
-            border-radius: 10px;
-        }
-
-        .cta-section h2 {
-            margin-top: 0;
-        }
-
-        .cta-section a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #1197cd;
-            color: #333;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .cta-section a:hover {
-            background-color: #29a8cf;
+            nav ul li {
+                text-align: center;
+                padding: 10px;
+                background-color: #333;
+                border-radius: 5px;
+            }
         }
 
         /* Platform-Specific Styles */
@@ -262,51 +246,6 @@
             font-size: 1.2rem;
             margin: 0 20px;
         }
-
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2.5rem;
-            }
-
-            nav ul {
-                flex-direction: column;
-                gap: 10px;
-                display: none;
-            }
-
-            nav ul.active {
-                display: flex;
-            }
-
-            nav ul li {
-                text-align: center;
-                padding: 10px;
-                background-color: #333;
-                border-radius: 5px;
-            }
-
-            .hamburger {
-                display: block;
-                position: absolute;
-                top: 20px;
-                right: 20px;
-                cursor: pointer;
-                color: white;
-                font-size: 1.5rem;
-            }
-
-            footer {
-                position: relative;
-                margin-top: 40px;
-            }
-        }
-
-        @media (min-width: 769px) {
-            .hamburger {
-                display: none;
-            }
-        }
     </style>
 </head>
 <body>
@@ -314,7 +253,7 @@
         <div class="hamburger" onclick="toggleMenu()">☰</div>
         <h1>Contact Info</h1>
         <nav>
-            <ul>
+            <ul id="navMenu">
                 <li><a href="https://www.achhuta.info/">Home</a></li>
                 <li><a href="https://www.achhuta.info/experience/">Experience</a></li>
                 <li><a href="https://www.achhuta.info/contact/">Contact</a></li>
@@ -325,6 +264,7 @@
     
     <div class="container">
         <div class="contact-grid">
+            <!-- Contact items remain unchanged -->
             <div class="contact-item">
                 <a href="https://www.linkedin.com/in/achhuta-nand-jha-2b10a5248/" target="_blank">
                     <img src="linkedin.jpg" alt="LinkedIn">
@@ -419,6 +359,22 @@
     </div>
 
     <script>
+        // Toggle menu function
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('active');
+            
+            // Close menu when clicking on a link (for mobile)
+            const navLinks = navMenu.querySelectorAll('a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        navMenu.classList.remove('active');
+                    }
+                });
+            });
+        }
+
         // Detect the user's device
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isWindows = /Windows/i.test(navigator.userAgent);
