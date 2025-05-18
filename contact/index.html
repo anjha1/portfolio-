@@ -5,30 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Info</title>
     <style>
-        /* Common Styles */
+        /* Base Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #607272d8;
+            background-color: #e9cfb7ab;
             color: #333;
         }
 
         header {
-            background-color: #000000;
+            background-color: black;
             color: #fff;
             padding: 20px 0;
             text-align: center;
         }
 
-        header h1 {
-            margin: 0;
-        }
-
+        /* Navigation Styles */
         nav {
             background-color: #02008e;
             padding: 10px 0;
             text-align: center;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
         }
 
         nav a {
@@ -43,12 +50,14 @@
             text-decoration: underline;
         }
 
+        /* Container Styles */
         .container {
             max-width: 1200px;
             margin: 20px auto;
             padding: 10px;
         }
 
+        /* Contact Grid Styles */
         .contact-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -101,6 +110,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
+        /* Footer Styles */
         footer {
             text-align: center;
             padding: 15px;
@@ -108,7 +118,94 @@
             color: #fff;
         }
 
-        /* Android-Specific Styles */
+        /* Project Card Styles */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 40px rgb(8, 254, 69);
+            flex: 1;
+            min-width: 300px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 12px rgba(255, 0, 0, 3);
+            border: 2px solid rgba(15, 25, 230, 3); 
+            border-radius: 8px; 
+        }
+
+        .project-card h2 {
+            margin-top: 0;
+            color: #7105e4;
+        }
+
+        .project-card p {
+            line-height: 1.6;
+        }
+
+        .project-card ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+
+        .project-card ul li {
+            margin-bottom: 10px;
+        }
+
+        .project-card a {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 10px 5px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .project-card a:hover {
+            background-color: #cd1010;
+        }
+
+        /* CTA Section Styles */
+        .cta-section {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #333;
+            color: #fff;
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .cta-section h2 {
+            margin-top: 0;
+        }
+
+        .cta-section a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #1197cd;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .cta-section a:hover {
+            background-color: #29a8cf;
+        }
+
+        /* Platform-Specific Styles */
+        /* Android Styles */
         .android .contact-grid {
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 20px;
@@ -137,7 +234,7 @@
             margin: 0 10px;
         }
 
-        /* Windows-Specific Styles */
+        /* Windows Styles */
         .windows .contact-grid {
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 40px;
@@ -165,19 +262,67 @@
             font-size: 1.2rem;
             margin: 0 20px;
         }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+                display: none;
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            nav ul li {
+                text-align: center;
+                padding: 10px;
+                background-color: #333;
+                border-radius: 5px;
+            }
+
+            .hamburger {
+                display: block;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                cursor: pointer;
+                color: white;
+                font-size: 1.5rem;
+            }
+
+            footer {
+                position: relative;
+                margin-top: 40px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .hamburger {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
+        <div class="hamburger" onclick="toggleMenu()">☰</div>
         <h1>Contact Info</h1>
+        <nav>
+            <ul>
+                <li><a href="https://www.achhuta.info/">Home</a></li>
+                <li><a href="https://www.achhuta.info/experience/">Experience</a></li>
+                <li><a href="https://www.achhuta.info/contact/">Contact</a></li>
+                <li><a href="https://www.achhuta.info/certification/">Certification</a></li>
+            </ul>
+        </nav>
     </header>
-    <nav>
-        <a href="https://www.achhuta.info/">Home</a>
-        <a href="https://www.achhuta.info/experience/">Experience</a>
-        <a href="https://www.achhuta.info/projects/">Projects</a>
-        
-        <li><a href="https://www.achhuta.info/certification/">Certification</a></li>
-    </nav>
+    
     <div class="container">
         <div class="contact-grid">
             <div class="contact-item">
@@ -272,6 +417,7 @@
             </div>
         </div>
     </div>
+
     <script>
         // Detect the user's device
         const isAndroid = /Android/i.test(navigator.userAgent);
@@ -283,20 +429,22 @@
         } else if (isWindows) {
             document.body.classList.add('windows');
         }
-    </script>
-     <script>
+
+        // Watson Assistant Chat
         window.watsonAssistantChatOptions = {
-          integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449", // The ID of this integration.
-          region: "au-syd", // The region your integration is hosted in.
-          serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb", // The ID of your service instance.
-          onLoad: async (instance) => { await instance.render(); }
+            integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449",
+            region: "au-syd",
+            serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb",
+            onLoad: async (instance) => { await instance.render(); }
         };
+        
         setTimeout(function(){
-          const t=document.createElement('script');
-          t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
-          document.head.appendChild(t);
+            const t=document.createElement('script');
+            t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+            document.head.appendChild(t);
         });
-      </script>
+    </script>
+
     <footer>
         <p>&copy; 2025 Achhuta Nand Jha. All rights reserved.</p>
     </footer>
