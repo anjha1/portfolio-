@@ -86,6 +86,10 @@
             margin-top: 0;
             color: #7105e4;
         }
+        .project-card h3 {
+            margin-top: 0;
+            color: #7105e4;
+        }
 
         .project-card p {
             line-height: 1.6;
@@ -141,6 +145,15 @@
         .cta-section a:hover {
             background-color: #29a8cf;
         }
+        .project-image {
+            width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
         /* .scrolling-text {
             display: inline-block;
             white-space: nowrap;
@@ -249,12 +262,27 @@
        <h4 class="scrolling-text" style="text-align: center;color: rgb(106, 0, 0);">Please note: The website will take approximately 1 minute to load after clicking 'Show Project'. Kindly wait while the system initializes.</h4>
          <div class="project-grid">
         <div class="project-card">
-                <h2>Book Recommendation System</h2>
+            <h2>Diamond Price Prediction</h2>
+            <img src="images/diamond-price-prediction.jpg" alt="Diamond Prediction" class="project-image">
+            <ul>
+                <li>Predicts diamond price using regression and key features like carat, cut, and clarity.</li>
+                <li>Flask app with real-time prediction .</li>
+                <li>Trained on cleaned and preprocessed dataset with 93% accuracy.</li>
+            </ul>
+            <a href="https://diamondpriceprediction-egr9.onrender.com/" target="_blank">View Project</a>
+            <a href="https://github.com/anjha1/DiamondPricePrediction" target="_blank">GitHub</a>
+            <a href="https://github.com/anjha1/DiamondPricePrediction" target="_blank">Project Details</a>
+        </div>
+
+        <div class="project-card">
+                <h3>Book Recommendation System</h3>
+                <img src="images/BookRecommendationSystem.png" alt="Book Recommendation System" class="project-image">
                 <ul>
-                    <li>Implemented a hybrid Book Recommendation System using Collaborative Filtering (cosine similarity on user ratings) and Content-Based Filtering (TF-IDF on book metadata).</li>
-                    <li>Achieved over 92% accuracy in recommending relevant books based on user preferences.</li>
-                    <li>Deployed using Flask, with a clean UI to showcase top 50 books and personalized suggestions based on selected titles.</li>
+                    <li>Built a hybrid recommendation system using collaborative and content-based filtering.</li>
+                    <li>Achieved 92% accuracy in suggesting relevant books to users.</li>
+                    <li>Displays top 50 books and personalized suggestions in the UI.</li>
                 </ul>
+
                 <a href="https://book-recommendation-system-anjha.onrender.com" target="_blank">Show Project</a>
                 <a href="https://github.com/anjha1/Book-Recommendation-System" target="_blank">GitHub</a>
                 <a href="https://docs.google.com/presentation/d/1kHPt2pCdlIo2NrbOR7aCWPyRVy8jdndM/edit?usp=sharing&ouid=113285117088012313521&rtpof=true&sd=true" target="_blank">Project Details</a>
@@ -262,6 +290,7 @@
          <!-- Project 1: SMS Spam Detection App -->
             <div class="project-card">
                 <h2>SMS Spam Detection App</h2>
+                <img src="images/SMSSpamDetectionApp.png" alt="SMS Spam Detection App" class="project-image">
                 <ul>
                     <li>Real-time SMS classification using TF-IDF vectorization and supervised ML models.</li>
                     <li>Python-built app with Flask/Streamlit for an interactive interface.</li>
