@@ -194,6 +194,7 @@
                 <li><a href="experience/">Experience</a></li>
                 <li><a href="contact/">Contact</a></li>
                 <li><a href="certification/">Certification</a></li>
+                <li><a href="MasterQuiz/">MasterQuiz</a></li>
             </ul>
         </nav>
     </header>
@@ -215,13 +216,13 @@
         <a href="http://wa.me/918439131459" class="contact-button">WhatsApp Me</a>
         <a href="https://anjha1.github.io/Anjha-3D-Resume/" target="_blank"  class="contact-button">My Resume</a>
         </p>
+        
         <script>
             function toggleMenu() {
                 const navUl = document.querySelector('nav ul');
                 navUl.classList.toggle('active');
             }
-    
-            // Close menu when clicking outside
+
             document.addEventListener('click', function(event) {
                 const navUl = document.querySelector('nav ul');
                 const hamburger = document.querySelector('.hamburger');
@@ -230,30 +231,14 @@
                 }
             });
         </script>
-        
+
         <script>
-            window.watsonAssistantChatOptions = {
-              integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449", // The ID of this integration.
-              region: "au-syd", // The region your integration is hosted in.
-              serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb", // The ID of your service instance.
-              onLoad: async (instance) => { await instance.render(); }
-            };
-            setTimeout(function(){
-              const t=document.createElement('script');
-              t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
-              document.head.appendChild(t);
-            });
-          </script>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6401601872924423"
-     crossorigin="anonymous"></script>
-        <!-- hitwebcounter Code START -->
-                   
-    </section>
-    <script>
-  if (window.location.hostname === 'achhuta.info') {
-    window.location.href = 'https://www.achhuta.info';
-  }
-   <script type="application/ld+json">
+          if (window.location.hostname === 'achhuta.info') {
+            window.location.href = 'https://www.achhuta.info';
+          }
+        </script>
+
+        <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -309,9 +294,24 @@
 }
 </script>
 
+        <script>
+            window.watsonAssistantChatOptions = {
+              integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449",
+              region: "au-syd",
+              serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb",
+              onLoad: async (instance) => { await instance.render(); }
+            };
+            setTimeout(function(){
+              const t=document.createElement('script');
+              t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+              document.head.appendChild(t);
+            });
+        </script>
 
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6401601872924423"
+     crossorigin="anonymous"></script>
 
-
+    </section>
     
     <footer>
         <p>&copy; 2025 Achhuta Nand Jha. All rights reserved.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

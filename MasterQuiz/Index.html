@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Law & Security Quiz Master</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); shadow: md; }
+        .animate-pop { animation: pop 0.3s ease-out; }
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        /* Custom Scrollbar for PDF container */
+        .pdf-container iframe {
+            width: 100%;
+            height: 80vh;
+            border-radius: 0.75rem;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- DATA SECTION: All 200 Questions ---
+        
+        const modules = [
+            "I. Cyber Law, IT Act 2000, and Cyber Crime Introduction",
+            "II. Security Threats, Malware, and Hacking",
+            "III. Security Technologies and Networking",
+            "IV. Cryptography, Hashing, and Digital Signatures",
+            "V. Intellectual Property Rights (IPR)"
+        ];
+
+        const allQuestions = [
+            // --- SECTION I ---
+            {id: 1, m: 0, q: "What is the primary law in India governing cyber law and digital communication?", o: ["Indian Penal Code, 1860", "Indian Telegraph Act, 1885", "Information Technology Act, 2000", "Evidence Act, 1872"], a: 2},
+            {id: 2, m: 0, q: "When was the Information Technology Act, 2000, notified?", o: ["27th October 2000", "17th November 2000", "17th October 2000", "15th December 2000"], a: 2},
+            {id: 3, m: 0, q: "What was the first recorded law in India governing the field of technology, predating the IT Act 2000?", o: ["The Indian Contract Act, 1872", "The Indian Telegraph Act, 1885", "The Indian Evidence Act, 1872", "The IT (Amendment) Act, 2008"], a: 1},
+            {id: 4, m: 0, q: "Which international model law formed the basis of the Information Technology Act, 2000?", o: ["WIPO Copyright Treaty", "UNCITRAL Model Law on Electronic Commerce 1996", "Berne Convention", "Convention on Cybercrime (Budapest Convention)"], a: 1},
+            {id: 5, m: 0, q: "What is the definition of 'Cyber Law'?", o: ["Law related only to hardware specifications", "Laws that govern crimes and legal issues involving computers, the internet, and networks", "Laws exclusively dealing with Intellectual Property Rights", "Laws concerning only financial fraud"], a: 1},
+            {id: 6, m: 0, q: "Which type of crime takes place in the physical world and often involves direct harm to people or property?", o: ["Cyber Crime", "Unconventional Cyber Crime", "Conventional Crime", "White-Collar Crime (only)"], a: 2},
+            {id: 7, m: 0, q: "Which feature distinguishes Cyber Crime from Conventional Crime regarding the location where the crime happens?", o: ["Cyber Crime involves direct physical harm.", "Cyber Crime happens only in the physical world.", "Cyber Crime happens online (internet).", "Conventional Crime is committed only by hackers."], a: 2},
+            {id: 8, m: 0, q: "Which of the following is considered an example of an 'Unconventional Cyber Crime'?", o: ["Theft", "Robbery", "Deepfake Manipulation", "Phishing"], a: 2},
+            {id: 9, m: 0, q: "What is one major challenge associated with the investigation of cyber crime?", o: ["The availability of too many physical witnesses.", "The high rate of case registration by victims.", "The anonymity of those who commit cyber crime.", "The simplicity of the crime committed."], a: 2},
+            {id: 10, m: 0, q: "What is the primary purpose of Section 4 of the IT Act, 2000?", o: ["To punish cyber terrorism", "To provide legal recognition to electronic records", "To define computer resource", "To appoint the Controller of Certifying Authorities"], a: 1},
+            {id: 11, m: 0, q: "Which section of the IT Act, 2000, provides for legal recognition of electronic signatures?", o: ["Section 4", "Section 5", "Section 66", "Section 43"], a: 1},
+            {id: 12, m: 0, q: "Section 66 of the IT Act, 2000, penalizes unauthorized access (contravention of Section 43) if carried out with what motive?", o: ["Honest motive", "Altruistic motive", "Fraudulent or dishonest motive", "Accidental motive"], a: 2},
+            {id: 13, m: 0, q: "What is the punishment prescribed under Section 66 of the IT Act for hacking/illegal access with fraudulent intent?", o: ["Imprisonment up to 2 years or fine up to Rs 1 Lac", "Imprisonment up to 5 years and fine up to Rs 10 Lacs", "Imprisonment up to 3 years or fine up to Rs 5 Lacs or both", "Life imprisonment"], a: 2},
+            {id: 14, m: 0, q: "What offense is punishable under Section 65 of the IT Act?", o: ["Hacking a system", "Tampering with Computer Source documents", "Publishing obscene material", "Identity Theft"], a: 1},
+            {id: 15, m: 0, q: "What is the maximum fine associated with the punishment for Tampering with Computer Source documents (Section 65)?", o: ["Rs 5 Lacs", "Rs 2 Lacs", "Rs 10 Lacs", "Rs 1 Lac"], a: 1},
+            {id: 16, m: 0, q: "Section 66C of the IT Act, 2000, specifically punishes which offense?", o: ["Cyber Terrorism", "Publishing obscene material", "Identity Theft (using someone else's DSC or passwords)", "Violation of privacy rights"], a: 2},
+            {id: 17, m: 0, q: "What is the penalty for Fraud or dishonesty using computer resources or identity theft (Section 66 B, C, D)?", o: ["Imprisonment up to 5 years or fine up to Rs. 10,00,000", "Life imprisonment", "Imprisonment up to 3 years or Rs. 1,00,000 fine or both", "Imprisonment up to 7 years"], a: 2},
+            {id: 18, m: 0, q: "Which section of the IT Act deals with the punishment for 'Cheating by impersonation' by means of a Computer resource?", o: ["Section 66C", "Section 66D", "Section 66E", "Section 67"], a: 1},
+            {id: 19, m: 0, q: "What offense is addressed by Section 66F of the IT Act, 2000, and what is the punishment?", o: ["Identity Theft; Imprisonment up to 3 years", "Cyber Terrorism; Life imprisonment", "Publishing obscene material; Fine up to Rs 10 Lacs", "Violation of privacy rights; Imprisonment up to 2 years"], a: 1},
+            {id: 20, m: 0, q: "Section 67 of the IT Act punishes:", o: ["Hacking a Computer System", "Publication of Signature certificates for fraudulent purposes", "Publishing obscene information or pornography in electronic form", "Failure to protect sensitive personal data"], a: 2},
+            {id: 21, m: 0, q: "What is the penalty for a first conviction under Section 67 (publishing obscene information)?", o: ["Imprisonment up to 3 years or fine of Rs. 5,00,000", "Imprisonment up to 5 years or fine of Rs. 10,00,000 or both", "Imprisonment up to 7 years and fine of Rs. 10,00,000", "Only a fine of Rs. 2,00,000"], a: 1},
+            {id: 22, m: 0, q: "Which section covers the punishment for publishing or transmitting material depicting children in sexually explicit acts in electronic form?", o: ["Section 67", "Section 67A", "Section 67B", "Section 67C"], a: 2},
+            {id: 23, m: 0, q: "Section 69 of the IT Act grants the Government the power to:", o: ["Appoint the Certifying Authority", "Regulate software licenses", "Intercept, monitor, or decrypt digital data for national security", "Confiscate all computer resources used in any violation"], a: 2},
+            {id: 24, m: 0, q: "The power to block public access to any information through any computer resource is granted under which section?", o: ["Section 69", "Section 69A", "Section 71", "Section 74"], a: 1},
+            {id: 25, m: 0, q: "Section 72 of the IT Act prescribes a penalty for:", o: ["Tampering with computer source documents", "Breach of Confidentiality & privacy by a person empowered under the Act with access to the database", "Non-compliance with the Controller's orders", "Publication of digital signatures for fraudulent purposes"], a: 1},
+            {id: 26, m: 0, q: "Section 72A (added by amendment) penalizes the disclosure of information in breach of a lawful contract. What is the penalty?", o: ["Imprisonment up to 2 years or fine up to Rs. 1 Lac or both", "Imprisonment up to 3 years or fine up to Rs. 5 Lac or both", "Life imprisonment", "Only Rs. 2 Lacs fine"], a: 1},
+            {id: 27, m: 0, q: "Which section provides for the confiscation of any related computer accessory or system part if it is believed to be used in any violation of the IT Act?", o: ["Section 74", "Section 76", "Section 77B", "Section 78"], a: 1},
+            {id: 28, m: 0, q: "Which section provides an exemption to Intermediaries and service providers if they establish that they have exercised due diligence?", o: ["Section 71", "Section 74", "Section 78", "Section 79"], a: 3},
+            {id: 29, m: 0, q: "After the 2008 amendment, what rank of officer now has the power to investigate offenses under the IT Act, replacing the DSP rank requirement?", o: ["Inspector", "Constable", "Sub-Inspector", "Judicial Magistrate"], a: 0},
+            {id: 30, m: 0, q: "What is the maximum punishment for attempting a cyber crime (Section 84C)?", o: ["The same punishment as prescribed for the offence", "A maximum of one-half of the term of imprisonment provided for the offence", "Only a fine up to Rs 5 Lacs", "Life imprisonment"], a: 1},
+            {id: 31, m: 0, q: "Which section of the Indian Evidence Act, 1872, is most important regarding the recognition of electronic evidence?", o: ["Section 45", "Section 65", "Section 65B", "Section 79A"], a: 2},
+            {id: 32, m: 0, q: "What critical requirement does Section 65B(4) of the Evidence Act mandate for the admissibility of digital evidence?", o: ["The court must accept the evidence automatically.", "A certificate is required from the examiner of digital evidence.", "Only NIST (USA) approved software must be used.", "The evidence must be in hard copy format."], a: 1},
+            {id: 33, m: 0, q: "Bogus websites and cyber frauds are typically dealt with under which section of the Indian Penal Code (IPC)?", o: ["Sec 503 IPC", "Sec 499, 500 IPC", "Sec 463, 470, 471 IPC", "Sec 420 IPC"], a: 3},
+            {id: 34, m: 0, q: "Which IPC section applies to 'Sending threatening messages by email'?", o: ["Sec 420 IPC", "Sec 503 IPC", "Sec 416 IPC", "Sec 383 IPC"], a: 1},
+            {id: 35, m: 0, q: "The definition of 'computer resource' includes which of the following items?", o: ["Computer network", "Computer system", "Data and software", "All of the above"], a: 3},
+            {id: 36, m: 0, q: "According to the cardinal philosophy of Cyber disputes, computers are recognized as both:", o: ["Victims and Service Providers", "Weapons and Victims", "Attackers and Defenders", "Administrative Tools and Civil Resources"], a: 1},
+            {id: 37, m: 0, q: "What is the consequence of violating Section 43 (unauthorized access, virus attacks) without fraudulent intent?", o: ["It is a penal offense under Section 66.", "It makes the violator liable for compensation for damages.", "It results in life imprisonment.", "It is exempt from legal action."], a: 1},
+            {id: 38, m: 0, q: "What is the fine and/or imprisonment for using software without a license (Software Piracy) under the Copyright Act, 1957?", o: ["Fine up to ₹5,00,000 and imprisonment up to 5 years", "Fine up to ₹2,00,000 and/or imprisonment up to 3 years", "Fine up to ₹10,00,000 and imprisonment up to 7 years", "No penalty is prescribed"], a: 1},
+            {id: 39, m: 0, q: "What does Section 43A of the IT Act address?", o: ["Cyber terrorism", "Failure of a corporate body dealing with sensitive information to implement reasonable security practices", "Tampering with computer source code", "Publication of obscene material"], a: 1},
+            {id: 40, m: 0, q: "What legal validity does the IT Act, 2000, grant to electronic transactions?", o: ["Legal recognition", "Tax exemption", "Mandatory use", "International standardization only"], a: 0},
+            {id: 41, m: 0, q: "What does the term 'cybercrime' primarily involve?", o: ["Only physical theft", "Offenses that involve the use of computers, the internet, or digital devices", "Only crimes committed by governments", "Only white-collar crimes"], a: 1},
+            {id: 42, m: 0, q: "What type of security concern surrounds cybercrime when sensitive information like military deployments or internal government communications is intercepted?", o: ["Financial loss only", "Privacy concerns", "Hardware failure", "Software updates"], a: 1},
+            {id: 43, m: 0, q: "What term is used for cybercrimes crossing international borders and involving actions of at least one nation-state?", o: ["Cyber Extortion", "Cyber Warfare", "Internet Fraud", "Cyber Stalking"], a: 1},
+            {id: 44, m: 0, q: "Cyberbullying is defined as the act of intimidating, harassment, or defaming someone through what means?", o: ["Physical assault", "Use of electronic means or modes such as social media", "Traditional mail", "Oral communication only"], a: 1},
+            {id: 45, m: 0, q: "What is the primary method cyber criminals use to trick people, according to the sources?", o: ["Sending fake emails pretending to be from banks or companies", "Physically confronting victims", "Using complex mathematical models", "Only targeting well-educated people"], a: 0},
+            {id: 46, m: 0, q: "Which type of crime involves new and advanced technologies such as AI, deepfake, and dark web activities?", o: ["Conventional Crimes", "Cyber Extortion", "Unconventional Cyber Crimes", "Property Crimes"], a: 2},
+            {id: 47, m: 0, q: "Cyber Extortion typically occurs when hackers demand money in return for assurance to stop what type of attack?", o: ["Phishing attacks", "Denial of Service (DoS) or other attacks", "Conventional theft", "Identity theft"], a: 1},
+            {id: 48, m: 0, q: "Under the IT Act, 2008 Amendment, Section 66A, which is now struck down, gave authorities the power to arrest anyone accused of posting content on social media that could be deemed:", o: ["Highly intellectual", "‘Offensive’ or having ‘menacing character’", "Non-compliant with formatting rules", "Exclusively true"], a: 1},
+            {id: 49, m: 0, q: "What is the penalty for Violation of privacy by transmitting an image of a private area (Section 66 E)?", o: ["Imprisonment up to 2 years or fine up to Rs. 1,00,000", "Life imprisonment", "Imprisonment up to 3 years or Rs. 2,00,000 fine or both", "Only a fine of Rs. 50,000"], a: 2},
+            {id: 50, m: 0, q: "Which of the following is NOT one of the three core objectives of the cybersecurity course curriculum?", o: ["Acquire knowledge about the legal framework in context of cyber crime in India", "Acquire knowledge about the various organizations dealing with the cyber law", "Acquire detailed know-how about the security breaches that may be exploited", "Become a certified ethical hacker"], a: 3},
+            
+            // --- SECTION II ---
+            {id: 51, m: 1, q: "What does the 'CIA' in the CIA Triad stand for?", o: ["Cyber, Internet, Authority", "Confidentiality, Integrity, Availability", "Certification, Inspection, Assessment", "Central Intelligence Agency"], a: 1},
+            {id: 52, m: 1, q: "In cybersecurity, what is defined as something that poses risk to an asset we care about protecting?", o: ["Vulnerability", "Threat", "Exploit", "Risk"], a: 1},
+            {id: 53, m: 1, q: "How is 'Risk' defined in cybersecurity, according to the sources?", o: ["The system downtime", "The flaw allowing harm to occur", "The probability that a negative event will occur, multiplied by the impact if it happens", "The malicious action taken by a human actor"], a: 2},
+            {id: 54, m: 1, q: "What is a 'Vulnerability'?", o: ["A person or group of people embodying a threat", "A flaw that allows a threat to cause harm", "A procedure for abusing a specific system", "The primary goal of a hacker"], a: 1},
+            {id: 55, m: 1, q: "What term is used to describe a procedure for abusing a particular vulnerability?", o: ["Threat Actor", "Attack Vector", "Exploit (noun)", "Social Engineering"], a: 2},
+            {id: 56, m: 1, q: "What is the difference between an Attack Surface and an Attack Vector?", o: ["Attack Surface is the flaw; Attack Vector is the exploit.", "Attack Surface describes all vulnerable points; Attack Vector is a specific vulnerability and exploitation combination.", "Attack Surface is always physical; Attack Vector is digital.", "They are the same."], a: 1},
+            {id: 57, m: 1, q: "Malware that attaches itself to a legitimate program and spreads when that program is executed is called a:", o: ["Worm", "Trojan", "Virus", "Rootkit"], a: 2},
+            {id: 58, m: 1, q: "Which type of malware is self-replicating and spreads across networks without user interaction?", o: ["Virus", "Worm", "Trojan Horse", "Keylogger"], a: 1},
+            {id: 59, m: 1, q: "What is a Trojan Horse?", o: ["A self-replicating malware", "Malware disguised as legitimate software to deceive the victim into executing it", "Software that records keystrokes", "A piece of code that destroys evidence"], a: 1},
+            {id: 60, m: 1, q: "Which specific type of bomb is triggered under specific conditions, according to the sources?", o: ["Event bomb", "Time bomb", "Logic bomb", "All of the above (Bombs)"], a: 3},
+            {id: 61, m: 1, q: "What is a Trapdoor (or Backdoor)?", o: ["Malware that encrypts data for ransom", "A secret entry point for unauthorized access", "A type of network firewall", "An email authentication protocol"], a: 1},
+            {id: 62, m: 1, q: "What type of attack involves hackers impersonating trusted entities to steal data?", o: ["Trojan", "Trapdoor", "Spoofing", "Ransomware"], a: 2},
+            {id: 63, m: 1, q: "What malicious activity is typically disguised in a Trojan Horse payload, often allowing unauthorized access to affected devices?", o: ["A backdoor", "A firewall", "An antivirus program", "A secure payment gateway"], a: 0},
+            {id: 64, m: 1, q: "Malware that encrypts a user's data and demands payment (usually in cryptocurrency) for its release is known as:", o: ["Spyware", "Ransomware", "Adware", "Rootkit"], a: 1},
+            {id: 65, m: 1, q: "What is the primary purpose of Spyware?", o: ["Displaying advertisements", "Monitoring user activities without their knowledge to capture sensitive information", "Encrypting system files", "Overloading a network"], a: 1},
+            {id: 66, m: 1, q: "What is Adware sometimes referred to, because it does not usually harm the system but collects data without consent?", o: ["Blackware", "Freeware", "Grayware", "Shareware"], a: 2},
+            {id: 67, m: 1, q: "What is a Rootkit?", o: ["Software that only deletes logs", "A set of malicious software tools that give attackers privileged access to the victim system", "A type of security audit", "An anomaly detection system"], a: 1},
+            {id: 68, m: 1, q: "What sensitive information does a Keylogger record?", o: ["IP addresses of remote servers", "Network traffic volume", "Keystrokes on a device (e.g., passwords, PIN codes)", "Antivirus updates"], a: 2},
+            {id: 69, m: 1, q: "What is a Botnet?", o: ["A single, highly secure firewall", "A network of infected devices (zombies) orchestrated by a C&C server", "A type of proprietary license", "An intrusion detection system"], a: 1},
+            {id: 70, m: 1, q: "An infected device in a Botnet is often referred to as a:", o: ["Attacker", "Victim", "Zombie", "Keylogger"], a: 2},
+            {id: 71, m: 1, q: "What are Man-in-the-Middle (MITM) attacks?", o: ["Attacks involving only network hardware", "Hackers intercepting communication between two parties", "Attacks focused solely on email attachments", "The use of strong encryption"], a: 1},
+            {id: 72, m: 1, q: "What is a Denial-of-Service (DoS) attack?", o: ["Stealing credit card information", "Overloading a system, service, or network to disrupt its availability", "Using a digital signature for fraud", "Installing a rootkit"], a: 1},
+            {id: 73, m: 1, q: "Which phrase describes Advanced Persistent Threats (APTs)?", o: ["Quick, randomized attacks", "Attacks targeting common users", "Long-term targeted attacks where adversaries remain undetected for an extended period", "Attacks focusing only on physical harm"], a: 2},
+            {id: 74, m: 1, q: "What is a Zero-Day Exploit?", o: ["An attack that targets disclosed vulnerabilities after a patch is released", "An attack targeting undisclosed vulnerabilities before the vendor releases a patch", "A vulnerability that has existed for over a year", "A type of conventional crime"], a: 1},
+            {id: 75, m: 1, q: "What is Phishing?", o: ["A self-replicating virus", "Deceptive attempts to obtain sensitive information by posing as a trustworthy entity in electronic communication", "Locking data for ransom", "Unauthorized access to computer systems"], a: 1},
+            {id: 76, m: 1, q: "If a telephone is used as a medium for identity theft (voice phishing), it is specifically known as:", o: ["Phishing", "Smishing", "Vishing", "Spoofing"], a: 2},
+            {id: 77, m: 1, q: "Which phase of the Hacking Lifecycle involves hackers gathering information about the target, such as identifying potential vulnerabilities?", o: ["Scanning", "Gaining Access", "Reconnaissance", "Covering Tracks"], a: 2},
+            {id: 78, m: 1, q: "In which hacking phase do attackers install backdoors or rootkits to ensure continued access?", o: ["Scanning", "Maintaining Access", "Gaining Access", "Reconnaissance"], a: 1},
+            {id: 79, m: 1, q: "What is the intent of a Black Hat Hacker?", o: ["To identify and fix vulnerabilities legally", "To operate within the boundaries of the law", "Malicious and illegal intent, often for personal gain or to cause harm", "To disclose security flaws without expecting reward"], a: 2},
+            {id: 80, m: 1, q: "Which threat actor may perform hacking activities without explicit authorization but sometimes discloses vulnerabilities to affected parties without malicious intent?", o: ["White Hat Hacker", "Black Hat Hacker", "Threat Actor", "Grey Hat Hacker"], a: 3},
+
+            // --- SECTION III ---
+            {id: 81, m: 2, q: "What is the primary function of a Firewall?", o: ["Encrypting data at rest", "Monitoring and controlling incoming and outgoing network traffic based on security rules", "Providing physical security", "Identifying unknown viruses through heuristic scanning"], a: 1},
+            {id: 82, m: 2, q: "Which type of firewall protects an entire network?", o: ["Host-based Firewall", "Network Firewall", "Application Layer Firewall", "Cloud Firewall"], a: 1},
+            {id: 83, m: 2, q: "Which mechanism used by firewalls analyzes the content of data packets, not just the header information, making it effective against advanced threats?", o: ["Packet Filtering", "Deep Packet Inspection (DPI)", "Proxy Filtering", "Stateful Inspection"], a: 1},
+            {id: 84, m: 2, q: "What does a VPN (Virtual Private Network) primarily use to ensure privacy and security over the internet?", o: ["Social engineering", "Encryption", "Denial of Service attacks", "Physical destruction"], a: 1},
+            {id: 85, m: 2, q: "Which of the following is NOT one of the three protocols used to create VPNs mentioned in the sources?", o: ["L2TP (Layer 2 Tunneling Protocol)", "IPsec (Internet Protocol Security)", "FTP (File Transfer Protocol)", "PPTP (Point-to-Point Tunneling Protocol)"], a: 2},
+            {id: 86, m: 2, q: "IPsec's Tunnel mode differs from Transport mode because Tunnel mode encrypts:", o: ["Only the payload", "Only the IP headers", "Both data (payload) and IP headers", "Only the digital signature"], a: 2},
+            {id: 87, m: 2, q: "What is the primary role of an Intrusion Detection System (IDS)?", o: ["Automatically blocking threats", "Encrypting all network traffic", "Monitoring network traffic to detect malicious or suspicious behavior", "Assigning IP addresses"], a: 2},
+            {id: 88, m: 2, q: "What is the difference in functionality between an IDS (Intrusion Detection System) and an IPS (Intrusion Prevention System)?", o: ["IDS detects; IPS automatically blocks threats.", "IDS monitors hosts; IPS monitors networks.", "IDS uses signatures; IPS uses anomalies.", "IDS is hardware; IPS is software."], a: 0},
+            {id: 89, m: 2, q: "Which type of IDS monitors activities such as log files and file integrity on individual devices (hosts)?", o: ["NIDS", "HIDS", "Hybrid IDS", "Signature-Based IDS"], a: 1},
+            {id: 90, m: 2, q: "Which IDS detection method relies on establishing a baseline of normal behavior and alerting on deviations?", o: ["Signature-Based Detection", "Behavioral-Based Detection", "Anomaly-Based Detection", "Deep Packet Inspection"], a: 2},
+            {id: 91, m: 2, q: "What does Access Control ensure?", o: ["That all packets are encrypted", "That only authorized users can access systems and data", "That viruses are destroyed", "That data integrity is maintained through hashing"], a: 1},
+            {id: 92, m: 2, q: "Which type of Access Control allows users to access data based on their designated job duties?", o: ["Mandatory Access Control (MAC)", "Discretionary Access Control (DAC)", "Role-Based Access Control (RBAC)", "Biometric Authentication"], a: 2},
+            {id: 93, m: 2, q: "The principle of Least Privilege ensures that authenticated users have:", o: ["The highest level of access possible", "The least amount of privilege necessary to perform a job function", "Access only to encrypted files", "Control over system administrators"], a: 1},
+            {id: 94, m: 2, q: "What is the difference between Authentication and Authorization?", o: ["Authentication verifies identity; Authorization grants/denies access rights.", "Authentication is required only for software; Authorization is for hardware.", "They are the same process.", "Authorization uses passwords; Authentication uses roles."], a: 0},
+            {id: 95, m: 2, q: "Which factor of Multi-Factor Authentication (MFA) relies on something inherent to the user's physiology (e.g., fingerprints)?", o: ["Knowledge Factor", "Possession Factor", "Biometric Factor", "Session Factor"], a: 2},
+            {id: 96, m: 2, q: "Which type of backup saves only the files that have changed since the last full backup?", o: ["Full Backup", "Incremental Backup", "Differential Backup", "Archival Storage"], a: 2},
+            {id: 97, m: 2, q: "What is the '3-2-1 Backup Rule'?", o: ["3 backups, 2 media types, 1 year retention", "3 copies, 2 media types, 1 offsite copy", "3 incremental, 2 differential, 1 full", "3 users, 2 factors, 1 password"], a: 1},
+            {id: 98, m: 2, q: "Which data disposal technique removes data using a magnetic field?", o: ["Data Wiping", "Shredding", "Degaussing", "Physical Destruction"], a: 2},
+            {id: 99, m: 2, q: "What is the term for long-term preservation of important historical data?", o: ["Data Wiping", "Full Backup", "Archival Storage", "Data Destruction"], a: 2},
+            {id: 100, m: 2, q: "The primary way a virus scanner works is by comparing files against a list of:", o: ["Known system configurations", "Known virus profiles/definitions", "Network usage metrics", "User login credentials"], a: 1},
+            {id: 101, m: 2, q: "What is a 'false positive' in virus scanning?", o: ["A legitimate program is mistakenly identified as a virus.", "A virus is falsely believed to be a legitimate program.", "The scanner fails to update its definitions.", "A system crash occurs during scanning."], a: 0},
+            {id: 102, m: 2, q: "The Sandbox approach to virus scanning involves running a download or attachment in:", o: ["The main operating system kernel", "A separate area isolated from the operating system", "The network firewall logs", "The cloud archival storage"], a: 1},
+            {id: 103, m: 2, q: "What is the purpose of a Honey Pot?", o: ["To implement strict access control", "To distract attackers away from valuable data and allow tracking", "To automatically block all network traffic", "To provide a secure VPN connection"], a: 1},
+            {id: 104, m: 2, q: "What is the primary purpose of HTTPS in Internet Security?", o: ["To accelerate network speed", "To enforce role-based access control", "To secure web browsing with SSL/TLS encryption", "To filter traffic based on MAC addresses"], a: 2},
+            {id: 105, m: 2, q: "The OSI model layer responsible for logical addressing and routing is the:", o: ["Data Link Layer", "Transport Layer", "Application Layer", "Network Layer"], a: 3},
+            {id: 106, m: 2, q: "Which layer of the five-layer Internet Protocol Stack is responsible for communication between NICs and detects transmission errors?", o: ["Network Layer", "Transport Layer", "Data Link Layer", "Physical Layer"], a: 2},
+            {id: 107, m: 2, q: "What function do port numbers serve in the Internet Protocol Stack?", o: ["They identify the physical location of the device.", "They allow multiple processes on a computer to communicate with the internet simultaneously.", "They encrypt the packet headers.", "They determine the MAC address."], a: 1},
+            {id: 108, m: 2, q: "Which protocol operates at the Transport Layer and provides a guarantee that packets have reached their destination?", o: ["UDP (User Datagram Protocol)", "IP (Internet Protocol)", "TCP (Transmission Control Protocol)", "ICMP (Internet Control Message Protocol)"], a: 2},
+            {id: 109, m: 2, q: "What is the purpose of ARP (Address Resolution Protocol)?", o: ["Translate IP addresses to MAC addresses", "Encrypt data during transmission", "Translate domain names to IP addresses", "Control access to network resources"], a: 0},
+            {id: 110, m: 2, q: "What information does a subnet mask identify?", o: ["The physical location of the device", "The network portion of an IP address", "The application layer protocol", "The MAC address"], a: 1},
+            {id: 111, m: 2, q: "Which protocol is used for sending and receiving emails?", o: ["FTP", "HTTP", "SMTP (Simple Mail Transfer Protocol)", "DNS"], a: 2},
+            {id: 112, m: 2, q: "What does DNS (Domain Name System) translate?", o: ["IP addresses to MAC addresses", "Domain names to IP addresses", "Encrypted data to plaintext", "Port numbers to protocols"], a: 1},
+            {id: 113, m: 2, q: "What is the role of DHCP (Dynamic Host Configuration Protocol)?", o: ["To secure communication between devices", "To control network resources", "To assign dynamic IP addresses to devices on a network", "To translate IP addresses to MAC addresses"], a: 2},
+            {id: 114, m: 2, q: "Which device operates at the Data Link Layer and filters traffic based on MAC addresses?", o: ["Router", "Hub", "Switch", "Repeater"], a: 2},
+            {id: 115, m: 2, q: "In the context of e-commerce security, what prevention measure is recommended against threats to electronic payment systems?", o: ["Use strong antivirus only", "Secure payment gateways and SSL encryption", "Degaussing all hard drives", "Using proprietary licenses"], a: 1},
+            {id: 116, m: 2, q: "For mobile devices, what security measure is recommended to protect against fake apps and phishing?", o: ["Download from official stores and enable Two-Factor Authentication (2FA)", "Disable all network connectivity", "Only use Magnetic Tape Storage", "Use the same password for all accounts"], a: 0},
+            {id: 117, m: 2, q: "Why should financial or corporate transactions be avoided on public Wi-Fi?", o: ["They are too fast.", "They are vulnerable.", "They require specific browser updates.", "They are not covered by the IT Act."], a: 1},
+            {id: 118, m: 2, q: "Which protocol is known for delivering data packets in a best-effort manner without guaranteeing delivery?", o: ["TCP", "IP", "UDP", "SMTP"], a: 2},
+            {id: 119, m: 2, q: "Which cybersecurity concept involves isolating different parts of a network to contain potential security incidents?", o: ["Least Privilege", "Network Segmentation", "Multi-Factor Authentication", "Patch Management"], a: 1},
+            {id: 120, m: 2, q: "The five-layer Internet Protocol Stack achieves independence between layers through a process called:", o: ["Encryption", "Decryption", "Encapsulation", "Authentication"], a: 2},
+
+            // --- SECTION IV ---
+            {id: 121, m: 3, q: "What is the primary purpose of Cryptography?", o: ["Compression of data", "Ensuring data integrity", "Securing communication by converting data into a secret code (ciphertext)", "Increasing data transfer speed"], a: 2},
+            {id: 122, m: 3, q: "Symmetric encryption uses how many keys for both encryption and decryption?", o: ["One key (the same key)", "Two keys (public and private)", "Three keys (for Triple DES)", "Four keys"], a: 0},
+            {id: 123, m: 3, q: "What is the main advantage of symmetric cryptography?", o: ["Key distribution is simple", "It provides digital signatures", "It is highly efficient and fast", "It uses a pair of keys"], a: 2},
+            {id: 124, m: 3, q: "Which of these is a common symmetric key algorithm?", o: ["RSA", "DSA", "AES", "ECC"], a: 2},
+            {id: 125, m: 3, q: "In public-key (asymmetric) cryptography, which key is shared openly?", o: ["Private key", "Session key", "Public key", "Master key"], a: 2},
+            {id: 126, m: 3, q: "In asymmetric encryption, if someone wants to send an encrypted message to a recipient, which key do they use to encrypt the message?", o: ["The sender's private key", "The recipient's public key", "The recipient's private key", "A shared symmetric key"], a: 1},
+            {id: 127, m: 3, q: "Which of the following is an advantage of asymmetric cryptography over symmetric cryptography?", o: ["Faster encryption speed", "Key distribution is easier, as only public keys need to be shared openly", "Lower computational intensity", "It is only used for data confidentiality"], a: 1},
+            {id: 128, m: 3, q: "What is a cryptographic digest (hash function) primarily used to verify?", o: ["Data encryption", "Data confidentiality", "Data integrity", "Data transfer speed"], a: 2},
+            {id: 129, m: 3, q: "Which common cryptographic hash function is considered insecure for security-critical applications due to vulnerabilities?", o: ["SHA-3", "SHA-256", "MD5", "HMAC"], a: 2},
+            {id: 130, m: 3, q: "The process of creating a hash of a document and encrypting it with the sender's private key is fundamental to creating a:", o: ["Public key", "Digital signature", "Cryptographic nonce", "Session key"], a: 1},
+            {id: 131, m: 3, q: "Which security benefit does a digital signature provide, preventing the sender from later denying their involvement in creating the message?", o: ["Confidentiality", "Availability", "Non-repudiation", "Least Privilege"], a: 2},
+            {id: 132, m: 3, q: "What is the purpose of a Nonce in cryptographic protocols?", o: ["Ensuring data integrity", "Preventing replay attacks", "Encrypting data", "Generating random passwords"], a: 1},
+            {id: 133, m: 3, q: "What type of attack involves trying all possible combinations of a key until the correct one is found?", o: ["Dictionary attack", "Spoofing attack", "Brute-force attack", "Man-in-the-middle attack"], a: 2},
+            {id: 134, m: 3, q: "Why are symmetric and asymmetric cryptography often used in combination?", o: ["To simplify key generation", "To avoid using hash functions", "To leverage the efficiency of symmetric encryption and the secure key exchange/signatures of asymmetric encryption", "To make the entire system proprietary"], a: 2},
+            {id: 135, m: 3, q: "What is a Digital Certificate?", o: ["A method of key logging", "A cryptographic credential used to verify the identity of an entity in the digital realm", "A type of malware", "An archive storage technique"], a: 1},
+            {id: 136, m: 3, q: "What entity is a trusted third party that issues and digitally signs digital certificates?", o: ["The FBI", "The Network Administrator", "The Certificate Authority (CA)", "The Black Hat Hacker"], a: 2},
+            {id: 137, m: 3, q: "What information is included in a Digital Certificate's content?", o: ["The entity's Private Key", "The CA's public key", "The Public Key of the entity, Subject information, and Validity Period", "Only the Certificate Authority's name"], a: 2},
+            {id: 138, m: 3, q: "Which protocol uses SSL/TLS certificates to encrypt data in transit and authenticate the server to the client?", o: ["FTP", "HTTP", "HTTPS", "SMTP"], a: 2},
+            {id: 139, m: 3, q: "What security principle is ensured when SSL/TLS uses cryptographic hash functions to confirm data was not altered during transit?", o: ["Authentication", "Confidentiality", "Data Integrity", "Non-repudiation"], a: 2},
+            {id: 140, m: 3, q: "In public-key cryptography, which key is used by the recipient to decrypt a message?", o: ["Sender's Public Key", "Recipient's Private Key", "Sender's Private Key", "Session Key"], a: 1},
+
+            // --- SECTION V ---
+            {id: 141, m: 4, q: "What is the legal definition of Copyright?", o: ["Legal right granted to inventors for new, useful, and non-obvious inventions", "A legal right granted to the creator of original works (like software, articles, music)", "Protection against unfair competition", "Protection of secret formulas"], a: 1},
+            {id: 142, m: 4, q: "What does Copyright protection cover in cyberspace?", o: ["Only hardware designs", "The idea or logic behind the software", "Website designs, source code, blogs, and e-books", "Only government documents"], a: 2},
+            {id: 143, m: 4, q: "Under the Indian Copyright Act, 1957, what elements of a computer programme are protected as 'literary work'?", o: ["Ideas and algorithms", "Source code and object code", "Licensing models", "Reverse engineering techniques"], a: 1},
+            {id: 144, m: 4, q: "What is the standard duration of copyright protection in India for literary works?", o: ["20 years from filing", "60 years from publication", "Lifetime of the author plus 60 years", "5 years, renewable"], a: 2},
+            {id: 145, m: 4, q: "What is the key distinction in the subject matter protected by Copyright versus Patent?", o: ["Copyright protects the idea/invention; Patent protects the expression.", "Copyright protects expression; Patent protects the idea/invention or process.", "Both protect only algorithms.", "Both protect only the source code."], a: 1},
+            {id: 146, m: 4, q: "Which UN body facilitates international IP protection and manages treaties like the Berne Convention and WCT?", o: ["UNCITRAL", "WIPO (World Intellectual Property Organization)", "WTO", "Interpol"], a: 1},
+            {id: 147, m: 4, q: "According to the Patents Act, 1970, which condition must an invention NOT be, to be patentable?", o: ["Novel", "Industrially Applicable", "Obvious (lacking inventive step)", "Useful"], a: 2},
+            {id: 148, m: 4, q: "What is the standard duration of patent protection from the date of filing?", o: ["Lifetime of the inventor", "10 years", "20 years", "Indefinite"], a: 2},
+            {id: 149, m: 4, q: "Under the Patents Act, 1970, which of the following is generally not patentable?", o: ["Innovative software solutions", "Cybersecurity algorithms", "Software per se without technical application", "E-commerce transaction methods"], a: 2},
+            {id: 150, m: 4, q: "What is a Trademark?", o: ["A legal right for inventors for new, useful inventions.", "A Graphical representation used to distinguish the goods and services of one party from those of others.", "A secret formula or process.", "A legal right granted to the creator of original works."], a: 1},
+
+            // --- ADDED QUESTIONS (151-200) ---
+            {id: 151, m: 0, q: "Which authority is empowered to appoint the Controller of Certifying Authorities under the IT Act, 2000?", o: ["State Government", "Central Government", "Supreme Court", "High Court"], a: 1},
+            {id: 152, m: 0, q: "What is the role of the Cyber Law Appellate Tribunal?", o: ["To issue digital certificates", "To handle disputes and appeals related to cybercrimes under the IT Act", "To create new cyber laws", "To manage IP addresses"], a: 1},
+            {id: 153, m: 0, q: "Which section of the IT Act 2000 was struck down by the Supreme Court as it violated the freedom of speech?", o: ["Section 66", "Section 66A", "Section 69", "Section 79"], a: 1},
+            {id: 154, m: 0, q: "Section 69A of the IT Act empowers the government to do what in the interest of national sovereignty?", o: ["Arrest without warrant", "Block public access to any information on a computer resource (Block Websites)", "Intercept all emails", "Confiscate hardware"], a: 1},
+            {id: 155, m: 0, q: "Using spy cameras in malls to capture private images of a person is an offense under which section?", o: ["Section 66C", "Section 66E", "Section 67", "Section 72"], a: 1},
+            {id: 156, m: 0, q: "Any person who intentionally destroys or alters computer source code required to be kept by law commits an offense under Section 65 punishable by:", o: ["Imprisonment up to 3 years or fine up to 2 lakhs or both", "Life imprisonment", "Fine of 5 lakhs only", "Imprisonment of 1 year"], a: 0},
+            {id: 157, m: 0, q: "The authentication effected by the use of an asymmetric crypto system and hash function is known as:", o: ["Public Key", "Private Key", "Digital Signature", "Biometric"], a: 2},
+            {id: 158, m: 0, q: "Which body oversees the implementation of cyber laws in India, specifically Certifying Authorities?", o: ["NASSCOM", "SEBI", "TRAI", "Controller of Certifying Authorities (CCA)"], a: 3},
+            {id: 159, m: 0, q: "What is 'Cyber Terrorism' as defined under Section 66F?", o: ["Hacking a bank account", "Acts committed to threaten the unity, integrity, security, or sovereignty of India", "Sending spam emails", "Stealing a mobile phone"], a: 1},
+            {id: 160, m: 0, q: "Under Section 43 of the IT Act, simple unauthorized access without malicious intent to cause damage is primarily treated as:", o: ["A criminal offense requiring jail", "A civil liability requiring compensation for damages", "Not an offense", "A minor traffic violation"], a: 1},
+            {id: 161, m: 1, q: "Which type of cyber attack involves injecting malicious SQL code into a database query?", o: ["XSS", "SQL Injection", "Phishing", "Man-in-the-Middle"], a: 1},
+            {id: 162, m: 1, q: "What does 'XSS' stand for in web security?", o: ["Extreme Security Standard", "Cross-Site Scripting", "XML Site Security", "Xenon System Safety"], a: 1},
+            {id: 163, m: 1, q: "What is a 'Logic Bomb'?", o: ["A virus that explodes physically", "Malicious code inserted into a program that executes when specific conditions are met", "A type of firewall", "A strong password generator"], a: 1},
+            {id: 164, m: 1, q: "Which attack involves automatically downloading malicious software to a user's device when they visit a compromised website?", o: ["Drive-by Download", "Phishing", "Spoofing", "DDoS"], a: 0},
+            {id: 165, m: 1, q: "What is 'Credential Stuffing'?", o: ["Creating strong passwords", "Using stolen username/password pairs to gain unauthorized access to multiple accounts", "Stuffing data into a database", "Encrypting credentials"], a: 1},
+            {id: 166, m: 1, q: "What distinguishes a 'Worm' from a 'Virus' regarding replication?", o: ["A worm needs a host file; a virus does not.", "A virus requires a host program/file to attach to; a worm is a standalone program that replicates itself.", "They are identical.", "A worm only attacks hardware."], a: 1},
+            {id: 167, m: 1, q: "Ransomware attacks like 'WannaCry' primarily target which aspect of the CIA triad?", o: ["Confidentiality", "Availability (by locking data)", "Integrity", "Authentication"], a: 1},
+            {id: 168, m: 1, q: "Which malware type permits hackers to access administrative controls remotely (Remote Access Trojan)?", o: ["RAT", "Worm", "Adware", "Logic Bomb"], a: 0},
+            {id: 169, m: 1, q: "What is the main purpose of a CAPTCHA?", o: ["To encrypt data", "To differentiate between human users and automated bots", "To speed up login", "To scan for viruses"], a: 1},
+            {id: 170, m: 1, q: "Which attack involves overwhelming a target with traffic from multiple sources?", o: ["DoS", "DDoS (Distributed Denial of Service)", "Phishing", "SQL Injection"], a: 1},
+            {id: 171, m: 2, q: "Which layer of the OSI model is responsible for establishing, managing, and terminating connections (sessions)?", o: ["Application Layer", "Session Layer", "Transport Layer", "Network Layer"], a: 1},
+            {id: 172, m: 2, q: "What is the standard port number for HTTP web traffic?", o: ["21", "25", "80", "443"], a: 2},
+            {id: 173, m: 2, q: "What is the standard port number for HTTPS secure web traffic?", o: ["80", "8080", "443", "22"], a: 2},
+            {id: 174, m: 2, q: "Which network topology connects all devices to a single central cable?", o: ["Star", "Ring", "Bus", "Mesh"], a: 2},
+            {id: 175, m: 2, q: "What is a 'DMZ' (Demilitarized Zone) in network security?", o: ["A highly secure internal vault", "A physical zone with armed guards", "A sub-network that exposes external-facing services to the internet while isolating the internal network", "A zone where no protocols apply"], a: 2},
+            {id: 176, m: 2, q: "Which protocol is responsible for resolving IP addresses to MAC addresses?", o: ["DNS", "DHCP", "ARP (Address Resolution Protocol)", "ICMP"], a: 2},
+            {id: 177, m: 2, q: "Which layer of the TCP/IP stack corresponds to the OSI Transport layer?", o: ["Internet Layer", "Transport Layer", "Application Layer", "Link Layer"], a: 1},
+            {id: 178, m: 2, q: "What does the 'Physical Layer' of the OSI model deal with?", o: ["Logical addressing", "Encryption", "Transmission of raw bit streams over a physical medium", "Routing packets"], a: 2},
+            {id: 179, m: 2, q: "Which device is used to connect different networks and route traffic between them based on IP addresses?", o: ["Hub", "Switch", "Router", "Repeater"], a: 2},
+            {id: 180, m: 2, q: "What is a Proxy Server primarily used for?", o: ["Generating electricity", "Acting as an intermediary for requests from clients seeking resources from other servers", "Storing all internet data", "Replacing the CPU"], a: 1},
+            {id: 181, m: 3, q: "What is a 'PKI'?", o: ["Private Key Information", "Public Key Infrastructure", "Protected Key Interface", "Public Knowledge Institute"], a: 1},
+            {id: 182, m: 3, q: "Which property ensures that a sender cannot deny having sent a message (enabled by digital signatures)?", o: ["Confidentiality", " Integrity", "Non-repudiation", "Availability"], a: 2},
+            {id: 183, m: 3, q: "In the context of SSL/TLS, what is the 'Handshake'?", o: ["A physical greeting", "The process of negotiating encryption keys and authenticating before data transfer", "A type of malware", "The disconnect procedure"], a: 1},
+            {id: 184, m: 3, q: "Which of the following is a hashing algorithm?", o: ["AES", "RSA", "SHA-256", "DES"], a: 2},
+            {id: 185, m: 3, q: "What is the output of a hash function called?", o: ["Ciphertext", "Digest or Hash Value", "Plaintext", "Key"], a: 1},
+            {id: 186, m: 3, q: "Why is MD5 no longer recommended for critical security?", o: ["It is too slow", "It is patented", "It is vulnerable to collision attacks", "It requires too much memory"], a: 2},
+            {id: 187, m: 3, q: "In a Digital Certificate, who signs the certificate to vouch for its authenticity?", o: ["The User", "The Hacker", "The Certificate Authority (CA)", "The Government"], a: 2},
+            {id: 188, m: 3, q: "What attack tries to find a collision in a hash function (two inputs producing the same hash)?", o: ["Birthday Attack", "Brute Force", "Phishing", "DDoS"], a: 0},
+            {id: 189, m: 3, q: "Which key is used to create a Digital Signature?", o: ["Sender's Private Key", "Sender's Public Key", "Receiver's Public Key", "Receiver's Private Key"], a: 0},
+            {id: 190, m: 3, q: "Which key is used to VERIFY a Digital Signature?", o: ["Sender's Private Key", "Sender's Public Key", "Receiver's Public Key", "Receiver's Private Key"], a: 1},
+            {id: 191, m: 4, q: "Software piracy involves the unauthorized reproduction of software. This is a violation of:", o: ["Patent Law", "Trademark Law", "Copyright Law", "Trade Secret Law"], a: 2},
+            {id: 192, m: 4, q: "Which agreement under the WTO deals with Intellectual Property Rights?", o: ["GATT", "TRIPS (Trade-Related Aspects of Intellectual Property Rights)", "NAFTA", "SAFTA"], a: 1},
+            {id: 193, m: 4, q: "What is a 'Trade Secret'?", o: ["A government secret", "Confidential business information which provides a competitive edge (e.g., Coca-Cola formula)", "A public patent", "An open-source code"], a: 1},
+            {id: 194, m: 4, q: "Can an algorithm be patented in India?", o: ["Yes, always", "No, algorithms per se are generally not patentable", "Yes, if it is written in Java", "Yes, if it is short"], a: 1},
+            {id: 195, m: 4, q: "Which of the following protects the 'expression' of an idea rather than the idea itself?", o: ["Patent", "Copyright", "Trademark", "Trade Secret"], a: 1},
+            {id: 196, m: 4, q: "How long is a Trademark valid before it needs renewal in India?", o: ["5 years", "10 years", "20 years", "Lifetime"], a: 1},
+            {id: 197, m: 4, q: "What does 'Fair Use' in copyright allow?", o: ["Unlimited copying for profit", "Limited use for educational or review purposes without permission", "Reselling software", "Claiming ownership of others' work"], a: 1},
+            {id: 198, m: 4, q: "Which organization is a specialized agency of the United Nations dedicated to intellectual property?", o: ["WHO", "WTO", "WIPO", "UNESCO"], a: 2},
+            {id: 199, m: 4, q: "Plagiarism is an ethical issue that often overlaps with the legal issue of:", o: ["Patent Infringement", "Copyright Infringement", "Trademark Violation", "Trade Secret Theft"], a: 1},
+            {id: 200, m: 4, q: "Under the Patents Act, 1970, which of these is NOT an invention?", o: ["A new product", "A new process", "A frivolious invention or one contrary to natural laws", "An improvement of an existing product"], a: 2}
+        ];
+
+        // --- COMPONENTS ---
+
+        const { useState, useEffect } = React;
+
+        const ProgressBar = ({ current, total, color }) => {
+            const percentage = Math.round((current / total) * 100);
+            return (
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                    <div 
+                        className={`h-2.5 rounded-full transition-all duration-300 ${color}`} 
+                        style={{ width: `${percentage}%` }}>
+                    </div>
+                </div>
+            );
+        };
+
+        const StartScreen = ({ onStart, onOpenMaterials }) => {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 animate-pop">
+                    <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h1 className="text-4xl font-bold text-gray-800 mb-2">Cyber Security</h1>
+                    <h2 className="text-2xl font-semibold text-blue-600 mb-6">Master Quiz</h2>
+                    <p className="text-gray-500 max-w-md mb-8">
+                        Test your knowledge across 200 questions covering Cyber Law, IT Act 2000, Threats, Hacking, Networking, Cryptography, and IPR.
+                        <br/><span className="text-xs text-blue-500 mt-2 block font-semibold">Each Question carries 2 Marks</span>
+                    </p>
+                    
+                    <div className="flex flex-col w-full max-w-2xl gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button onClick={() => onStart('all')} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-1">
+                                Start Full Quiz (200 Qs)
+                            </button>
+                            <button onClick={onOpenMaterials} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                Study Materials
+                            </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {modules.map((mod, idx) => (
+                                <button key={idx} onClick={() => onStart(idx)} className="bg-white border border-gray-200 hover:border-blue-400 hover:shadow-md text-gray-700 font-medium py-3 px-4 rounded-xl text-sm text-left transition">
+                                    <span className="font-bold block text-blue-500 text-xs mb-1">MODULE {idx + 1}</span>
+                                    {mod.split(' (')[0]}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const QuestionCard = ({ data, onAnswer, userHasAnswered, userAnswer }) => {
+            const optionsLabels = ['a', 'b', 'c', 'd'];
+            
+            return (
+                <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-3xl mx-auto border border-gray-100 animate-pop">
+                    <div className="flex justify-between items-start mb-4">
+                        <span className="inline-block bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                            Q{data.id}
+                        </span>
+                        <span className="text-xs text-gray-400 font-medium">{modules[data.m].split('(')[0]}</span>
+                    </div>
+
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-8 leading-relaxed">
+                        {data.q}
+                    </h3>
+
+                    <div className="grid gap-3">
+                        {data.o.map((option, idx) => {
+                            let btnClass = "border-2 border-gray-100 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50";
+                            
+                            if (userHasAnswered) {
+                                if (idx === data.a) {
+                                    btnClass = "border-2 border-green-500 bg-green-50 text-green-800"; // Correct answer
+                                } else if (idx === userAnswer && idx !== data.a) {
+                                    btnClass = "border-2 border-red-500 bg-red-50 text-red-800"; // Wrong selected
+                                } else {
+                                    btnClass = "border-2 border-gray-100 bg-gray-50 text-gray-400 opacity-60"; // Others
+                                }
+                            } else if (userAnswer === idx) {
+                                btnClass = "border-2 border-blue-500 bg-blue-50 text-blue-800"; // Selected (before submit, if logic allowed)
+                            }
+
+                            return (
+                                <button 
+                                    key={idx}
+                                    disabled={userHasAnswered}
+                                    onClick={() => onAnswer(idx)}
+                                    className={`option-btn w-full text-left p-4 rounded-xl flex items-center relative group ${btnClass}`}
+                                >
+                                    <span className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold mr-4 transition-colors ${
+                                        userHasAnswered && idx === data.a ? 'bg-green-200 text-green-800' :
+                                        userHasAnswered && idx === userAnswer ? 'bg-red-200 text-red-800' : 
+                                        'bg-gray-100 text-gray-500 group-hover:bg-blue-200 group-hover:text-blue-700'
+                                    }`}>
+                                        {optionsLabels[idx]}
+                                    </span>
+                                    <span className="font-medium text-lg">{option}</span>
+                                    
+                                    {userHasAnswered && idx === data.a && (
+                                        <div className="absolute right-4 text-green-600">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                    )}
+                                    {userHasAnswered && idx === userAnswer && idx !== data.a && (
+                                        <div className="absolute right-4 text-red-600">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+        const Results = ({ history, onRestart }) => {
+            const correct = history.filter(h => h.isCorrect).length;
+            const total = history.length;
+            
+            // Scoring Logic
+            const marksPerQ = 2;
+            const totalMarks = total * marksPerQ;
+            const obtainedMarks = correct * marksPerQ;
+            const percentage = total > 0 ? Math.round((obtainedMarks / totalMarks) * 100) : 0;
+            
+            // Result Logic
+            const isPass = percentage >= 40;
+            let grade = 'F';
+            if(percentage >= 90) grade = 'A+';
+            else if(percentage >= 80) grade = 'A';
+            else if(percentage >= 70) grade = 'B';
+            else if(percentage >= 60) grade = 'C';
+            else if(percentage >= 50) grade = 'D';
+            else grade = 'F';
+
+            // Calculate per module score
+            const moduleStats = {};
+            history.forEach(h => {
+                if(!moduleStats[h.module]) moduleStats[h.module] = { correct: 0, total: 0 };
+                moduleStats[h.module].total++;
+                if(h.isCorrect) moduleStats[h.module].correct++;
+            });
+
+            return (
+                <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8 animate-pop">
+                    <div className="text-center mb-8">
+                        <div className={`inline-block p-4 rounded-full mb-4 ${isPass ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                            <span className="text-5xl">{isPass ? '🎉' : '⚠️'}</span>
+                        </div>
+                        <h2 className={`text-4xl font-bold mb-2 ${isPass ? 'text-green-600' : 'text-red-600'}`}>
+                            {isPass ? 'PASSED' : 'FAILED'}
+                        </h2>
+                        <p className="text-gray-500">You scored Grade {grade}</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div className="bg-blue-50 p-4 rounded-xl text-center border border-blue-100">
+                            <div className="text-3xl font-bold text-blue-600">{obtainedMarks}/{totalMarks}</div>
+                            <div className="text-xs text-blue-800 uppercase font-semibold mt-1">Marks Obtained</div>
+                        </div>
+                        <div className="bg-indigo-50 p-4 rounded-xl text-center border border-indigo-100">
+                            <div className="text-3xl font-bold text-indigo-600">{percentage}%</div>
+                            <div className="text-xs text-indigo-800 uppercase font-semibold mt-1">Percentage</div>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-xl text-center border border-green-100">
+                            <div className="text-3xl font-bold text-green-600">{correct}</div>
+                            <div className="text-xs text-green-800 uppercase font-semibold mt-1">Correct</div>
+                        </div>
+                        <div className="bg-red-50 p-4 rounded-xl text-center border border-red-100">
+                            <div className="text-3xl font-bold text-red-600">{total - correct}</div>
+                            <div className="text-xs text-red-800 uppercase font-semibold mt-1">Incorrect</div>
+                        </div>
+                    </div>
+
+                    <div className="mb-8">
+                        <h3 className="font-bold text-gray-800 mb-4 text-lg">Module Breakdown</h3>
+                        <div className="space-y-3">
+                            {Object.keys(moduleStats).map(mIdx => (
+                                <div key={mIdx} className="bg-gray-50 rounded-lg p-3 flex items-center justify-between text-sm">
+                                    <span className="font-medium text-gray-600 truncate flex-1 mr-4">
+                                        {modules[mIdx].split('(')[0]}
+                                    </span>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div 
+                                                className="h-full bg-blue-500" 
+                                                style={{ width: `${(moduleStats[mIdx].correct / moduleStats[mIdx].total) * 100}%` }}
+                                            ></div>
+                                        </div>
+                                        <span className="font-bold text-gray-700 w-16 text-right">
+                                            {moduleStats[mIdx].correct * marksPerQ} / {moduleStats[mIdx].total * marksPerQ}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={onRestart}
+                        className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-1"
+                    >
+                        Return to Menu
+                    </button>
+                </div>
+            );
+        };
+
+        const StudyMaterials = ({ onBack }) => {
+            const [activeTab, setActiveTab] = useState('video'); // 'video' or 'pdf'
+
+            return (
+                <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 md:p-8 animate-pop min-h-[85vh] flex flex-col">
+                    <div className="flex justify-between items-center mb-6">
+                        <button onClick={onBack} className="text-gray-500 hover:text-gray-800 font-medium flex items-center transition">
+                            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                            Back to Menu
+                        </button>
+                        <h2 className="text-2xl font-bold text-gray-800">Study Materials</h2>
+                    </div>
+
+                    <div className="flex space-x-4 mb-6 border-b border-gray-200 pb-1">
+                        <button 
+                            onClick={() => setActiveTab('video')}
+                            className={`pb-3 px-4 font-medium transition-colors border-b-2 ${activeTab === 'video' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Video Lectures
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('pdf')}
+                            className={`pb-3 px-4 font-medium transition-colors border-b-2 ${activeTab === 'pdf' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Reading Material (PDF)
+                        </button>
+                    </div>
+
+                    <div className="flex-1">
+                        {activeTab === 'video' && (
+                            <div className="flex flex-col h-full">
+                                <div className="bg-gray-900 rounded-xl overflow-hidden aspect-video shadow-lg mb-4">
+                                    <iframe 
+                                        className="w-full h-full"
+                                        src="https://www.youtube.com/embed/gI3F3ESvtmk?si=WSCqFmHEWGEqpEDZ" 
+                                        title="Cyber Security Video Lecture" 
+                                        frameBorder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowFullScreen
+                                    ></iframe>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-800">Cyber Security - Introduction & Overview</h3>
+                                <p className="text-gray-600 mt-2">Watch this lecture to understand the core concepts of Cyber Security, Types of Cyber Crimes, and the Legal Framework in India.</p>
+                            </div>
+                        )}
+
+                        {activeTab === 'pdf' && (
+                            <div className="h-full flex flex-col">
+                                <div className="pdf-container flex-1 bg-gray-100 rounded-xl shadow-inner overflow-hidden border border-gray-300">
+                                    <iframe 
+                                        src="https://drive.google.com/file/d/1C7haUEG9fUyHG_c5t4NV6ECSagJ51yLs/preview" 
+                                        allow="autoplay"
+                                        title="PDF Reader"
+                                    ></iframe>
+                                </div>
+                                <div className="mt-4 flex justify-between items-center text-sm text-gray-500">
+                                    <span>Course Material: Cyber Security & Law</span>
+                                    <a href="https://drive.google.com/file/d/1C7haUEG9fUyHG_c5t4NV6ECSagJ51yLs/view?usp=sharing" target="_blank" className="text-blue-600 hover:underline flex items-center">
+                                        Open in New Tab
+                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [gameState, setGameState] = useState('start'); // start, playing, results, materials
+            const [activeQuestions, setActiveQuestions] = useState([]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [history, setHistory] = useState([]); 
+            const [answeredState, setAnsweredState] = useState({ answered: false, selected: null });
+
+            const handleStart = (mode) => {
+                let filtered = [];
+                if (mode === 'all') {
+                    filtered = [...allQuestions];
+                } else {
+                    filtered = allQuestions.filter(q => q.m === mode);
+                }
+                setActiveQuestions(filtered);
+                setHistory([]);
+                setCurrentIndex(0);
+                setAnsweredState({ answered: false, selected: null });
+                setGameState('playing');
+            };
+
+            const handleAnswer = (optionIdx) => {
+                if (answeredState.answered) return;
+
+                const currentQ = activeQuestions[currentIndex];
+                const isCorrect = optionIdx === currentQ.a;
+
+                setAnsweredState({ answered: true, selected: optionIdx });
+
+                // Add to history
+                setHistory(prev => [...prev, {
+                    questionId: currentQ.id,
+                    userAnswer: optionIdx,
+                    isCorrect: isCorrect,
+                    module: currentQ.m
+                }]);
+            };
+
+            const nextQuestion = () => {
+                if (currentIndex < activeQuestions.length - 1) {
+                    setCurrentIndex(prev => prev + 1);
+                    setAnsweredState({ answered: false, selected: null });
+                } else {
+                    setGameState('results');
+                }
+            };
+
+            return (
+                <div className="min-h-screen py-8 px-4">
+                    {gameState === 'start' && <StartScreen onStart={handleStart} onOpenMaterials={() => setGameState('materials')} />}
+                    
+                    {gameState === 'materials' && <StudyMaterials onBack={() => setGameState('start')} />}
+
+                    {gameState === 'playing' && (
+                        <div className="max-w-3xl mx-auto">
+                            <div className="flex justify-between items-center mb-6">
+                                <button onClick={() => setGameState('start')} className="text-gray-500 hover:text-gray-800 font-medium text-sm flex items-center">
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                    Exit
+                                </button>
+                                <div className="text-sm font-bold text-gray-500">
+                                    Q {currentIndex + 1} / {activeQuestions.length}
+                                </div>
+                            </div>
+
+                            <ProgressBar current={currentIndex + 1} total={activeQuestions.length} color="bg-blue-600" />
+                            
+                            <QuestionCard 
+                                data={activeQuestions[currentIndex]} 
+                                onAnswer={handleAnswer}
+                                userHasAnswered={answeredState.answered}
+                                userAnswer={answeredState.selected}
+                            />
+
+                            <div className="mt-8 flex justify-end h-12">
+                                {answeredState.answered && (
+                                    <button 
+                                        onClick={nextQuestion}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition flex items-center animate-pop"
+                                    >
+                                        {currentIndex === activeQuestions.length - 1 ? "Finish Quiz" : "Next Question"}
+                                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {gameState === 'results' && <Results history={history} onRestart={() => setGameState('start')} />}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
