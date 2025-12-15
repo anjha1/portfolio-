@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module II: BI Exam Prep</title>
+    <title>Module II: BI Exam Prep (VVI Included)</title>
     
     <!-- React and ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -70,7 +70,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- Inline Icons (No External Dependency to prevent Blank Screen) ---
+        // --- Inline Icons ---
         const Icon = ({ path, className }) => (
             <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -104,6 +104,7 @@
         const ArrowRight = () => <Icon path={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
         const GraduationCap = () => <Icon path={<><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></>} />;
         const FileQuestion = () => <Icon path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9.1 9a3 3 0 0 1 5.82 1c0 2-3 3-3 3"/></>} />;
+        const AlertTriangle = () => <Icon path={<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>} />;
 
         // --- Data Content (Reading Material) ---
         const moduleData = [
@@ -481,6 +482,104 @@
 • **Drill-Down:** Allows users to start at a high level and dig into root causes.
 • **Alignment:** Ensures everyone looks at the same KPIs.`
                 }
+            ],
+            sectionD: [
+                {
+                   q: "Define multidimensional analysis (OLAP) and describe operations used for exploring relationships.",
+                   a: `**Multidimensional Analysis:**
+Allows users to analyze data from multiple perspectives (dimensions) simultaneously (e.g., Sales by Time, Location, and Product). This is often achieved using OLAP cubes.
+
+**Operations:**
+1. **Slice & Dice:** 'Slice' cuts the cube to view one specific dimension (e.g., Sales in 2024 only). 'Dice' creates a sub-cube by selecting specific values for multiple dimensions.
+2. **Drill-Down / Roll-Up:** 'Drill-Down' navigates from summary to detail (Year -> Month -> Day). 'Roll-Up' aggregates detail into summary (Day -> Month -> Year).`
+                },
+                {
+                    q: "Illustrate how real-time data ingestion can be incorporated into a Data Lake architecture using streaming ETL. Discuss Schema Flexibility.",
+                    a: `**Architecture:**
+Sources (IoT/Web Logs) → Streaming Platform (Apache Kafka/AWS Kinesis) → Stream Processing (Spark Streaming) → Data Lake (S3/HDFS).
+
+**Schema Flexibility:**
+Data Lakes (unlike Warehouses) support "Schema-on-Read." You can ingest raw JSON/logs immediately without defining tables first.
+**Example:** A ride-sharing app (Uber) ingesting GPS data in real-time to calculate surge pricing. If the GPS data format changes, the ingestion pipeline doesn't break.`
+                },
+                {
+                    q: "Design a Snowflake Schema for a Customer Engagement dataset. Provide structure and explain how it supports retention queries.",
+                    a: `**Snowflake Schema Design:**
+• **Fact Table:** 'Fact_Engagement' (CustomerID, DateID, StoreID, EngagementScore, Duration).
+• **Dimensions (Normalized):**
+   - 'Dim_Customer' (CustomerID, Name, CityID) → 'Dim_City' (CityID, RegionID) → 'Dim_Region' (RegionID, Country).
+   - 'Dim_Date' (DateID, Month, Year).
+
+**Analysis Support:**
+To calculate Retention Rate, you join 'Fact_Engagement' with 'Dim_Customer' and 'Dim_Date'. The normalized structure saves storage but requires more joins than a Star Schema.`
+                },
+                {
+                    q: "Perform a conceptual Data Quality Assessment. How do profiling insights guide BI teams?",
+                    a: `**Assessment Criteria:**
+1. **Completeness:** Are there null values in critical columns (e.g., Email)?
+2. **Consistency:** Do States appear as 'NY', 'N.Y.', and 'New York'?
+3. **Uniqueness:** Are there duplicate Customer IDs?
+
+**Role of Profiling:**
+If profiling reveals 40% of 'Phone Numbers' are missing, the BI team knows not to use that field for SMS marketing reports. It prevents "Garbage In, Garbage Out" and builds trust in the final dashboard.`
+                },
+                {
+                    q: "Scenario: E-commerce platform encounters a regional data center failure. Formulate a BI Continuity and Recovery Framework.",
+                    a: `**Recovery Framework:**
+1. **Metadata Recovery (Priority 1):** Restore the Semantic Layer (definitions of KPIs) and Access Rules first. Without this, raw data is meaningless.
+2. **Orchestration Workflows:** Restore ETL job schedules.
+3. **Data Recovery:** If distributed storage (like S3) is intact, re-point the compute engine to it.
+
+**Architecture Recommendation:**
+Use **Active-Passive Replication** for the Metadata repository. Version control (Git) all semantic models so they can be redeployed instantly to a new region.`
+                },
+                {
+                    q: "Scenario: High-volume sensor data slows down analytical queries. Evaluate architectural adjustments.",
+                    a: `**Adjustments:**
+1. **Workload Isolation:** Separate 'Ingestion Compute' from 'Reporting Compute' (e.g., Snowflake Virtual Warehouses) so loading data doesn't slow down dashboards.
+2. **Columnar Optimization:** Store data in Parquet/ORC formats which are optimized for read-heavy analytics.
+3. **Lambda Architecture:** Use a Speed Layer for real-time views and a Batch Layer for historical accuracy.
+
+**Priority:** Workload Isolation is usually the most cost-effective first step to ensure dashboard responsiveness.`
+                },
+                {
+                    q: "Scenario: Unify analytics across countries with conflicting terminology (e.g., 'Output Efficiency'). Construct a Metadata Governance Blueprint.",
+                    a: `**Governance Blueprint:**
+1. **Business Glossary:** Create a centralized dictionary where 'Output Efficiency' is defined mathematically (e.g., (Actual / Theoretical) * 100).
+2. **Stewardship Council:** Appoint a Data Steward from each country to agree on definitions.
+3. **Lineage Tracking:** Use tools (e.g., Informatica/Collibra) to trace where the data comes from to prove the metric is calculated consistently.
+**Compliance:** Ensures global reports are "Apples-to-Apples" comparisons.`
+                },
+                {
+                    q: "Part 1 (Strategy): Develop a BI Strategy emphasizing Data Stewardship over just Tools.",
+                    a: `**Strategy:**
+A tool (like Tableau/PowerBI) is just a visualization medium. A strategy focusing on Stewardship ensures:
+1. **Accountability:** Someone owns the data quality.
+2. **Trust:** Users trust the numbers because definitions are standardized.
+3. **Sustainability:** When people leave, the process remains.
+**Why:** Buying a Ferrari (Advanced Tool) doesn't help if you don't know how to drive (Process) or have no gas (Quality Data).`
+                },
+                {
+                    q: "Part 2 (Star Schema): Design a Star Schema for Retail (Fact Order, Dims: Cust, Store, Prod, Date).",
+                    a: `**Schema Design:**
+• **Center:** 'Fact_Orders' (Keys: Cust_ID, Store_ID, Prod_ID, Date_ID; Measures: Quantity, Unit_Price, Total_Amt).
+• **Points (Dimensions):**
+   - 'Dim_Customer' (Name, Address, Segment).
+   - 'Dim_Store' (Store Name, Region, Manager).
+   - 'Dim_Product' (Prod Name, Category, Brand).
+   - 'Dim_Date' (Year, Quarter, Month, Day).
+
+**Query Support:**
+Total Revenue = SUM(Fact_Orders.Total_Amt).
+Revenue by Region = Join Fact with Dim_Store, Group By Region.`
+                },
+                {
+                    q: "Part 2 (DSS Transformation): How have cloud platforms transformed traditional DSS?",
+                    a: `**Transformation:**
+1. **Elasticity:** Old DSS had fixed servers. Cloud DSS (e.g., BigQuery) scales compute up instantly for complex queries.
+2. **Real-Time:** Old DSS was batch (yesterday's data). Modern DSS consumes streams (Kafka) for minute-by-minute decisions.
+3. **Automation:** Modern DSS integrates Machine Learning to push recommendations ("Prescriptive") rather than just showing charts ("Descriptive").`
+                }
             ]
         };
 
@@ -586,7 +685,7 @@
             }
             if (type === "table_metadata") {
                 return (
-                     <div className="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+                      <div className="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200 p-4">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-slate-800 text-white">
                                 <tr><th className="p-2">Type</th><th className="p-2">Example</th></tr>
@@ -624,7 +723,7 @@
             }
             if (type === "diagram_central_decentral") {
                 return (
-                     <div className="flex justify-center gap-8 text-center text-xs font-bold">
+                      <div className="flex justify-center gap-8 text-center text-xs font-bold">
                         <div>
                             <div className="w-12 h-12 bg-blue-600 rounded-full mx-auto mb-2 flex items-center justify-center text-white">IT</div>
                             Centralized
@@ -636,7 +735,7 @@
                             </div>
                             Decentralized
                         </div>
-                     </div>
+                      </div>
                 );
             }
              if (type === "role_hierarchy") {
@@ -662,7 +761,7 @@
                         </h2>
                         <p className="opacity-90 mt-2">
                             Module II: Enterprise Business Intelligence. 
-                            Questions tailored for university exam patterns (Section A, B, and C).
+                            Questions tailored for university exam patterns (Section A, B, and C) + VVI.
                         </p>
                     </div>
 
@@ -722,6 +821,30 @@
                                         <span className="text-green-600">Q{idx+1}.</span> {item.q}
                                     </h4>
                                     <div className="exam-answer whitespace-pre-line text-sm md:text-base text-slate-700">
+                                        {item.a}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Section D: VVI */}
+                    <div className="bg-white p-8 rounded-xl paper-shadow border-l-4 border-orange-500 ring-2 ring-orange-100">
+                        <div className="flex items-center justify-between mb-6 border-b pb-4">
+                            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <AlertTriangle className="text-orange-500" />
+                                Section D: VVI Advanced & Scenarios
+                            </h3>
+                            <span className="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">High Priority</span>
+                        </div>
+                        <p className="text-sm text-slate-500 mb-6 italic">This section contains advanced scenarios, architectural case studies, and strategic questions often asked to test depth of understanding (DSS, Star Schema, Governance).</p>
+                        <div className="space-y-10">
+                            {examQuestions.sectionD.map((item, idx) => (
+                                <div key={idx} className="bg-orange-50 p-6 rounded-xl border border-orange-200">
+                                    <h4 className="font-bold text-lg text-slate-900 mb-4 flex gap-2">
+                                        <span className="text-orange-600">Q{idx+1}.</span> {item.q}
+                                    </h4>
+                                    <div className="exam-answer whitespace-pre-line text-sm md:text-base text-slate-800 font-medium">
                                         {item.a}
                                     </div>
                                 </div>
