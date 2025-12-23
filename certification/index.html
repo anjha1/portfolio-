@@ -1,22 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="a1.jpg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://www.achhuta.info/certification/" />
-    <title>Professional Certifications</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="a1.jpg">
+    <title>Professional Certifications - Achhuta Nand Jha</title>
+    <!-- Font Awesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color:  #e9cfb7ab;;
+            background-color: #e9cfb7ab;
             color: #333;
         }
 
@@ -45,7 +42,7 @@
         section {
             padding: 20px;
             margin: 20px;
-            background-color:  #d18e413b;;
+            background-color: #d18e413b;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -60,617 +57,850 @@
             bottom: 0;
         }
 
-        .experience-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            /* display: grid; */
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
         }
 
-        .experience-item {
+        .project-card {
             background-color: #fff;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow:  0 4px 40px rgb(8, 254, 69);;
+            box-shadow: 0 4px 40px rgb(8, 254, 69);
             flex: 1;
             min-width: 300px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
-        
-            .experience-item:hover {
+        .project-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 6px 12px rgba(255, 0, 0, 3);
             border: 2px solid rgba(15, 25, 230, 3); 
             border-radius: 8px; 
         }
 
-        
-
-        .experience-item h2 {
+        .project-card h2 {
+            margin-top: 0;
             color: #7105e4;
-            margin-top: 0;
-        }
-        .experience-item p {
-            line-height: 1.6;
-        }
-
-        .experience-item ul {
-            list-style-type: disc;
-            margin-left: 20px;
-        }
-
-        .experience-item ul li {
+            font-size: 1.3rem;
             margin-bottom: 10px;
+            line-height: 1.4;
         }
 
-        @media (max-width: 768px) {
-            .experience-item {
-                min-width: 100%;
-            }
-        }
-        .experience-item a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 5px;
-            background-color: #333;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
-        .experience-item a:hover {
-            background-color: #cd10bafc;
-        }
-        .cta-section {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: #333;
-            color: #fff;
-            margin: 20px;
-            border-radius: 10px;
-        }
-
-        .cta-section h2 {
-            margin-top: 0;
-        }
-
-        .cta-section a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #1197cd;
-            color: #333;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .cta-section a:hover {
-            background-color: #29a8cf;
-        }
-        :root {
-            --primary: #4F46E5;
-            --secondary: #14B8A6;
-            --text: #1F2937;
-            --bg: #FEF2F2;         /* Red-50 */
-            --card-bg: #FFFFFF;
-            --shadow: rgba(0,0,0,0.1);
-        }
-
-        [data-theme="dark"] {
-            --primary: #818CF8;
-            --secondary: #2DD4BF;
-            --text: #E5E7EB;
-            --bg: #1F2937;
-            --card-bg: #374151;
-            --shadow: rgba(255,255,255,0.1);
-        }
-       
-
-
-/* Modify header gradient */
-.header {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-}
-
-/* Update badge hover states */
-.badge:hover {
-    background: #B91C1C;
-}
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            transition: background 0.3s ease;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+        .project-card p {
             line-height: 1.6;
+            margin: 5px 0;
+            font-size: 0.95rem;
         }
 
-        .header {
-            text-align: center;
-            padding: 4rem 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            margin-bottom: 2rem;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        .controls {
+        .project-card ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            gap: 1rem;
-        }
-
-        .search-filter {
-            flex: 1;
-            max-width: 400px;
-            padding: 0.75rem;
-            border-radius: 50px;
-            border: 1px solid var(--shadow);
-            background: var(--card-bg);
-            color: var(--text);
-        }
-
-        .certificate-grid {
-            display: grid;
-            gap: 2rem;
-        }
-
-        .certificate-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px var(--shadow);
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        .certificate-card:hover {
-            transform: translateY(-5px);
-            transition: transform 0.3s ease;
-        }
-
-        .certificate-details h3 {
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .certificate-viewer {
-            background: var(--bg);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .pdf-viewer {
-            width: 100%;
-            height: 300px;
-            border: none;
-        }
-
-        .certificate-actions {
-            margin-top: 1.5rem;
-            display: flex;
-            gap: 1rem;
             flex-wrap: wrap;
+            gap: 5px;
         }
 
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1.25rem;
-            border-radius: 50px;
-            background: var(--primary);
-            color: white;
+        .project-card ul li {
+            margin-bottom: 5px;
+            background: #eee;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .btn-container {
+            margin-top: auto;
+            padding-top: 15px;
+        }
+
+        .project-card a.btn {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 8px 12px;
+            background-color: #333;
+            color: #fff;
             text-decoration: none;
-            transition: all 0.3s ease;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            margin-right: 5px;
         }
 
-        .badge:hover {
-            filter: brightness(1.1);
-            transform: translateY(-2px);
-            
+        .project-card a.btn:hover {
+            background-color: #cd1010;
         }
 
-        .theme-toggle {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 1rem;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            border: none;
+        /* Image Preview Style */
+        .cert-preview {
+            width: 100%;
+            height: 220px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            object-fit: cover; 
             cursor: pointer;
-            box-shadow: 0 4px 6px var(--shadow);
+            transition: opacity 0.2s;
+        }
+        
+        .cert-preview:hover {
+            opacity: 0.8;
         }
 
+        .credential-id {
+            font-size: 0.85rem;
+            color: #666;
+            word-break: break-all;
+        }
+
+        /* Image Modal (Lightbox) */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            padding-top: 50px; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.9); 
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 900px;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Mobile styles */
         @media (max-width: 768px) {
-            .certificate-card {
-                grid-template-columns: 1fr;
-            }
-            
-            .certificate-viewer {
-                order: -1;
-                height: 200px;
-            }
-            
-            .pdf-viewer {
-                height: 200px;
-            }
+            header h1 { font-size: 2rem; }
+            nav ul { display: none; flex-direction: column; gap: 10px; }
+            nav ul.active { display: flex; }
+            nav ul li { text-align: center; padding: 10px; background-color: #333; border-radius: 5px; }
+            .hamburger { display: block; position: absolute; top: 20px; right: 20px; cursor: pointer; color: white; font-size: 1.5rem; }
+            .modal-content { width: 95%; }
         }
-            .certificate-viewer {
-                position: relative;
-                padding-bottom: 56.25%; /* 16:9 aspect ratio */
-                height: 0;
-                overflow: hidden;
-                    }
-                
-                .pdf-viewer {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 117.65%;
-                height: 117.65%;
-                border: 0;
-                transform: scale(0.85);
-                transform-origin: 0 0;
-                }
-        /* Mobile-first approach */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2.5rem;
-            }
-
-            nav ul {
-                flex-direction: column;
-                gap: 10px;
-                display: none;
-            }
-
-            nav ul.active {
-                display: flex;
-            }
-
-            nav ul li {
-                text-align: center;
-                padding: 10px;
-                background-color: #333;
-                border-radius: 5px;
-            }
-
-            .hamburger {
-                display: block;
-                position: absolute;
-                top: 20px;
-                right: 20px;
-                cursor: pointer;
-                color: white;
-                font-size: 1.5rem;
-            }
-
-            .about-section {
-                margin: 20px auto;
-                padding: 20px;
-                width: 90%;
-            }
-
-            footer {
-                position: relative;
-                margin-top: 40px;
-            }
-
-            .contact-button {
-                display: block;
-                margin: 10px auto;
-                text-align: center;
-                width: 80%;
-            }
-
-            img[src="a1.jpg"] {
-                width: 120px;
-                height: 120px;
-            }
-
-            /* Adjust hitwebcounter image */
-            .hitwebcounter img {
-                width: 100%;
-                height: auto;
-            }
-        }
-
-        /* Desktop styles */
-        @media (min-width: 769px) {
-            .hamburger {
-                display: none;
-            }
-        }
-    
+        @media (min-width: 769px) { .hamburger { display: none; } }
     </style>
-
 </head>
 <body>
-    <header class="header" data-aos="fade-down">
-        <header>
-            <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <header>
+        <div class="hamburger" onclick="toggleMenu()">☰</div>
         <h1>Professional Certifications</h1>
-            <nav>
-                <ul>
-                    <li><a href="https://www.achhuta.info/">Home</a></li>
-                    <li><a href="https://www.achhuta.info/projects/">Project</a></li>
-                    <li><a href="https://www.achhuta.info/experience/">Experience</a></li>
-                    <li><a href="https://www.achhuta.info/contact/">Contact</a></li>
-
-                </ul>
-            </nav>
-        </header>
-        <!-- <h1>Professional Certifications</h1>
-        <p>Validated skills and achievements</p> -->
+        <nav>
+            <ul>
+                <li><a href="https://www.achhuta.info/">Home</a></li>
+                <li><a href="https://www.achhuta.info/projects/">Projects</a></li>
+                <li><a href="https://www.achhuta.info/experience/">Experience</a></li>
+                <li><a href="https://www.achhuta.info/contact/">Contact</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <div class="container">
-        <div class="controls">
-            <input type="text" class="search-filter" placeholder="Search by skill, issuer, or year...">
-            <button class="badge" id="themeToggle">
-                <i class="fas fa-moon"></i> Dark Mode
-            </button>
-        </div>
+    <section id="certifications">
+        <h3 style="text-align:center; color:#555;">Click on any certificate to enlarge</h3>
+        <div class="project-grid">
 
-        <section class="certificate-grid">
-            <!-- PW Skills -->
-            <div class="certificate-card" data-aos="fade-up">
-                <div class="certificate-details">
-                    <h3>PW Skills - Full Stack Development</h3>
-                    <p><strong>Issuer:</strong> PW Skills</p>
-                    <p><strong>Date Earned:</strong> January 2023</p>
-                    <div class="skill-tags">
-                        <span class="skill">MERN Stack</span>
-                        <span class="skill">MongoDB</span>
-                        <span class="skill">Express.js</span>
-                        <span class="skill">React</span>
-                        <span class="skill">Node.js</span>
-                    </div>
-                    <div class="certificate-actions">
-                        <a href="https://pwskills.com/learn/certificate/3aacde44-7abe-4672-bb7c-681024e01ace/" 
-                           class="badge" 
-                           target="_blank"
-                           aria-label="Verify PW Skills Certificate">
-                           <i class="fas fa-external-link-alt"></i> Verify
-                        </a>
-                        <a href="/certificates/pw-skills.pdf" 
-                           class="badge" 
-                           download
-                           aria-label="Download PW Skills Certificate">
-                           <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="certificate-viewer">
-                    <iframe class="pdf-viewer" 
-                            src="https://drive.google.com/file/d/1h0VDFqm-38y--arRhRoJl_NArSVxD7kA/preview#view=fitH"
-                            title="PW Skills Certificate Preview"
-                            loading="lazy">
-                    </iframe>
+            <!-- 1. Gen AI Skillup -->
+            <div class="project-card">
+                <h2>Gen AI Skillup Program'25</h2>
+                <img class="cert-preview" src="images\Hack2skill-Certificate.png" alt="Gen AI Skillup" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Google Cloud Skills Boost</p>
+                <p><strong>Date:</strong> Jul 2025</p>
+                <p class="credential-id">ID: 2025H2S07GAIS-P00005</p>
+                <ul>
+                    <li>Generative AI</li>
+                    <li>Google Cloud Platform (GCP)</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="https://certificate.hack2skill.com/user/genaiskillup25/2025H2S07GAIS-P00005" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\Hack2skill-Certificate.png" class="btn" download><i class="fas fa-download"></i> Download</a>
                 </div>
             </div>
-        
-            <!-- IBM Cognitive Class -->
-            <div class="certificate-card" data-aos="fade-up">
-                <div class="certificate-details">
-                    <h3>IBM Cognitive Class - Data Science</h3>
-                    <p><strong>Issuer:</strong> IBM</p>
-                    <p><strong>Date Earned:</strong> March 2023</p>
-                    <div class="skill-tags">
-                        <span class="skill">Data Analysis</span>
-                        <span class="skill">Python</span>
-                        <span class="skill">Pandas</span>
-                        <span class="skill">NumPy</span>
-                    </div>
-                    <div class="certificate-actions">
-                        <a href="https://courses.cognitiveclass.ai/certificates/4e4ffad2848949eca6a8dcb507104a66" 
-                           class="badge" 
-                           target="_blank"
-                           aria-label="Verify IBM Certificate">
-                           <i class="fas fa-external-link-alt"></i> Verify
-                        </a>
-                        <a href="/certificates/ibm-data-science.pdf" 
-                           class="badge" 
-                           download
-                           aria-label="Download IBM Certificate">
-                           <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-                </div>
-                <div class="certificate-viewer">
-                    <iframe class="pdf-viewer" 
-                            src="https://drive.google.com/file/d/1-hTcOIqYAUULoVrdgrdajhGZGUYSXlze/preview#view=fitH"
-                            title="IBM Data Science Certificate Preview"
-                            loading="lazy">
-                    </iframe>
+
+
+            <!-- 2. Microsoft Applied Skills NLP -->
+            <div class="project-card">
+                <h2>Build a NLP solution with Azure AI Language</h2>
+                <img class="cert-preview" src="images\microsoft.jpeg" alt="Microsoft Applied Skills" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Microsoft</p>
+                <p><strong>Date:</strong> May 2025</p>
+                <p class="credential-id">ID: 8FFA2C5154152D11</p>
+                <ul>
+                    <li>Azure AI Studio</li>
+                    <li>Microsoft Azure</li>
+                    <li>NLP</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="https://learn.microsoft.com/en-us/users/achhutanandjha-4800/credentials/8ffa2c5154152d11" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\1748417485145.pdf" class="btn" download><i class="fas fa-download"></i> Download</a>
                 </div>
             </div>
-        
-            <!-- Udacity Nanodegree -->
-            <div class="certificate-card" data-aos="fade-up">
-                <div class="certificate-details">
-                    <h3>Udacity - Cloud Computing Nanodegree</h3>
-                    <p><strong>Issuer:</strong> Udacity</p>
-                    <p><strong>Date Earned:</strong> June 2023</p>
-                    <div class="skill-tags">
-                        <span class="skill">AWS</span>
-                        <span class="skill">Cloud Architecture</span>
-                        <span class="skill">Docker</span>
-                    </div>
-                    <div class="certificate-actions">
-                        <a href="https://www.udacity.com/certificate/e/ddc4e57a-0b33-11ef-b3b0-0b037de8f045" 
-                           class="badge" 
-                           target="_blank"
-                           aria-label="Verify Udacity Certificate">
-                           <i class="fas fa-external-link-alt"></i> Verify
-                        </a>
-                        <a href="/certificates/udacity-cloud.pdf" 
-                           class="badge" 
-                           download
-                           aria-label="Download Udacity Certificate">
-                           <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
+
+            <!-- 3. Data Analytics using AI-LLMs -->
+            <!-- <div class="project-card">
+                <h2>Data Analytics using AI-LLMs Internship</h2>
+                <img class="cert-preview" src="images/Data Analytics using AI-LLMs.jpg" alt="AI-LLMs Internship" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Connecting Dreams Foundation</p>
+                <p><strong>Date:</strong> Oct 2024</p>
+                <p class="credential-id">ID: INTERNSHIP_172663295366ea53f910591</p>
+                <ul>
+                    <li>LLM</li>
+                    <li>AI</li>
+                    <li>Data Analytics</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Data Analytics using AI-LLMs.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
                 </div>
-                <div class="certificate-viewer">
-                    <iframe class="pdf-viewer" 
-                            src="https://www.udacity.com/certificate/e/ddc4e57a-0b33-11ef-b3b0-0b037de8f045"
-                            title="Udacity Cloud Certificate Preview"
-                            loading="lazy">
-                    </iframe>
-                </div>
-            </div>
-        
-            <!-- Continue with remaining certificates using same pattern -->
-            
-            <!-- Coursera - Introduction to Data Science -->
-            <div class="certificate-card" data-aos="fade-up">
-                <div class="certificate-details">
-                    <h3>Coursera - Introduction to Data Science</h3>
-                    <p><strong>Issuer:</strong> Coursera</p>
-                    <p><strong>Date Earned:</strong> May 2023</p>
-                    <div class="skill-tags">
-                        <span class="skill">Data Science</span>
-                        <span class="skill">Python</span>
-                        <span class="skill">Jupyter Notebooks</span>
-                    </div>
-                    <div class="certificate-actions">
-                        <a href="https://www.coursera.org/account/accomplishments/verify/V4SCBAAWTHNX" 
-                           class="badge" 
-                           target="_blank"
-                           aria-label="Verify Coursera Certificate">
-                           <i class="fas fa-external-link-alt"></i> Verify
-                        </a>
-                        <a href="/certificates/coursera-data-science.pdf" 
-                           class="badge" 
-                           download
-                           aria-label="Download Coursera Certificate">
-                           <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-                </div>
-                <div class="certificate-viewer">
-                    <iframe class="pdf-viewer" 
-                            src="https://www.coursera.org/account/accomplishments/verify/V4SCBAAWTHNX"
-                            title="Coursera Data Science Preview"
-                            loading="lazy">
-                    </iframe>
+            </div> -->
+
+            <!-- 4. Backend Development -->
+            <div class="project-card">
+                <h2>Backend Development Course</h2>
+                <img class="cert-preview" src="images\3aacde44-7abe-4672-bb7c-681024e01ace.png" alt="Backend PW" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> PW (PhysicsWallah)</p>
+                <p><strong>Date:</strong> Sep 2024</p>
+                <p class="credential-id">ID: 29cb699c-324b-40dd-a45e-7cf823be23ef</p>
+                <ul>
+                    <li>Back-End Web Development</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="https://pwskills.com/learn/certificate/3aacde44-7abe-4672-bb7c-681024e01ace/" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\3aacde44-7abe-4672-bb7c-681024e01ace.pdf" class="btn" download><i class="fas fa-download"></i> Download</a>
                 </div>
             </div>
-        
-            <!-- IBM SkillsBuild - Essentials -->
-            <div class="certificate-card" data-aos="fade-up">
-                <div class="certificate-details">
-                    <h3>IBM SkillsBuild - Essentials</h3>
-                    <p><strong>Issuer:</strong> IBM SkillsBuild</p>
-                    <p><strong>Date Earned:</strong> April 2024</p>
-                    <div class="skill-tags">
-                        <span class="skill">Cloud Computing</span>
-                        <span class="skill">AI</span>
-                        <span class="skill">Data Science</span>
-                    </div>
-                    <div class="certificate-actions">
-                        <a href="https://courses.skillsbuild.skillsnetwork.site/certificates/91afed0ba0ac44edb1ca9794dcd0ba7f" 
-                           class="badge" 
-                           target="_blank"
-                           aria-label="Verify IBM SkillsBuild Certificate">
-                           <i class="fas fa-external-link-alt"></i> Verify
-                        </a>
-                        <a href="/certificates/ibm-skillsbuild.pdf" 
-                           class="badge" 
-                           download
-                           aria-label="Download IBM SkillsBuild Certificate">
-                           <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
+
+            <!-- 5. AI & Prompt Engineering -->
+            <!-- <div class="project-card">
+                <h2>AI & Prompt Engineering Intern</h2>
+                <img class="cert-preview" src="images/Certificate.jpg" alt="AI Prompt Engineering" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> VaultofCodes</p>
+                <p><strong>Date:</strong> Jul 2024</p>
+                <p class="credential-id">ID: UID:2024J103#135</p>
+                <ul>
+                    <li>AI</li>
+                    <li>Machine Learning Algorithms</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
                 </div>
-                <div class="certificate-viewer">
-                    <iframe class="pdf-viewer" 
-                            src="https://courses.skillsbuild.skillsnetwork.site/certificates/91afed0ba0ac44edb1ca9794dcd0ba7f"
-                            title="IBM SkillsBuild Certificate Preview"
-                            loading="lazy">
-                    </iframe>
+            </div> -->
+
+            <!-- 6. Data Analyst Micro Experience -->
+            <!-- <div class="project-card">
+                <h2>Data Analyst Micro Experience</h2>
+                <img class="cert-preview" src="images/my_certififcate_address_payment_issues_for_delivery_partners.png" alt="Data Analyst Micro" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> skillcred</p>
+                <p><strong>Date:</strong> Jul 2024</p>
+                <p class="credential-id">ID: SC/2024/310</p>
+                <ul>
+                    <li>Data Analysis</li>
+                    <li>Microsoft Excel</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/my_certififcate_address_payment_issues_for_delivery_partners.png" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div> -->
+
+            <!-- 7. Edunet Front End -->
+            <!-- <div class="project-card">
+                <h2>Edunet - Front End Development</h2>
+                <img class="cert-preview" src="images/Screenshot_27-7-2024_91340_.jpeg" alt="Edunet Front End" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> IBM</p>
+                <p><strong>Date:</strong> Jul 2024</p>
+                <p class="credential-id">ID: PLAN-636FD9350D5C</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Screenshot_27-7-2024_91340_.jpeg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div> -->
+
+            <!-- 8. Emerging Technologies -->
+            <!-- <div class="project-card">
+                <h2>Emerging Technologies (AI & Cloud) Intern</h2>
+                <img class="cert-preview" src="images/certificate.jpg" alt="Emerging Technologies" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Edunet Foundation</p>
+                <p><strong>Date:</strong> Jul 2024</p>
+                <p class="credential-id">ID: STU662a2083d78941714036867</p>
+                <ul>
+                    <li>AI</li>
+                    <li>IBM Cloud</li>
+                    <li>Generative AI</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div> -->
+
+            <!-- 9. Enterprise Grade AI -->
+            <div class="project-card">
+                <h2>Getting Started with Enterprise-grade AI</h2>
+                <img class="cert-preview" src="images\GettingStartedwithEnterprisegradeAI.jpg" alt="Enterprise AI" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> IBM</p>
+                <p><strong>Date:</strong> Jul 2024</p>
+                <div class="btn-container">
+                    <a href="https://www.credly.com/badges/e363da0c-d9d6-446b-ab8c-7db979e65726/public_url" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\GettingStartedwithEnterprisegradeAI.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
                 </div>
             </div>
-        
-            <!-- Add remaining certificates following the same structure -->
-            <!-- ... (GUVI, Coursera, and other certificates) ... -->
-        
-        </section>
+
+            <!-- 10. Python Intern -->
+            <!-- <div class="project-card">
+                <h2>Python Programming Intern</h2>
+                <img class="cert-preview" src="images/Certificate.jpg" alt="Python Intern" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> VaultofCodes</p>
+                <p><strong>Date:</strong> Jul 2024</p>
+                <p class="credential-id">ID: UID:2024J103#109</p>
+                <ul>
+                    <li>Python</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div> -->
+
+            <!-- 11. Python for Data Science -->
+            <div class="project-card">
+                <h2>Python for Data Science</h2>
+                <img class="cert-preview" src="images\PythonforDataScience.jpg" alt="Python DS" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> IBM</p>
+                <p><strong>Date:</strong> Jul 2024</p>
+                <ul>
+                    <li>Python</li>
+                    <li>Data Science</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="https://www.credly.com/badges/90a3c76d-320c-4754-b0d4-f3e09e2d1edc/public_url" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\PythonforDataScience.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 12. Web Development Intern -->
+            <!-- <div class="project-card">
+                <h2>Web Development Intern</h2>
+                <img class="cert-preview" src="images/Internship Certificate.jpg" alt="Web Dev Intern" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> VaultofCodes</p>
+                <p><strong>Date:</strong> Jul 2024</p>
+                <p class="credential-id">ID: 2024W103#342</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Internship Certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div> -->
+
+            <!-- 13. Data Analysis Python NIELIT -->
+            <div class="project-card">
+                <h2>Data Analysis using Python</h2>
+                <img class="cert-preview" src="images/Data Analysis using Python.jpg" alt="Data Analysis NIELIT" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> NIELIT</p>
+                <p><strong>Date:</strong> Jun 2024</p>
+                <p class="credential-id">ID: OLC 19255</p>
+                <div class="btn-container">
+                    <a href="https://drive.google.com/file/d/1YWLsep_zsi1lY6dv2aKU8SfZFsC5MpcF/view?usp=sharing" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Data Analysis using Python.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 14. Data Visualization IBM -->
+            <div class="project-card">
+                <h2>Data Visualization Using Python</h2>
+                <img class="cert-preview" src="images\DataVis.jpeg" alt="Data Viz IBM" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> IBM</p>
+                <p><strong>Date:</strong> Jun 2024</p>
+                <ul>
+                    <li>Data Analytics</li>
+                    <li>Data Visualization</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="https://www.credly.com/badges/91bc0b20-ffcd-487c-a4b8-751ad46b6c88" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\DataVis.jpeg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 15. Front End Edunet -->
+            <!-- <div class="project-card">
+                <h2>Front End Development (FED) Intern</h2>
+                <img class="cert-preview" src="images/Certificate.jpg" alt="FED Intern" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Edunet Foundation</p>
+                <p><strong>Date:</strong> Jun 2024</p>
+                <p class="credential-id">ID: INTERNSHIP_1715250706663ca6120b864</p>
+                <ul>
+                    <li>Front-End Development</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div> -->
+
+            <!-- 16. Power BI Vodafone -->
+            <div class="project-card">
+                <h2>Power BI using DAX and AI</h2>
+                <img class="cert-preview" src="images\Power BI.jpeg" alt="Power BI Vodafone" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Vodafone Idea Foundation</p>
+                <p><strong>Date:</strong> Jun 2024</p>
+                <p class="credential-id">ID: VFLMS24_113528</p>
+                <ul>
+                    <li>Power BI</li>
+                    <li>Data Analysis</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="https://voisfortech.com/certificate-verification/VFLMS24_113528/131" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="\images\Certificate.pdf" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 17. Asia AI Odyssey -->
+            <div class="project-card">
+                <h2>Asia AI Odyssey Challenge</h2>
+                <img class="cert-preview" src="images\Asia AI Odyssey Challenge.jpeg" alt="Asia AI Odyssey" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Microsoft</p>
+                <p><strong>Date:</strong> May 2024</p>
+                <div class="btn-container">
+                    <a href="https://drive.google.com/file/d/1JdXwWLnHxiS7FeE_E-r7xqf7B_CPYPvn/view" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\AsiaAIOdysseyL1CertificateMAY4B (29).pdf" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 18. Data Analyst Unified Mentor -->
+            <!-- <div class="project-card">
+                <h2>Data Analyst Intern</h2>
+                <img class="cert-preview" src="images/cert-intern-gen.jpg" alt="Data Analyst Intern" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Unified Mentor Private Limited</p>
+                <p><strong>Date:</strong> Apr 2024</p>
+                <p class="credential-id">ID: U85500HR2023PTC115118</p>
+                <ul>
+                    <li>Data Analytics</li>
+                    <li>Data Science</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/cert-intern-gen.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div> -->
+
+            <!-- 19. Data Science Tools -->
+            <div class="project-card">
+                <h2>Data Science Tools (DS0105EN)</h2>
+                <img class="cert-preview" src="images\Data Science Tools.jpeg" alt="DS Tools IBM" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> IBM</p>
+                <p><strong>Date:</strong> Apr 2024</p>
+                <p class="credential-id">ID: 4e4ffad2848949eca6a8dcb507104a66</p>
+                <ul>
+                    <li>Data Science</li>
+                    <li>Python</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="https://courses.cognitiveclass.ai/certificates/4e4ffad2848949eca6a8dcb507104a66#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\Data Science Tools.pdf" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 20. Discovering Data Science -->
+            <div class="project-card">
+                <h2>Discovering Data Science</h2>
+                <img class="cert-preview" src="images\udacity.jpg" alt="Discovering DS" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Udacity</p>
+                <p><strong>Date:</strong> Apr 2024</p>
+                <ul>
+                    <li>Data Analysis</li>
+                    <li>Data Science</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="https://www.udacity.com/certificate/e/ddc4e57a-0b33-11ef-b3b0-0b037de8f045" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images\Discovering Data Science.pdf" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 21. Micropython -->
+            <div class="project-card">
+                <h2>Micropython Primer</h2>
+                <img class="cert-preview" src="images/micropython_nielit.jpg" alt="Micropython" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> NIELIT</p>
+                <p><strong>Date:</strong> Apr 2024</p>
+                <p class="credential-id">ID: OLC 16739</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/micropython_nielit.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 22. Modern Data Warehouse -->
+            <div class="project-card">
+                <h2>Modern Data Warehouse in Azure</h2>
+                <img class="cert-preview" src="images/Modern Data Warehouse Analytics in Microsoft Azure.png" alt="Azure Data Warehouse" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Microsoft</p>
+                <p><strong>Date:</strong> Apr 2024</p>
+                <p class="credential-id">ID: V4SCBAAWTHNX</p>
+                <ul>
+                    <li>Azure</li>
+                    <li>Azure ML</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Modern Data Warehouse Analytics in Microsoft Azure.png" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 23. Big Data 101 -->
+            <div class="project-card">
+                <h2>Big Data 101 (BD0101EN)</h2>
+                <img class="cert-preview" src="images/IBM BD0101EN Certificate.jpg" alt="Big Data 101" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> IBM</p>
+                <p><strong>Date:</strong> Mar 2024</p>
+                <p class="credential-id">ID: 91afed0ba0ac44edb1ca9794dcd0ba7f</p>
+                <ul>
+                    <li>Big Data</li>
+                    <li>Big Data Analytics</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/IBM BD0101EN Certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 24. Sustainable Tech -->
+            <div class="project-card">
+                <h2>Career Essentials in Sustainable Tech</h2>
+                <img class="cert-preview" src="images/sustainable-tech-certificate.jpg" alt="Sustainable Tech" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Microsoft</p>
+                <p><strong>Date:</strong> Mar 2024</p>
+                <p class="credential-id">ID: ea9ce5d04a87...</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/sustainable-tech-certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 25. Data Viz Python IBM -->
+            <div class="project-card">
+                <h2>Data Visualization with Python</h2>
+                <img class="cert-preview" src="images/Data Visualization_ibm.png" alt="Data Viz IBM" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> IBM</p>
+                <p><strong>Date:</strong> Mar 2024</p>
+                <p class="credential-id">ID: aca1bd018c024e3f81136fe5fce7cdc8</p>
+                <ul>
+                    <li>Python</li>
+                    <li>Data Visualization</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Data Visualization_ibm.png" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 26. Python 101 -->
+            <div class="project-card">
+                <h2>Python 101 for Data Science</h2>
+                <img class="cert-preview" src="images/IBM PY0101EN Certificate.jpg" alt="Python 101" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> IBM</p>
+                <p><strong>Date:</strong> Mar 2024</p>
+                <p class="credential-id">ID: acadcbf8ceff4a7bbc3925f85b573790</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/IBM PY0101EN Certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 27. Career Essentials Data Analysis -->
+            <div class="project-card">
+                <h2>Career Essentials in Data Analysis</h2>
+                <img class="cert-preview" src="images/data-analysis-certificate.jpg" alt="Career Essentials Data" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Microsoft</p>
+                <p><strong>Date:</strong> Feb 2024</p>
+                <p class="credential-id">ID: 4c9d3774153...</p>
+                <ul>
+                    <li>Azure Data Factory</li>
+                    <li>Data Analytics</li>
+                </ul>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/data-analysis-certificate.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 28. Problem Solving -->
+            <div class="project-card">
+                <h2>Problem Solving (Basic)</h2>
+                <img class="cert-preview" src="images/python.jpg" alt="HackerRank" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> HackerRank</p>
+                <p><strong>Date:</strong> Feb 2024</p>
+                <p class="credential-id">ID: 9265B7438DDE</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/python.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 29. Basics of Python -->
+            <div class="project-card">
+                <h2>Basics of Python</h2>
+                <img class="cert-preview" src="images/Basics of Python.jpg" alt="Basics Python" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Infosys Springboard</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Basics of Python.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 30. ChatGPT -->
+            <div class="project-card">
+                <h2>ChatGPT</h2>
+                <img class="cert-preview" src="images/GuviCertification - 44zB6R4f977OY0U1T3.png" alt="ChatGPT Guvi" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> HCL GUVI</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: 44zB6R4f977OY0U1T3</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/GuviCertification - 44zB6R4f977OY0U1T3.png" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 31. Security Fest -->
+            <div class="project-card">
+                <h2>Cyberonites Security Fest 2k24</h2>
+                <img class="cert-preview" src="images/Cyberonites Security Fest 2k24.jpg" alt="Security Fest" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Abacus Computer Society</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Cyberonites Security Fest 2k24.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 32. Data Engineering -->
+            <div class="project-card">
+                <h2>Data Engineering and Bigdata</h2>
+                <img class="cert-preview" src="images/Data Engineering and Bigdata.jpg" alt="Data Eng Guvi" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> HCL GUVI</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: EP9g1197M0nt499779</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Data Engineering and Bigdata.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 33. Data Science Math -->
+            <div class="project-card">
+                <h2>Data Science Mathematics</h2>
+                <img class="cert-preview" src="images/math.jpg" alt="DS Math" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Great Learning</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: DEBRHFHT</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/math.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 34. Intro AI LinkedIn -->
+            <div class="project-card">
+                <h2>Introduction to Artificial Intelligence</h2>
+                <img class="cert-preview" src="images/Artificial Intelligence for Business.jpg" alt="Intro AI LinkedIn" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> LinkedIn</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: 067e59d269a...</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Artificial Intelligence for Business.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 35. Intro Gen AI -->
+            <div class="project-card">
+                <h2>Introduction to Generative AI</h2>
+                <img class="cert-preview" src="images/AI.jpg" alt="Gen AI Google" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Google (Coursera)</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: 9MG22RCET8NF</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/AI.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 36. Intro Python Infosys -->
+            <div class="project-card">
+                <h2>Introduction to Python</h2>
+                <img class="cert-preview" src="images/Introduction to Python.jpg" alt="Intro Python" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Infosys Springboard</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Introduction to Python.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 37. Microsoft Excel -->
+            <div class="project-card">
+                <h2>Microsoft Excel</h2>
+                <img class="cert-preview" src="images/Excel.jpg" alt="Excel Guvi" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> HCL GUVI</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: z3Df10mFT20103Q67y</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Excel.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 38. Power BI Training -->
+            <div class="project-card">
+                <h2>Power BI Training</h2>
+                <img class="cert-preview" src="images/Power BI.jpg" alt="Power BI Infosys" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Infosys Springboard</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Power BI.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 39. Python Guvi -->
+            <div class="project-card">
+                <h2>Python</h2>
+                <img class="cert-preview" src="images/pyt.jpg" alt="Python Guvi" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> HCL GUVI</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: t0V8E9cz43OyZ11797</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/pyt.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 40. Python Financial Analysis -->
+            <div class="project-card">
+                <h2>Python and Statistics for Financial Analysis</h2>
+                <img class="cert-preview" src="images/pyt.jpg" alt="Python Financial" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> HKUST</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: 7ASARXRPSRE2</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/pyt.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 41. Python Beginners -->
+            <div class="project-card">
+                <h2>Python for Beginners</h2>
+                <img class="cert-preview" src="images/Python for Beginners.jpg" alt="Python Beginners" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Infosys Springboard</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Python for Beginners.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 42. Tata Data Viz -->
+            <div class="project-card">
+                <h2>Tata - Data Visualisation</h2>
+                <img class="cert-preview" src="images/Data Visualisation.jpg" alt="Tata Data Viz" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Forage</p>
+                <p><strong>Date:</strong> Jan 2024</p>
+                <p class="credential-id">ID: yvhMXLfRqAy4kBjKD</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Data Visualisation.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <!-- 43. Digital Marketing -->
+            <div class="project-card">
+                <h2>Fundamentals of Digital Marketing</h2>
+                <img class="cert-preview" src="images/Fundamentals of digital marketing.jpg" alt="Digital Marketing" onclick="openModal(this.src)">
+                <p><strong>Issuer:</strong> Google Digital Academy</p>
+                <p><strong>Date:</strong> Aug 2022</p>
+                <p class="credential-id">ID: 181609754</p>
+                <div class="btn-container">
+                    <a href="#" class="btn" target="_blank"><i class="fas fa-external-link-alt"></i> Verify</a>
+                    <a href="images/Fundamentals of digital marketing.jpg" class="btn" download><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01">
     </div>
 
-    <button class="theme-toggle" id="backToTop">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Initialize AOS
-        AOS.init({
-            duration: 800,
-            once: true
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Document is ready!');
+        });
+        
+        window.watsonAssistantChatOptions = {
+            integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449", 
+            region: "au-syd", 
+            serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb", 
+            onLoad: async (instance) => { await instance.render(); }
+        };
+        setTimeout(function(){
+            const t=document.createElement('script');
+            t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+            document.head.appendChild(t);
         });
 
-        // Theme toggle
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
-            document.body.dataset.theme = 
-                document.body.dataset.theme === 'dark' ? 'light' : 'dark';
-            themeToggle.innerHTML = document.body.dataset.theme === 'dark' 
-                ? '<i class="fas fa-sun"></i> Light Mode' 
-                : '<i class="fas fa-moon"></i> Dark Mode';
-        });
+        // Modal Logic
+        var modal = document.getElementById("myModal");
+        var modalImg = document.getElementById("img01");
 
-        // Search filter
-        const searchFilter = document.querySelector('.search-filter');
-        searchFilter.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            document.querySelectorAll('.certificate-card').forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(searchTerm) ? 'grid' : 'none';
-            });
-        });
+        function openModal(src) {
+            modal.style.display = "flex";
+            modal.style.justifyContent = "center";
+            modal.style.alignItems = "center";
+            modalImg.src = src;
+        }
 
-        // Back to top
-        const backToTop = document.getElementById('backToTop');
-        window.addEventListener('scroll', () => {
-            backToTop.style.display = window.scrollY > 500 ? 'block' : 'none';
-        });
-        backToTop.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    </script>
-    <script>
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Close when clicking outside image
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Menu Logic
         function toggleMenu() {
             const navUl = document.querySelector('nav ul');
             navUl.classList.toggle('active');
         }
 
-        // Close menu when clicking outside
         document.addEventListener('click', function(event) {
             const navUl = document.querySelector('nav ul');
             const hamburger = document.querySelector('.hamburger');
