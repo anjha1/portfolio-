@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Readiness Portal - Achhuta Nand Jha</title>
+    <link rel="icon" type="image/png" href="a1.jpg">
+    <style>
+        /* --- GLOBAL STYLES --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9cfb7ab; /* User's preferred background */
+            color: #333;
+        }
+
+        header {
+            background-color: #000;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        h1 { margin: 0; font-size: 1.8rem; }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        nav ul li { display: inline; margin: 0 10px; }
+        nav ul li a { color: #ccc; text-decoration: none; font-weight: bold; font-size: 1rem; transition: color 0.3s; }
+        nav ul li a:hover { color: #1197cd; }
+
+        /* Filter Tabs */
+        .filter-container {
+            text-align: center;
+            padding: 15px;
+            background-color: #222;
+            margin-bottom: 25px;
+        }
+
+        .filter-btn {
+            background-color: transparent;
+            border: 2px solid #555;
+            color: #ddd;
+            padding: 8px 18px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background-color: #1197cd;
+            border-color: #1197cd;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* Container & Grid */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        /* Card Styling */
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border-left: 6px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #7105e4;
+            margin-top: 0;
+            font-size: 1.4rem;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+        }
+
+        .card .subtitle {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .card li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        /* Action Buttons Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        /* Button Color Schemes */
+        .btn-modal { background-color: #333; grid-column: span 2; } /* Quick View */
+        .btn-view { background-color: #343a40; }       /* Dark Grey */
+        .btn-github { background-color: #24292e; }     /* GitHub Black */
+        .btn-pdf { background-color: #dc3545; }        /* Red (Generic Doc) */
+        
+        .btn-resume { background-color: #28a745; grid-column: span 2; padding: 12px; font-size: 0.9rem; } /* Green */
+        
+        .btn-overview { background-color: #17a2b8; }  /* Teal */
+        .btn-workflow { background-color: #fd7e14; }  /* Orange */
+        .btn-arch { background-color: #6610f2; }      /* Purple */
+
+        /* New Specific PDF Buttons */
+        .btn-details-pdf { background-color: #007bff; color: white; } /* Blue for Details PDF */
+        .btn-qa-pdf { background-color: #6f42c1; color: white; }      /* Indigo for Q&A PDF */
+
+        /* Border Colors based on Type */
+        .border-project { border-left-color: #007bff; }
+        .border-internship { border-left-color: #6610f2; }
+        .border-resume { border-left-color: #28a745; }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 0;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-header h3 { margin: 0; color: #333; }
+        
+        .close-modal {
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+        }
+        .close-modal:hover { color: #000; }
+
+        .modal-body { padding: 30px; }
+
+        .modal-section-title {
+            color: #007bff;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+        .modal-section-title:first-child { margin-top: 0; }
+
+        .qa-container { display: flex; flex-direction: column; gap: 15px; }
+        
+        .qa-box {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #6610f2;
+        }
+        
+        .qa-q { font-weight: 700; color: #212529; margin-bottom: 8px; font-size: 1.05rem; }
+        .qa-a { color: #555; font-style: italic; line-height: 1.6; }
+
+        .text-content { line-height: 1.7; color: #444; white-space: pre-line; }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Interview Readiness Portal</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Documentation</a></li>
+            </ul>
+        </nav>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" id="btn-all" onclick="filterData('all')">All</button>
+            <button class="filter-btn" id="btn-resume" onclick="filterData('resume')">📄 Resumes</button>
+            <button class="filter-btn" id="btn-internship" onclick="filterData('internship')">💼 Internships</button>
+            <button class="filter-btn" id="btn-project" onclick="filterData('project')">🚀 Projects</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <h4 style="text-align: center; color: #856404; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba;">
+            ⚠️ <b>Private Access Only:</b> Use this dashboard to recall stories and Q&A during interview prep.
+        </h4>
+        <div id="content-grid" class="grid">
+            <!-- Cards injected via JS -->
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="infoModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Project Title</h3>
+                <span class="close-modal" onclick="document.getElementById('infoModal').style.display='none'">&times;</span>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <!-- Content -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ======================================================
+        // DATABASE - ADD YOUR LINKS AND DETAILS HERE
+        // ======================================================
+        const database = [
+            
+            // --- 1. RESUMES (6 ROLES) ---
+            {
+                type: "resume",
+                title: "Data Scientist Resume",
+                subtitle: "Target: Data Science / AI Research",
+                summary: ["Focus: Statistical Analysis & ML Models", "Tools: Python, SQL, Scikit-Learn", "Experience: Shell, Microsoft"],
+                links: { pdf: "resumes/Data_Scientist_Resume.pdf", detailsPdf: "docs/DS_Resume_Details.pdf", qaPdf: "docs/DS_Resume_QA.pdf" },
+                details: "Tailored for Data Science. Highlights statistical modeling, A/B testing concepts, and model deployment.",
+                qa: [{q: "Walk me through this resume", a: "Start with Education -> Shell Internship (Diabetes Model) -> Diamond Prediction Project."}]
+            },
+            {
+                type: "resume",
+                title: "AI Engineer Resume",
+                subtitle: "Target: NLP / GenAI Roles",
+                summary: ["Focus: LLMs, Gemini, OpenAI API", "Tools: LangChain, Next.js, Python", "Experience: IBM SkillsBuild, Pixora AI"],
+                links: { pdf: "resumes/AI_Engineer_Resume.pdf", detailsPdf: "docs/AI_Resume_Details.pdf", qaPdf: "docs/AI_Resume_QA.pdf" },
+                details: "Emphasizes Generative AI, API integration (Gemini), and deploying AI models in web apps.",
+                qa: [{q: "Strongest AI Project?", a: "Pixora AI because it integrates Google Gemini for real-time image editing."}]
+            },
+            {
+                type: "resume",
+                title: "Data Analyst Resume",
+                subtitle: "Target: Business Intelligence / Analytics",
+                summary: ["Focus: Power BI, EDA, Visualization", "Tools: Excel, SQL, Pandas", "Experience: Vodafone Idea, Unified Mentor"],
+                links: { pdf: "resumes/Data_Analyst_Resume.pdf", detailsPdf: "docs/DA_Resume_Details.pdf", qaPdf: "docs/DA_Resume_QA.pdf" },
+                details: "Focuses on Data Cleaning (Pandas), Visualization (Power BI/Matplotlib), and Business Insights.",
+                qa: [{q: "How do you handle missing data?", a: "Explained in the Vodafone internship section: Mean imputation or removing rows based on impact."}]
+            },
+            {
+                type: "resume",
+                title: "Web Development Resume",
+                subtitle: "Target: MERN Stack / Frontend",
+                summary: ["Focus: React, Node.js, Databases", "Tools: MongoDB, Tailwind, Redux", "Experience: EY GDS, VaultofCodes"],
+                links: { pdf: "resumes/Web_Dev_Resume.pdf", detailsPdf: "docs/Web_Resume_Details.pdf", qaPdf: "docs/Web_Resume_QA.pdf" },
+                details: "Highlights Full Stack skills. Scalable architecture, Authentication (NextAuth), and Payment Integration (Stripe).",
+                qa: [{q: "Explain MERN architecture", a: "MongoDB (DB) -> Express (Backend) -> React (Frontend) -> Node (Runtime)."}]
+            },
+            {
+                type: "resume",
+                title: "Machine Learning Engineer Resume",
+                subtitle: "Target: ML Ops / Model Deployment",
+                summary: ["Focus: Model Training, Deployment", "Tools: Flask, Docker, XGBoost", "Experience: CodSoft, Shell"],
+                links: { pdf: "resumes/ML_Engineer_Resume.pdf", detailsPdf: "docs/ML_Resume_Details.pdf", qaPdf: "docs/ML_Resume_QA.pdf" },
+                details: "Focuses on the end-to-end ML pipeline: Preprocessing -> Training -> Evaluation -> Deployment (Flask/Render).",
+                qa: [{q: "Difference between fit and transform?", a: "Fit calculates parameters (mean/std), Transform applies them."}]
+            },
+            {
+                type: "resume",
+                title: "General Software Resume",
+                subtitle: "Target: SDE / General Tech",
+                summary: ["Focus: DSA, Problem Solving, Core CS", "Tools: C++, Java, Python", "Projects: All Rounder"],
+                links: { pdf: "resumes/General_Resume.pdf", detailsPdf: "docs/General_Resume_Details.pdf", qaPdf: "docs/General_Resume_QA.pdf" },
+                details: "A balanced resume covering DSA skills, Web Dev basics, and Data Analysis basics.",
+                qa: [{q: "Preferred Language?", a: "Python for Dev/AI, C++ for DSA."}]
+            },
+
+            // --- 2. INTERNSHIPS (13 Total) ---
+            {
+                type: "internship",
+                title: "Full Stack Intern - EY GDS",
+                subtitle: "Dec 2024 - Jan 2025 | MERN",
+                summary: ["MERN Stack Development", "Scalable Web Apps", "AI Tools Masterclass"],
+                links: { pdf: "internships/EY_Cert.pdf", overview: "internships/EY_Overview.pdf", detailsPdf: "internships/EY_Details.pdf", qaPdf: "internships/EY_QA.pdf" },
+                details: "Developed full-stack apps. Learned about Enterprise architecture and integrating AI tools in dev workflow.",
+                qa: [{q: "Role in team?", a: "Backend API development and connecting React frontend to MongoDB."}]
+            },
+            {
+                type: "internship",
+                title: "AI Intern - Microsoft & SAP",
+                subtitle: "Nov 2024 - Jan 2025 | AI",
+                summary: ["Advanced AI Concepts", "Real-world Projects", "Emerging Tech"],
+                links: { pdf: "internships/Microsoft_Cert.pdf", overview: "internships/Microsoft_Overview.pdf", detailsPdf: "internships/Microsoft_Details.pdf", qaPdf: "internships/Microsoft_QA.pdf" },
+                details: "Joint initiative focusing on AI. Explored Azure AI services and SAP's data handling.",
+                qa: [{q: "Key learning?", a: "How enterprise AI scales and integrates with ERP systems."}]
+            },
+            {
+                type: "internship",
+                title: "Data Analyst - Vodafone Idea",
+                subtitle: "Jun 2024 - Jul 2024 | Power BI",
+                summary: ["Telecom Data Analysis", "Power BI Dashboards", "Call Drop Insights"],
+                links: { pdf: "internships/Vodafone_Cert.pdf", overview: "internships/Vodafone_Overview.pdf", detailsPdf: "internships/Vodafone_Details.pdf", qaPdf: "internships/Vodafone_QA.pdf" },
+                details: "Analyzed large telecom datasets. Created dashboards to visualize network performance and customer churn.",
+                qa: [{q: "Tools used?", a: "SQL for extraction, Power BI for visualization."}]
+            },
+            {
+                type: "internship",
+                title: "AI & Cloud Intern - IBM",
+                subtitle: "Jul 2024 - Aug 2024 | Emerging Tech",
+                summary: ["IBM Watson Studio", "Model Deployment", "Cloud AI Solutions"],
+                links: { pdf: "internships/IBM_Emerging_Cert.pdf", overview: "internships/IBM_Overview.pdf", detailsPdf: "internships/IBM_Details.pdf", qaPdf: "internships/IBM_QA.pdf" },
+                details: "Gained experience with AI and Cloud computing technologies (IBM SkillsBuild). Developed AI models using cloud tools.",
+                qa: [{q: "Cloud Tool?", a: "Used IBM Watson Studio for model building."}]
+            },
+            {
+                type: "internship",
+                title: "AI & Data Intern - Shell India",
+                subtitle: "Nov 2024 - Dec 2024 | ML",
+                summary: ["Healthcare Prediction Model", "92% Accuracy", "Data Preprocessing"],
+                links: { pdf: "internships/Shell_Cert.pdf", overview: "internships/Shell_Overview.pdf", detailsPdf: "internships/Shell_Details.pdf", qaPdf: "internships/Shell_QA.pdf" },
+                details: "Developed a diabetes prediction model. Focused heavily on data cleaning and feature engineering.",
+                qa: [{q: "Model used?", a: "Random Forest and SVM. RF performed better due to ensemble nature."}]
+            },
+            {
+                type: "internship",
+                title: "AI Intern - IBM SkillsBuild",
+                subtitle: "Nov 2024 - Jan 2025 | NLP",
+                summary: ["NLP & Deep Learning", "Predictive Models", "Team Collaboration"],
+                links: { pdf: "internships/IBM_AI_Cert.pdf", overview: "internships/IBM_Overview.pdf", detailsPdf: "internships/IBM_AI_Details.pdf", qaPdf: "internships/IBM_AI_QA.pdf" },
+                details: "Worked on NLP tasks. Built a sentiment analysis model using TensorFlow.",
+                qa: [{q: "Challenges?", a: "Handling imbalanced datasets in text classification."}]
+            },
+            {
+                type: "internship",
+                title: "Data Analytics Intern - CDF",
+                subtitle: "Oct 2024 - Nov 2024 | AI-LLMs",
+                summary: ["Agriculture Datasets", "Real-world Challenges", "AICTE Certified"],
+                links: { pdf: "internships/CDF_Cert.pdf", overview: "internships/CDF_Overview.pdf", detailsPdf: "internships/CDF_Details.pdf", qaPdf: "internships/CDF_QA.pdf" },
+                details: "Connecting Dreams Foundation. Analyzed datasets in agriculture and tech domains.",
+                qa: [{q: "Impact?", a: "Provided insights for crop yield improvement."}]
+            },
+            {
+                type: "internship",
+                title: "Python Intern - VaultofCodes",
+                subtitle: "Jul 2024 - Aug 2024 | Automation",
+                summary: ["Python Scripting", "Data Optimization", "API Integration"],
+                links: { pdf: "internships/Vault_Python_Cert.pdf", overview: "internships/Vault_Overview.pdf", detailsPdf: "internships/Vault_Details.pdf", qaPdf: "internships/Vault_QA.pdf" },
+                details: "Wrote scripts to automate manual data entry tasks. Optimized legacy code for speed.",
+                qa: [{q: "Optimization example?", a: "Replaced for-loops with Vectorized operations in NumPy/Pandas."}]
+            },
+            {
+                type: "internship",
+                title: "Web Dev Intern - VaultofCodes",
+                subtitle: "Jun 2024 - Aug 2024 | Frontend",
+                summary: ["Responsive Design", "HTML/CSS/JS", "Performance Tuning"],
+                links: { pdf: "internships/Vault_Web_Cert.pdf", overview: "internships/Vault_Web_Overview.pdf", detailsPdf: "internships/Vault_Web_Details.pdf", qaPdf: "internships/Vault_Web_QA.pdf" },
+                details: "Designed and developed responsive web applications. Focused on UI/UX improvements.",
+                qa: [{q: "Key achievement?", a: "Improved page load speed by optimizing image assets."}]
+            },
+            {
+                type: "internship",
+                title: "Front-End Intern - Edunet",
+                subtitle: "June 2024 - July 2024 | Frontend",
+                summary: ["Interactive Web Apps", "Modern Frameworks", "AICTE & IBM Powered"],
+                links: { pdf: "internships/Edunet_Cert.pdf", overview: "internships/Edunet_Overview.pdf", detailsPdf: "internships/Edunet_Details.pdf", qaPdf: "internships/Edunet_QA.pdf" },
+                details: "Developed responsive web apps. Gained experience with modern front-end design principles.",
+                qa: [{q: "Frameworks?", a: "Used React basics and Bootstrap for layout."}]
+            },
+            {
+                type: "internship",
+                title: "AI Engineer Intern - CodSoft",
+                subtitle: "Jun 2024 - Jul 2024 | ML",
+                summary: ["AI Models Implementation", "Project-based Learning", "Model Evaluation"],
+                links: { pdf: "internships/CodSoft_Cert.pdf", overview: "internships/CodSoft_Overview.pdf", detailsPdf: "internships/CodSoft_Details.pdf", qaPdf: "internships/CodSoft_QA.pdf" },
+                details: "Worked on implementing standard AI models like Tic-Tac-Toe AI and Recommendation systems.",
+                qa: [{q: "Project?", a: "Built a movie recommendation system."}]
+            },
+            {
+                type: "internship",
+                title: "Data Analyst Intern - Unified Mentor",
+                subtitle: "Apr 2024 - May 2024 | Analytics",
+                summary: ["Real-world Datasets", "Business Insights", "Statistical Analysis"],
+                links: { pdf: "internships/Unified_Cert.pdf", overview: "internships/Unified_Overview.pdf", detailsPdf: "internships/Unified_Details.pdf", qaPdf: "internships/Unified_QA.pdf" },
+                details: "Analyzed business data to extract trends and improve decision making.",
+                qa: [{q: "Tool?", a: "Excel for preliminary analysis and Python for deeper stats."}]
+            },
+             {
+                type: "internship",
+                title: "Data Engineer Trainee - Google Cloud",
+                subtitle: "Aug 2024 - Nov 2024 | GCP",
+                summary: ["GCP Data Engineering", "BigQuery & Dataflow", "Cloud Architecture"],
+                links: { pdf: "internships/Google_Cert.pdf", overview: "internships/Google_Overview.pdf", detailsPdf: "internships/Google_Details.pdf", qaPdf: "internships/Google_QA.pdf" },
+                details: "Learned GCP ecosystem. BigQuery for warehousing, Dataflow for pipelines.",
+                qa: [{q: "BigQuery vs SQL?", a: "BigQuery is serverless and optimized for Petabyte-scale analytics."}]
+            },
+
+            // --- 3. PROJECTS (16 Total) ---
+            {
+                type: "project",
+                title: "✨ Pixora AI - Image Editor",
+                subtitle: "Full Stack AI SaaS (Next.js + Gemini)",
+                summary: ["Generative AI Image Editing", "SaaS (Stripe + Auth)", "Next.js 15 & Prisma"],
+                links: {
+                    view: "https://pixora-ai-8zbh.onrender.com",
+                    github: "https://github.com/anjha1/pixora-ai", 
+                    pdf: "docs/Pixora_Documentation.pdf",
+                    detailsPdf: "docs/Pixora_Details.pdf", 
+                    qaPdf: "docs/Pixora_QA.pdf",             
+                    workflow: "docs/Pixora_Workflow.pdf",
+                    architecture: "docs/Pixora_Architecture.pdf"
+                },
+                details: "Pixora AI is a 'Magic Studio' for image editing. Uses Gemini for generative edits.",
+                qa: [{q: "Why Next.js?", a: "For full-stack capabilities."}]
+            },
+            {
+                type: "project",
+                title: "Diamond Price Prediction",
+                subtitle: "ML Regression (XGBoost)",
+                summary: ["Predicts diamond value", "Flask API Deployment", "93% Accuracy"],
+                links: { view: "https://diamondpriceprediction-egr9.onrender.com/", github: "https://github.com/anjha1/DiamondPricePrediction", pdf: "docs/diamond.pdf", detailsPdf: "docs/diamond_details.pdf", qaPdf: "docs/diamond_qa.pdf", workflow: "docs/diamond_flow.pdf", architecture: "docs/diamond_arch.pdf" },
+                details: "Estimates diamond prices based on carat, cut, clarity.",
+                qa: [{q: "Why XGBoost?", a: "Gradient boosting handles structured data better."}]
+            },
+            {
+                type: "project",
+                title: "Book Rec. System",
+                subtitle: "Hybrid Recommendation Engine",
+                summary: ["Collaborative + Content Filtering", "Top 50 Books UI", "92% Accuracy"],
+                links: { view: "https://book-recommendation-system-anjha.onrender.com", github: "https://github.com/anjha1/Book-Recommendation-System", pdf: "docs/books.pdf", detailsPdf: "docs/books_details.pdf", qaPdf: "docs/books_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Recommends books based on user history and book similarity.",
+                qa: [{q: "Similarity metric?", a: "Cosine Similarity."}]
+            },
+            {
+                type: "project",
+                title: "Zapkart - Self Checkout",
+                subtitle: "IoT & Web App",
+                summary: ["Barcode Scanning", "Real-time Billing", "Firebase Database"],
+                links: { view: "https://anjha1.github.io/zapkart/", github: "https://github.com/anjha1/zapkart", pdf: "docs/zapkart.pdf", detailsPdf: "docs/zapkart_details.pdf", qaPdf: "docs/zapkart_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Smart cart system to reduce queues.",
+                qa: [{q: "Latency?", a: "Firebase listeners provided sub-second updates."}]
+            },
+            {
+                type: "project",
+                title: "SMS Spam Detection",
+                subtitle: "NLP Classification",
+                summary: ["TF-IDF Vectorization", "Streamlit Interface", "Spam/Ham Classifier"],
+                links: { view: "https://sms-spam-detection-app-necs.onrender.com", github: "https://github.com/anjha1/SMS-Spam-Detection-App", pdf: "docs/spam.pdf", detailsPdf: "docs/spam_details.pdf", qaPdf: "docs/spam_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Classifies messages as Spam or Ham using Naive Bayes.",
+                qa: [{q: "Algorithm?", a: "Naive Bayes (Multinomial)."}]
+            },
+            {
+                type: "project",
+                title: "Employee Burnout Prediction",
+                subtitle: "Regression Analysis",
+                summary: ["Kaggle Dataset", "Risk Prediction", "Actionable Insights"],
+                links: { view: "https://employee-burnout-prediction-and-analysis-ga4d.onrender.com", github: "https://github.com/anjha1/Employee-Burnout-Prediction-And-Analysis", pdf: "docs/burnout.pdf", detailsPdf: "docs/burnout_details.pdf", qaPdf: "docs/burnout_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Predicts employee burnout risk using regression techniques.",
+                qa: [{q: "Impact?", a: "Helps HR take proactive measures."}]
+            },
+            {
+                type: "project",
+                title: "Forest Fire Prediction",
+                subtitle: "Regression Analysis",
+                summary: ["AutoAI & Manual Regressors", "FWI Index Prediction", "R2 Score: 0.98"],
+                links: { view: "https://fwi-fire-weather-index-prediction-project-pa24.onrender.com", github: "https://github.com/anjha1/FWI-Fire-Weather-Index-Prediction-project/tree/master", pdf: "docs/forest.pdf", detailsPdf: "docs/forest_details.pdf", qaPdf: "docs/forest_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Predicted Fire Weather Index based on temperature, humidity, wind.",
+                qa: [{q: "Regularization?", a: "Used Ridge Regression."}]
+            },
+            {
+                type: "project",
+                title: "Alpha Thalassemia Classifier",
+                subtitle: "Medical ML Classification",
+                summary: ["Phenotype Prediction", "98% Accuracy", "Healthcare App"],
+                links: { view: "#", github: "https://github.com/anjha1/Alpha-Thalassemia-Classifier-A-Machine-Learning-Approach", pdf: "docs/alpha.pdf", detailsPdf: "docs/alpha_details.pdf", qaPdf: "docs/alpha_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Predicts alpha-thalassemia phenotypes using XGBoost.",
+                qa: [{q: "Data source?", a: "Clinical data processing."}]
+            },
+             {
+                type: "project",
+                title: "Email Resume Sender",
+                subtitle: "Automation Tool",
+                summary: ["Automated Cold Emailing", "Attachment Handling", "User Friendly UI"],
+                links: { view: "https://email-resume-sender-kyne.onrender.com", github: "https://github.com/anjha1/Email-Resume-Sender", pdf: "docs/email.pdf", detailsPdf: "docs/email_details.pdf", qaPdf: "docs/email_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Web app to send mass personalized emails with attachments.",
+                qa: [{q: "Protocol?", a: "SMTP."}]
+            },
+            {
+                type: "project",
+                title: "Tic Tac Toe Game",
+                subtitle: "Game Development",
+                summary: ["2-Player Game", "Win Detection Logic", "Clean UI"],
+                links: { view: "https://anjha1.github.io/Tic-Tac-Toe-Game/", github: "https://github.com/anjha1/Tic-Tac-Toe-Game", pdf: "docs/ttt.pdf", detailsPdf: "docs/ttt_details.pdf", qaPdf: "docs/ttt_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Classic game built with HTML/CSS/JS.",
+                qa: [{q: "Logic?", a: "Array checking for win combinations."}]
+            },
+            {
+                type: "project",
+                title: "Weather App",
+                subtitle: "API Integration",
+                summary: ["Real-time Weather", "Location Based", "Responsive Design"],
+                links: { view: "https://anjha1.github.io/Weather-App/", github: "https://github.com/anjha1/Weather-App", pdf: "docs/weather.pdf", detailsPdf: "docs/weather_details.pdf", qaPdf: "docs/weather_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Fetches weather data from open APIs.",
+                qa: [{q: "API used?", a: "OpenWeatherMap API."}]
+            },
+            {
+                type: "project",
+                title: "DevDetective",
+                subtitle: "GitHub Profile Finder",
+                summary: ["GitHub API", "Profile Stats", "Repo Listing"],
+                links: { view: "https://anjha1.github.io/DevDetective/", github: "https://github.com/anjha1/DevDetective", pdf: "docs/devdetective.pdf", detailsPdf: "docs/dev_details.pdf", qaPdf: "docs/dev_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Fetches and displays GitHub user data.",
+                qa: [{q: "Auth?", a: "No auth required for public data."}]
+            },
+            {
+                type: "project",
+                title: "Covid-19 Analysis Report",
+                subtitle: "Data Analysis (EDA)",
+                summary: ["Pandas Profiling", "Automated EDA", "Variable Insights"],
+                links: { view: "https://anjha1.github.io/Covid-19-india-Data-Analysis-Report/", github: "https://github.com/anjha1/Covid-19-india-Data-Analysis-Report", pdf: "docs/covid.pdf", detailsPdf: "docs/covid_details.pdf", qaPdf: "docs/covid_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Automated analysis of Covid-19 data.",
+                qa: [{q: "Library?", a: "YData Profiling (Pandas Profiling)."}]
+            },
+            {
+                type: "project",
+                title: "Custom DAI (Ads)",
+                subtitle: "Video Ad Insertion",
+                summary: ["Dynamic Ad Insertion", "Random Selection", "Seamless Stream"],
+                links: { view: "https://anjha1.github.io/Custom-DAI-with-Multiple-Random-Ads/", github: "https://github.com/anjha1/Custom-DAI-with-Multiple-Random-Ads", pdf: "docs/dai.pdf", detailsPdf: "docs/dai_details.pdf", qaPdf: "docs/dai_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Inserts random ads into video streams dynamically.",
+                qa: [{q: "Benefit?", a: "Reduces ad fatigue."}]
+            },
+            {
+                type: "project",
+                title: "Vehicle Fleet Optimization",
+                subtitle: "Operations Research",
+                summary: ["Cost Reduction", "Route Optimization", "Maintenance Schedule"],
+                links: { view: "#", github: "https://github.com/anjha1/DevDetective", pdf: "docs/fleet.pdf", detailsPdf: "docs/fleet_details.pdf", qaPdf: "docs/fleet_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Analyzes fleet usage to reduce fuel and maintenance costs.",
+                qa: [{q: "Goal?", a: "Sustainability and cost saving."}]
+            },
+            {
+                type: "project",
+                title: "Corporate Simulations",
+                subtitle: "Tata / Quantium / PwC / AWS",
+                summary: ["Data Viz", "Uplift Testing", "Cloud Architecture"],
+                links: { view: "#", github: "#", pdf: "docs/simulations.pdf", detailsPdf: "docs/sim_details.pdf", qaPdf: "docs/sim_qa.pdf", workflow: "#", architecture: "#" },
+                details: "Collection of Forage job simulations covering Data Viz, Analytics, and Cloud Arch.",
+                qa: [{q: "Learning?", a: "Applying tech skills to specific business problems."}]
+            }
+        ];
+
+        // ======================================================
+        // UI UPDATER
+        // ======================================================
+        function updateCounts() {
+            const counts = { all: database.length, resume: 0, internship: 0, project: 0 };
+            database.forEach(item => counts[item.type]++);
+            
+            document.getElementById('btn-all').innerText = `All (${counts.all})`;
+            document.getElementById('btn-resume').innerText = `📄 Resumes (${counts.resume})`;
+            document.getElementById('btn-internship').innerText = `💼 Internships (${counts.internship})`;
+            document.getElementById('btn-project').innerText = `🚀 Projects (${counts.project})`;
+        }
+
+        // ======================================================
+        // RENDERING LOGIC
+        // ======================================================
+        const grid = document.getElementById('content-grid');
+
+        function renderCards(filterType) {
+            grid.innerHTML = ''; 
+            
+            const filteredData = filterType === 'all' 
+                ? database 
+                : database.filter(item => item.type === filterType);
+
+            filteredData.forEach((item, index) => {
+                const summaryHtml = item.summary.map(s => `<li>${s}</li>`).join('');
+                let buttonsHtml = '';
+                
+                // --- 1. QUICK VIEW MODAL (Always there for quick text access) ---
+                buttonsHtml += `<button class="btn btn-modal" onclick="openDetails(${index}, '${filterType}')">⚡ Quick View</button>`;
+                
+                // --- 2. RESUME BUTTONS ---
+                if (item.type === 'resume') {
+                    buttonsHtml += `<a href="${item.links.detailsPdf || '#'}" target="_blank" class="btn btn-details-pdf">📄 Resume Details</a>`;
+                    buttonsHtml += `<a href="${item.links.qaPdf || '#'}" target="_blank" class="btn btn-qa-pdf">🗣️ Resume Q&A</a>`;
+                    if(item.links.pdf) buttonsHtml += `<a href="${item.links.pdf}" target="_blank" class="btn btn-resume">👁️ View Resume PDF</a>`;
+                }
+
+                // --- 3. PROJECT BUTTONS ---
+                if (item.type === 'project') {
+                    buttonsHtml += `<a href="${item.links.detailsPdf || '#'}" target="_blank" class="btn btn-details-pdf">📄 Project Details</a>`;
+                    buttonsHtml += `<a href="${item.links.qaPdf || '#'}" target="_blank" class="btn btn-qa-pdf">🗣️ Project Q&A</a>`;
+                    
+                    buttonsHtml += `<a href="${item.links.workflow || '#'}" target="_blank" class="btn btn-workflow">🔄 Workflow</a>`;
+                    buttonsHtml += `<a href="${item.links.architecture || '#'}" target="_blank" class="btn btn-arch">🏗️ Architecture</a>`;
+                }
+
+                // --- 4. INTERNSHIP BUTTONS ---
+                if (item.type === 'internship') {
+                    // RENAMED AS REQUESTED
+                    buttonsHtml += `<a href="${item.links.detailsPdf || '#'}" target="_blank" class="btn btn-details-pdf">📄 Intern Proj Details</a>`;
+                    buttonsHtml += `<a href="${item.links.qaPdf || '#'}" target="_blank" class="btn btn-qa-pdf">🗣️ Intern Proj Q&A</a>`;
+
+                    buttonsHtml += `<a href="${item.links.overview || '#'}" target="_blank" class="btn btn-overview">📜 Program Overview</a>`;
+                }
+
+                // --- 5. COMMON LINKS ---
+                if (item.links.view) buttonsHtml += `<a href="${item.links.view}" target="_blank" class="btn btn-view">🌐 Live View</a>`;
+                if (item.links.github) buttonsHtml += `<a href="${item.links.github}" target="_blank" class="btn btn-github">💻 GitHub</a>`;
+                
+                if (item.type !== 'resume') {
+                     let docLink = item.links.pdf || item.links.doc || '#';
+                     buttonsHtml += `<a href="${docLink}" target="_blank" class="btn btn-pdf">📂 PDF Doc</a>`;
+                }
+                
+                const card = document.createElement('div');
+                card.className = `card border-${item.type}`;
+                card.innerHTML = `
+                    <h2>${item.title}</h2>
+                    <div class="subtitle">${item.subtitle}</div>
+                    <ul>${summaryHtml}</ul>
+                    <div class="action-grid">${buttonsHtml}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ======================================================
+        // MODAL LOGIC
+        // ======================================================
+        const modal = document.getElementById('infoModal');
+        const modalBody = document.getElementById('modalBody');
+        const modalTitle = document.getElementById('modalTitle');
+
+        function getDataItem(index, filterType) {
+             const filteredData = filterType === 'all' ? database : database.filter(item => item.type === filterType);
+             return filteredData[index];
+        }
+
+        function openDetails(index, currentFilter) {
+            const item = getDataItem(index, currentFilter);
+            modalTitle.innerText = item.title;
+            let qaHtml = item.qa && item.qa.length > 0 
+                ? item.qa.map(q => `<div class="qa-box"><div class="qa-q">Q: ${q.q}</div><div class="qa-a">" ${q.a} "</div></div>`).join('') 
+                : "<p><em>No specific Q&A added yet.</em></p>";
+
+            modalBody.innerHTML = `
+                <div class="modal-section-title">📝 Overview / Story</div>
+                <div class="text-content">${item.details}</div>
+                <div class="modal-section-title">🗣️ Interview Q&A Prep</div>
+                <div class="qa-container">${qaHtml}</div>
+            `;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal(e) {
+            if (e.target === modal) modal.style.display = 'none';
+        }
+
+        function filterData(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.id === `btn-${type}`) btn.classList.add('active');
+            });
+            renderCards(type);
+        }
+
+        // Initial Load
+        updateCounts(); // Calculate numbers first
+        renderCards('all');
+
+    </script>
+</body>
+</html>
