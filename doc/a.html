@@ -13,8 +13,65 @@
             padding: 0;
             background-color: #e9cfb7ab; /* User's preferred background */
             color: #333;
+            overflow: hidden; /* Hide scrollbar initially when locked */
         }
 
+        /* --- LOGIN SCREEN STYLES --- */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #111;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+
+        .login-box {
+            background: #222;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 119, 255, 0.5);
+            border: 1px solid #444;
+        }
+
+        .login-input {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background: #333;
+            color: white;
+            margin-bottom: 15px;
+            width: 200px;
+            text-align: center;
+            outline: none;
+        }
+
+        .login-input:focus { border-color: #1197cd; }
+
+        .login-btn {
+            padding: 10px 20px;
+            background-color: #1197cd;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .login-btn:hover { background-color: #0d86b6; }
+
+        /* --- MAIN CONTENT STYLES --- */
+        
         header {
             background-color: #000;
             color: #fff;
@@ -264,28 +321,42 @@
 </head>
 <body>
 
-    <header>
-        <h1>Interview Readiness Portal</h1>
-        <nav>
-            <ul>
-                <li><a href="#">Documentation</a></li>
-            </ul>
-        </nav>
-        
-        <div class="filter-container">
-            <button class="filter-btn active" id="btn-all" onclick="filterData('all')">All</button>
-            <button class="filter-btn" id="btn-resume" onclick="filterData('resume')">📄 Resumes</button>
-            <button class="filter-btn" id="btn-internship" onclick="filterData('internship')">💼 Internships</button>
-            <button class="filter-btn" id="btn-project" onclick="filterData('project')">🚀 Projects</button>
+    <!-- PASSWORD SCREEN -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2 style="margin-bottom: 20px;">🔒 Locked Access</h2>
+            <p style="color: #aaa; margin-bottom: 20px; font-size: 0.9rem;">Enter passcode to view Achhuta's Interview Portal</p>
+            <input type="password" id="passwordInput" class="login-input" placeholder="Enter Password">
+            <br>
+            <button onclick="checkPassword()" class="login-btn">Unlock</button>
         </div>
-    </header>
+    </div>
 
-    <div class="container">
-        <h4 style="text-align: center; color: #856404; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba;">
-            ⚠️ <b>Private Access Only:</b> Use this dashboard to recall stories and Q&A during interview prep.
-        </h4>
-        <div id="content-grid" class="grid">
-            <!-- Cards injected via JS -->
+    <!-- MAIN CONTENT (Initially behind login screen) -->
+    <div id="main-app" style="display:none;">
+        <header>
+            <h1>Interview Readiness Portal</h1>
+            <nav>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </nav>
+            
+            <div class="filter-container">
+                <button class="filter-btn active" id="btn-all" onclick="filterData('all')">All</button>
+                <button class="filter-btn" id="btn-resume" onclick="filterData('resume')">📄 Resumes</button>
+                <button class="filter-btn" id="btn-internship" onclick="filterData('internship')">💼 Internships</button>
+                <button class="filter-btn" id="btn-project" onclick="filterData('project')">🚀 Projects</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <h4 style="text-align: center; color: #856404; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba;">
+                ⚠️ <b>Private Access Only:</b> Use this dashboard to recall stories and Q&A during interview prep.
+            </h4>
+            <div id="content-grid" class="grid">
+                <!-- Cards injected via JS -->
+            </div>
         </div>
     </div>
 
@@ -304,338 +375,79 @@
 
     <script>
         // ======================================================
-        // DATABASE - ADD YOUR LINKS AND DETAILS HERE
+        // LOGIN LOGIC (STRICT REDIRECT)
+        // ======================================================
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            const loginScreen = document.getElementById('login-screen');
+            const mainApp = document.getElementById('main-app');
+
+            if(input === "ANJHA") {
+                // Correct Password - Unlock
+                loginScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loginScreen.style.display = 'none';
+                    mainApp.style.display = 'block';
+                    document.body.style.overflow = 'auto'; // Re-enable scrolling
+                }, 500); 
+            } else {
+                // Wrong Password - REDIRECT IMMEDIATELY
+                window.location.href = "https://www.achhuta.info/";
+            }
+        }
+
+        // Allow Enter key to submit password
+        document.getElementById("passwordInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkPassword();
+            }
+        });
+
+        // ======================================================
+        // DATABASE - ALL DATA (Resumes: 6, Internships: 13, Projects: 16)
         // ======================================================
         const database = [
             
             // --- 1. RESUMES (6 ROLES) ---
-            {
-                type: "resume",
-                title: "Data Scientist Resume",
-                subtitle: "Target: Data Science / AI Research",
-                summary: ["Focus: Statistical Analysis & ML Models", "Tools: Python, SQL, Scikit-Learn", "Experience: Shell, Microsoft"],
-                links: { pdf: "resumes/Data_Scientist_Resume.pdf", detailsPdf: "docs/DS_Resume_Details.pdf", qaPdf: "docs/DS_Resume_QA.pdf" },
-                details: "Tailored for Data Science. Highlights statistical modeling, A/B testing concepts, and model deployment.",
-                qa: [{q: "Walk me through this resume", a: "Start with Education -> Shell Internship (Diabetes Model) -> Diamond Prediction Project."}]
-            },
-            {
-                type: "resume",
-                title: "AI Engineer Resume",
-                subtitle: "Target: NLP / GenAI Roles",
-                summary: ["Focus: LLMs, Gemini, OpenAI API", "Tools: LangChain, Next.js, Python", "Experience: IBM SkillsBuild, Pixora AI"],
-                links: { pdf: "resumes/AI_Engineer_Resume.pdf", detailsPdf: "docs/AI_Resume_Details.pdf", qaPdf: "docs/AI_Resume_QA.pdf" },
-                details: "Emphasizes Generative AI, API integration (Gemini), and deploying AI models in web apps.",
-                qa: [{q: "Strongest AI Project?", a: "Pixora AI because it integrates Google Gemini for real-time image editing."}]
-            },
-            {
-                type: "resume",
-                title: "Data Analyst Resume",
-                subtitle: "Target: Business Intelligence / Analytics",
-                summary: ["Focus: Power BI, EDA, Visualization", "Tools: Excel, SQL, Pandas", "Experience: Vodafone Idea, Unified Mentor"],
-                links: { pdf: "resumes/Data_Analyst_Resume.pdf", detailsPdf: "docs/DA_Resume_Details.pdf", qaPdf: "docs/DA_Resume_QA.pdf" },
-                details: "Focuses on Data Cleaning (Pandas), Visualization (Power BI/Matplotlib), and Business Insights.",
-                qa: [{q: "How do you handle missing data?", a: "Explained in the Vodafone internship section: Mean imputation or removing rows based on impact."}]
-            },
-            {
-                type: "resume",
-                title: "Web Development Resume",
-                subtitle: "Target: MERN Stack / Frontend",
-                summary: ["Focus: React, Node.js, Databases", "Tools: MongoDB, Tailwind, Redux", "Experience: EY GDS, VaultofCodes"],
-                links: { pdf: "resumes/Web_Dev_Resume.pdf", detailsPdf: "docs/Web_Resume_Details.pdf", qaPdf: "docs/Web_Resume_QA.pdf" },
-                details: "Highlights Full Stack skills. Scalable architecture, Authentication (NextAuth), and Payment Integration (Stripe).",
-                qa: [{q: "Explain MERN architecture", a: "MongoDB (DB) -> Express (Backend) -> React (Frontend) -> Node (Runtime)."}]
-            },
-            {
-                type: "resume",
-                title: "Machine Learning Engineer Resume",
-                subtitle: "Target: ML Ops / Model Deployment",
-                summary: ["Focus: Model Training, Deployment", "Tools: Flask, Docker, XGBoost", "Experience: CodSoft, Shell"],
-                links: { pdf: "resumes/ML_Engineer_Resume.pdf", detailsPdf: "docs/ML_Resume_Details.pdf", qaPdf: "docs/ML_Resume_QA.pdf" },
-                details: "Focuses on the end-to-end ML pipeline: Preprocessing -> Training -> Evaluation -> Deployment (Flask/Render).",
-                qa: [{q: "Difference between fit and transform?", a: "Fit calculates parameters (mean/std), Transform applies them."}]
-            },
-            {
-                type: "resume",
-                title: "General Software Resume",
-                subtitle: "Target: SDE / General Tech",
-                summary: ["Focus: DSA, Problem Solving, Core CS", "Tools: C++, Java, Python", "Projects: All Rounder"],
-                links: { pdf: "resumes/General_Resume.pdf", detailsPdf: "docs/General_Resume_Details.pdf", qaPdf: "docs/General_Resume_QA.pdf" },
-                details: "A balanced resume covering DSA skills, Web Dev basics, and Data Analysis basics.",
-                qa: [{q: "Preferred Language?", a: "Python for Dev/AI, C++ for DSA."}]
-            },
+            { type: "resume", title: "Data Scientist Resume", subtitle: "Target: Data Science / AI Research", summary: ["Focus: Statistical Analysis & ML Models", "Tools: Python, SQL, Scikit-Learn", "Experience: Shell, Microsoft"], links: { pdf: "https://anjha1.github.io/Anjha-3D-Resume/", detailsPdf: "https://anjha1.github.io/Anjha-3D-Resume/", qaPdf: "https://anjha1.github.io/Anjha-3D-Resume/" }, details: "Tailored for Data Science...", qa: [{q: "Walk me through this resume", a: "Start with Education -> Shell Internship..."}] },
+            { type: "resume", title: "AI Engineer Resume", subtitle: "Target: NLP / GenAI Roles", summary: ["Focus: LLMs, Gemini, OpenAI API", "Tools: LangChain, Next.js, Python", "Experience: IBM SkillsBuild, Pixora AI"], links: { pdf: "resumes/AI_Engineer_Resume.pdf", detailsPdf: "docs/AI_Resume_Details.pdf", qaPdf: "docs/AI_Resume_QA.pdf" }, details: "Emphasizes Generative AI...", qa: [{q: "Strongest AI Project?", a: "Pixora AI because it integrates..."}] },
+            { type: "resume", title: "Data Analyst Resume", subtitle: "Target: Business Intelligence / Analytics", summary: ["Focus: Power BI, EDA, Visualization", "Tools: Excel, SQL, Pandas", "Experience: Vodafone Idea, Unified Mentor"], links: { pdf: "resumes/Data_Analyst_Resume.pdf", detailsPdf: "docs/DA_Resume_Details.pdf", qaPdf: "docs/DA_Resume_QA.pdf" }, details: "Focuses on Data Cleaning...", qa: [{q: "How do you handle missing data?", a: "Explained in the Vodafone internship..."}] },
+            { type: "resume", title: "Web Development Resume", subtitle: "Target: MERN Stack / Frontend", summary: ["Focus: React, Node.js, Databases", "Tools: MongoDB, Tailwind, Redux", "Experience: EY GDS, VaultofCodes"], links: { pdf: "resumes/Web_Dev_Resume.pdf", detailsPdf: "docs/Web_Resume_Details.pdf", qaPdf: "docs/Web_Resume_QA.pdf" }, details: "Highlights Full Stack skills...", qa: [{q: "Explain MERN architecture", a: "MongoDB (DB) -> Express..."}] },
+            { type: "resume", title: "ML Engineer Resume", subtitle: "Target: ML Ops / Model Deployment", summary: ["Focus: Model Training, Deployment", "Tools: Flask, Docker, XGBoost", "Experience: CodSoft, Shell"], links: { pdf: "resumes/ML_Engineer_Resume.pdf", detailsPdf: "docs/ML_Resume_Details.pdf", qaPdf: "docs/ML_Resume_QA.pdf" }, details: "Focuses on ML pipeline...", qa: [{q: "Difference fit/transform?", a: "Fit calculates parameters..."}] },
+            { type: "resume", title: "General Software Resume", subtitle: "Target: SDE / General Tech", summary: ["Focus: DSA, Problem Solving, Core CS", "Tools: C++, Java, Python", "Projects: All Rounder"], links: { pdf: "resumes/General_Resume.pdf", detailsPdf: "docs/General_Resume_Details.pdf", qaPdf: "docs/General_Resume_QA.pdf" }, details: "A balanced resume...", qa: [{q: "Preferred Language?", a: "Python for Dev/AI..."}] },
 
             // --- 2. INTERNSHIPS (13 Total) ---
-            {
-                type: "internship",
-                title: "Full Stack Intern - EY GDS",
-                subtitle: "Dec 2024 - Jan 2025 | MERN",
-                summary: ["MERN Stack Development", "Scalable Web Apps", "AI Tools Masterclass"],
-                links: { pdf: "internships/EY_Cert.pdf", overview: "internships/EY_Overview.pdf", detailsPdf: "internships/EY_Details.pdf", qaPdf: "internships/EY_QA.pdf" },
-                details: "Developed full-stack apps. Learned about Enterprise architecture and integrating AI tools in dev workflow.",
-                qa: [{q: "Role in team?", a: "Backend API development and connecting React frontend to MongoDB."}]
-            },
-            {
-                type: "internship",
-                title: "AI Intern - Microsoft & SAP",
-                subtitle: "Nov 2024 - Jan 2025 | AI",
-                summary: ["Advanced AI Concepts", "Real-world Projects", "Emerging Tech"],
-                links: { pdf: "internships/Microsoft_Cert.pdf", overview: "internships/Microsoft_Overview.pdf", detailsPdf: "internships/Microsoft_Details.pdf", qaPdf: "internships/Microsoft_QA.pdf" },
-                details: "Joint initiative focusing on AI. Explored Azure AI services and SAP's data handling.",
-                qa: [{q: "Key learning?", a: "How enterprise AI scales and integrates with ERP systems."}]
-            },
-            {
-                type: "internship",
-                title: "Data Analyst - Vodafone Idea",
-                subtitle: "Jun 2024 - Jul 2024 | Power BI",
-                summary: ["Telecom Data Analysis", "Power BI Dashboards", "Call Drop Insights"],
-                links: { pdf: "internships/Vodafone_Cert.pdf", overview: "internships/Vodafone_Overview.pdf", detailsPdf: "internships/Vodafone_Details.pdf", qaPdf: "internships/Vodafone_QA.pdf" },
-                details: "Analyzed large telecom datasets. Created dashboards to visualize network performance and customer churn.",
-                qa: [{q: "Tools used?", a: "SQL for extraction, Power BI for visualization."}]
-            },
-            {
-                type: "internship",
-                title: "AI & Cloud Intern - IBM",
-                subtitle: "Jul 2024 - Aug 2024 | Emerging Tech",
-                summary: ["IBM Watson Studio", "Model Deployment", "Cloud AI Solutions"],
-                links: { pdf: "internships/IBM_Emerging_Cert.pdf", overview: "internships/IBM_Overview.pdf", detailsPdf: "internships/IBM_Details.pdf", qaPdf: "internships/IBM_QA.pdf" },
-                details: "Gained experience with AI and Cloud computing technologies (IBM SkillsBuild). Developed AI models using cloud tools.",
-                qa: [{q: "Cloud Tool?", a: "Used IBM Watson Studio for model building."}]
-            },
-            {
-                type: "internship",
-                title: "AI & Data Intern - Shell India",
-                subtitle: "Nov 2024 - Dec 2024 | ML",
-                summary: ["Healthcare Prediction Model", "92% Accuracy", "Data Preprocessing"],
-                links: { pdf: "internships/Shell_Cert.pdf", overview: "internships/Shell_Overview.pdf", detailsPdf: "internships/Shell_Details.pdf", qaPdf: "internships/Shell_QA.pdf" },
-                details: "Developed a diabetes prediction model. Focused heavily on data cleaning and feature engineering.",
-                qa: [{q: "Model used?", a: "Random Forest and SVM. RF performed better due to ensemble nature."}]
-            },
-            {
-                type: "internship",
-                title: "AI Intern - IBM SkillsBuild",
-                subtitle: "Nov 2024 - Jan 2025 | NLP",
-                summary: ["NLP & Deep Learning", "Predictive Models", "Team Collaboration"],
-                links: { pdf: "internships/IBM_AI_Cert.pdf", overview: "internships/IBM_Overview.pdf", detailsPdf: "internships/IBM_AI_Details.pdf", qaPdf: "internships/IBM_AI_QA.pdf" },
-                details: "Worked on NLP tasks. Built a sentiment analysis model using TensorFlow.",
-                qa: [{q: "Challenges?", a: "Handling imbalanced datasets in text classification."}]
-            },
-            {
-                type: "internship",
-                title: "Data Analytics Intern - CDF",
-                subtitle: "Oct 2024 - Nov 2024 | AI-LLMs",
-                summary: ["Agriculture Datasets", "Real-world Challenges", "AICTE Certified"],
-                links: { pdf: "internships/CDF_Cert.pdf", overview: "internships/CDF_Overview.pdf", detailsPdf: "internships/CDF_Details.pdf", qaPdf: "internships/CDF_QA.pdf" },
-                details: "Connecting Dreams Foundation. Analyzed datasets in agriculture and tech domains.",
-                qa: [{q: "Impact?", a: "Provided insights for crop yield improvement."}]
-            },
-            {
-                type: "internship",
-                title: "Python Intern - VaultofCodes",
-                subtitle: "Jul 2024 - Aug 2024 | Automation",
-                summary: ["Python Scripting", "Data Optimization", "API Integration"],
-                links: { pdf: "internships/Vault_Python_Cert.pdf", overview: "internships/Vault_Overview.pdf", detailsPdf: "internships/Vault_Details.pdf", qaPdf: "internships/Vault_QA.pdf" },
-                details: "Wrote scripts to automate manual data entry tasks. Optimized legacy code for speed.",
-                qa: [{q: "Optimization example?", a: "Replaced for-loops with Vectorized operations in NumPy/Pandas."}]
-            },
-            {
-                type: "internship",
-                title: "Web Dev Intern - VaultofCodes",
-                subtitle: "Jun 2024 - Aug 2024 | Frontend",
-                summary: ["Responsive Design", "HTML/CSS/JS", "Performance Tuning"],
-                links: { pdf: "internships/Vault_Web_Cert.pdf", overview: "internships/Vault_Web_Overview.pdf", detailsPdf: "internships/Vault_Web_Details.pdf", qaPdf: "internships/Vault_Web_QA.pdf" },
-                details: "Designed and developed responsive web applications. Focused on UI/UX improvements.",
-                qa: [{q: "Key achievement?", a: "Improved page load speed by optimizing image assets."}]
-            },
-            {
-                type: "internship",
-                title: "Front-End Intern - Edunet",
-                subtitle: "June 2024 - July 2024 | Frontend",
-                summary: ["Interactive Web Apps", "Modern Frameworks", "AICTE & IBM Powered"],
-                links: { pdf: "internships/Edunet_Cert.pdf", overview: "internships/Edunet_Overview.pdf", detailsPdf: "internships/Edunet_Details.pdf", qaPdf: "internships/Edunet_QA.pdf" },
-                details: "Developed responsive web apps. Gained experience with modern front-end design principles.",
-                qa: [{q: "Frameworks?", a: "Used React basics and Bootstrap for layout."}]
-            },
-            {
-                type: "internship",
-                title: "AI Engineer Intern - CodSoft",
-                subtitle: "Jun 2024 - Jul 2024 | ML",
-                summary: ["AI Models Implementation", "Project-based Learning", "Model Evaluation"],
-                links: { pdf: "internships/CodSoft_Cert.pdf", overview: "internships/CodSoft_Overview.pdf", detailsPdf: "internships/CodSoft_Details.pdf", qaPdf: "internships/CodSoft_QA.pdf" },
-                details: "Worked on implementing standard AI models like Tic-Tac-Toe AI and Recommendation systems.",
-                qa: [{q: "Project?", a: "Built a movie recommendation system."}]
-            },
-            {
-                type: "internship",
-                title: "Data Analyst Intern - Unified Mentor",
-                subtitle: "Apr 2024 - May 2024 | Analytics",
-                summary: ["Real-world Datasets", "Business Insights", "Statistical Analysis"],
-                links: { pdf: "internships/Unified_Cert.pdf", overview: "internships/Unified_Overview.pdf", detailsPdf: "internships/Unified_Details.pdf", qaPdf: "internships/Unified_QA.pdf" },
-                details: "Analyzed business data to extract trends and improve decision making.",
-                qa: [{q: "Tool?", a: "Excel for preliminary analysis and Python for deeper stats."}]
-            },
-             {
-                type: "internship",
-                title: "Data Engineer Trainee - Google Cloud",
-                subtitle: "Aug 2024 - Nov 2024 | GCP",
-                summary: ["GCP Data Engineering", "BigQuery & Dataflow", "Cloud Architecture"],
-                links: { pdf: "internships/Google_Cert.pdf", overview: "internships/Google_Overview.pdf", detailsPdf: "internships/Google_Details.pdf", qaPdf: "internships/Google_QA.pdf" },
-                details: "Learned GCP ecosystem. BigQuery for warehousing, Dataflow for pipelines.",
-                qa: [{q: "BigQuery vs SQL?", a: "BigQuery is serverless and optimized for Petabyte-scale analytics."}]
-            },
+            { type: "internship", title: "Full Stack Intern - EY GDS", subtitle: "Dec 2024 - Jan 2025 | MERN", summary: ["MERN Stack Development", "Scalable Web Apps", "AI Tools Masterclass"], links: { pdf: "internships/EY_Cert.pdf", overview: "internships/EY_Overview.pdf", detailsPdf: "internships/EY_Details.pdf", qaPdf: "internships/EY_QA.pdf" }, details: "Developed full-stack apps...", qa: [{q: "Role in team?", a: "Backend API development..."}] },
+            { type: "internship", title: "AI Intern - Microsoft & SAP", subtitle: "Nov 2024 - Jan 2025 | AI", summary: ["Advanced AI Concepts", "Real-world Projects", "Emerging Tech"], links: { pdf: "internships/Microsoft_Cert.pdf", overview: "internships/Microsoft_Overview.pdf", detailsPdf: "internships/Microsoft_Details.pdf", qaPdf: "internships/Microsoft_QA.pdf" }, details: "Joint initiative...", qa: [{q: "Key learning?", a: "How enterprise AI scales..."}] },
+            { type: "internship", title: "Data Analyst - Vodafone Idea", subtitle: "Jun 2024 - Jul 2024 | Power BI", summary: ["Telecom Data Analysis", "Power BI Dashboards", "Call Drop Insights"], links: { pdf: "internships/Vodafone_Cert.pdf", overview: "internships/Vodafone_Overview.pdf", detailsPdf: "internships/Vodafone_Details.pdf", qaPdf: "internships/Vodafone_QA.pdf" }, details: "Analyzed telecom datasets...", qa: [{q: "Tools used?", a: "SQL, Power BI..."}] },
+            { type: "internship", title: "AI & Cloud Intern - IBM", subtitle: "Jul 2024 - Aug 2024 | Emerging Tech", summary: ["IBM Watson Studio", "Model Deployment", "Cloud AI Solutions"], links: { pdf: "internships/IBM_Emerging_Cert.pdf", overview: "internships/IBM_Overview.pdf", detailsPdf: "internships/IBM_Details.pdf", qaPdf: "internships/IBM_QA.pdf" }, details: "Gained experience with AI...", qa: [{q: "Cloud Tool?", a: "IBM Watson Studio..."}] },
+            { type: "internship", title: "AI & Data Intern - Shell India", subtitle: "Nov 2024 - Dec 2024 | ML", summary: ["Healthcare Prediction Model", "92% Accuracy", "Data Preprocessing"], links: { pdf: "internships/Shell_Cert.pdf", overview: "internships/Shell_Overview.pdf", detailsPdf: "internships/Shell_Details.pdf", qaPdf: "internships/Shell_QA.pdf" }, details: "Developed diabetes model...", qa: [{q: "Model used?", a: "Random Forest..."}] },
+            { type: "internship", title: "AI Intern - IBM SkillsBuild", subtitle: "Nov 2024 - Jan 2025 | NLP", summary: ["NLP & Deep Learning", "Predictive Models", "Team Collaboration"], links: { pdf: "internships/IBM_AI_Cert.pdf", overview: "internships/IBM_Overview.pdf", detailsPdf: "internships/IBM_AI_Details.pdf", qaPdf: "internships/IBM_AI_QA.pdf" }, details: "Worked on NLP tasks...", qa: [{q: "Challenges?", a: "Imbalanced datasets..."}] },
+            { type: "internship", title: "Data Analytics Intern - CDF", subtitle: "Oct 2024 - Nov 2024 | AI-LLMs", summary: ["Agriculture Datasets", "Real-world Challenges", "AICTE Certified"], links: { pdf: "internships/CDF_Cert.pdf", overview: "internships/CDF_Overview.pdf", detailsPdf: "internships/CDF_Details.pdf", qaPdf: "internships/CDF_QA.pdf" }, details: "Analyzed agriculture data...", qa: [{q: "Impact?", a: "Insights for crop yield..."}] },
+            { type: "internship", title: "Python Intern - VaultofCodes", subtitle: "Jul 2024 - Aug 2024 | Automation", summary: ["Python Scripting", "Data Optimization", "API Integration"], links: { pdf: "internships/Vault_Python_Cert.pdf", overview: "internships/Vault_Overview.pdf", detailsPdf: "internships/Vault_Details.pdf", qaPdf: "internships/Vault_QA.pdf" }, details: "Wrote scripts to automate...", qa: [{q: "Optimization example?", a: "Vectorized operations..."}] },
+            { type: "internship", title: "Web Dev Intern - VaultofCodes", subtitle: "Jun 2024 - Aug 2024 | Frontend", summary: ["Responsive Design", "HTML/CSS/JS", "Performance Tuning"], links: { pdf: "internships/Vault_Web_Cert.pdf", overview: "internships/Vault_Web_Overview.pdf", detailsPdf: "internships/Vault_Web_Details.pdf", qaPdf: "internships/Vault_Web_QA.pdf" }, details: "Designed web apps...", qa: [{q: "Key achievement?", a: "Improved page load speed..."}] },
+            { type: "internship", title: "Front-End Intern - Edunet", subtitle: "June 2024 - July 2024 | Frontend", summary: ["Interactive Web Apps", "Modern Frameworks", "AICTE & IBM Powered"], links: { pdf: "internships/Edunet_Cert.pdf", overview: "internships/Edunet_Overview.pdf", detailsPdf: "internships/Edunet_Details.pdf", qaPdf: "internships/Edunet_QA.pdf" }, details: "Developed responsive apps...", qa: [{q: "Frameworks?", a: "React basics, Bootstrap..."}] },
+            { type: "internship", title: "AI Engineer Intern - CodSoft", subtitle: "Jun 2024 - Jul 2024 | ML", summary: ["AI Models Implementation", "Project-based Learning", "Model Evaluation"], links: { pdf: "internships/CodSoft_Cert.pdf", overview: "internships/CodSoft_Overview.pdf", detailsPdf: "internships/CodSoft_Details.pdf", qaPdf: "internships/CodSoft_QA.pdf" }, details: "Implemented AI models...", qa: [{q: "Project?", a: "Movie recommendation..."}] },
+            { type: "internship", title: "Data Analyst Intern - Unified Mentor", subtitle: "Apr 2024 - May 2024 | Analytics", summary: ["Real-world Datasets", "Business Insights", "Statistical Analysis"], links: { pdf: "internships/Unified_Cert.pdf", overview: "internships/Unified_Overview.pdf", detailsPdf: "internships/Unified_Details.pdf", qaPdf: "internships/Unified_QA.pdf" }, details: "Analyzed business data...", qa: [{q: "Tool?", a: "Excel, Python..."}] },
+            { type: "internship", title: "Data Engineer Trainee - Google Cloud", subtitle: "Aug 2024 - Nov 2024 | GCP", summary: ["GCP Data Engineering", "BigQuery & Dataflow", "Cloud Architecture"], links: { pdf: "internships/Google_Cert.pdf", overview: "internships/Google_Overview.pdf", detailsPdf: "internships/Google_Details.pdf", qaPdf: "internships/Google_QA.pdf" }, details: "Learned GCP ecosystem...", qa: [{q: "BigQuery vs SQL?", a: "BigQuery is serverless..."}] },
 
             // --- 3. PROJECTS (16 Total) ---
-            {
-                type: "project",
-                title: "✨ Pixora AI - Image Editor",
-                subtitle: "Full Stack AI SaaS (Next.js + Gemini)",
-                summary: ["Generative AI Image Editing", "SaaS (Stripe + Auth)", "Next.js 15 & Prisma"],
-                links: {
-                    view: "https://pixora-ai-8zbh.onrender.com",
-                    github: "https://github.com/anjha1/pixora-ai", 
-                    pdf: "docs/Pixora_Documentation.pdf",
-                    detailsPdf: "docs/Pixora_Details.pdf", 
-                    qaPdf: "docs/Pixora_QA.pdf",             
-                    workflow: "docs/Pixora_Workflow.pdf",
-                    architecture: "docs/Pixora_Architecture.pdf"
-                },
-                details: "Pixora AI is a 'Magic Studio' for image editing. Uses Gemini for generative edits.",
-                qa: [{q: "Why Next.js?", a: "For full-stack capabilities."}]
-            },
-            {
-                type: "project",
-                title: "Diamond Price Prediction",
-                subtitle: "ML Regression (XGBoost)",
-                summary: ["Predicts diamond value", "Flask API Deployment", "93% Accuracy"],
-                links: { view: "https://diamondpriceprediction-egr9.onrender.com/", github: "https://github.com/anjha1/DiamondPricePrediction", pdf: "docs/diamond.pdf", detailsPdf: "docs/diamond_details.pdf", qaPdf: "docs/diamond_qa.pdf", workflow: "docs/diamond_flow.pdf", architecture: "docs/diamond_arch.pdf" },
-                details: "Estimates diamond prices based on carat, cut, clarity.",
-                qa: [{q: "Why XGBoost?", a: "Gradient boosting handles structured data better."}]
-            },
-            {
-                type: "project",
-                title: "Book Rec. System",
-                subtitle: "Hybrid Recommendation Engine",
-                summary: ["Collaborative + Content Filtering", "Top 50 Books UI", "92% Accuracy"],
-                links: { view: "https://book-recommendation-system-anjha.onrender.com", github: "https://github.com/anjha1/Book-Recommendation-System", pdf: "docs/books.pdf", detailsPdf: "docs/books_details.pdf", qaPdf: "docs/books_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Recommends books based on user history and book similarity.",
-                qa: [{q: "Similarity metric?", a: "Cosine Similarity."}]
-            },
-            {
-                type: "project",
-                title: "Zapkart - Self Checkout",
-                subtitle: "IoT & Web App",
-                summary: ["Barcode Scanning", "Real-time Billing", "Firebase Database"],
-                links: { view: "https://anjha1.github.io/zapkart/", github: "https://github.com/anjha1/zapkart", pdf: "docs/zapkart.pdf", detailsPdf: "docs/zapkart_details.pdf", qaPdf: "docs/zapkart_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Smart cart system to reduce queues.",
-                qa: [{q: "Latency?", a: "Firebase listeners provided sub-second updates."}]
-            },
-            {
-                type: "project",
-                title: "SMS Spam Detection",
-                subtitle: "NLP Classification",
-                summary: ["TF-IDF Vectorization", "Streamlit Interface", "Spam/Ham Classifier"],
-                links: { view: "https://sms-spam-detection-app-necs.onrender.com", github: "https://github.com/anjha1/SMS-Spam-Detection-App", pdf: "docs/spam.pdf", detailsPdf: "docs/spam_details.pdf", qaPdf: "docs/spam_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Classifies messages as Spam or Ham using Naive Bayes.",
-                qa: [{q: "Algorithm?", a: "Naive Bayes (Multinomial)."}]
-            },
-            {
-                type: "project",
-                title: "Employee Burnout Prediction",
-                subtitle: "Regression Analysis",
-                summary: ["Kaggle Dataset", "Risk Prediction", "Actionable Insights"],
-                links: { view: "https://employee-burnout-prediction-and-analysis-ga4d.onrender.com", github: "https://github.com/anjha1/Employee-Burnout-Prediction-And-Analysis", pdf: "docs/burnout.pdf", detailsPdf: "docs/burnout_details.pdf", qaPdf: "docs/burnout_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Predicts employee burnout risk using regression techniques.",
-                qa: [{q: "Impact?", a: "Helps HR take proactive measures."}]
-            },
-            {
-                type: "project",
-                title: "Forest Fire Prediction",
-                subtitle: "Regression Analysis",
-                summary: ["AutoAI & Manual Regressors", "FWI Index Prediction", "R2 Score: 0.98"],
-                links: { view: "https://fwi-fire-weather-index-prediction-project-pa24.onrender.com", github: "https://github.com/anjha1/FWI-Fire-Weather-Index-Prediction-project/tree/master", pdf: "docs/forest.pdf", detailsPdf: "docs/forest_details.pdf", qaPdf: "docs/forest_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Predicted Fire Weather Index based on temperature, humidity, wind.",
-                qa: [{q: "Regularization?", a: "Used Ridge Regression."}]
-            },
-            {
-                type: "project",
-                title: "Alpha Thalassemia Classifier",
-                subtitle: "Medical ML Classification",
-                summary: ["Phenotype Prediction", "98% Accuracy", "Healthcare App"],
-                links: { view: "#", github: "https://github.com/anjha1/Alpha-Thalassemia-Classifier-A-Machine-Learning-Approach", pdf: "docs/alpha.pdf", detailsPdf: "docs/alpha_details.pdf", qaPdf: "docs/alpha_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Predicts alpha-thalassemia phenotypes using XGBoost.",
-                qa: [{q: "Data source?", a: "Clinical data processing."}]
-            },
-             {
-                type: "project",
-                title: "Email Resume Sender",
-                subtitle: "Automation Tool",
-                summary: ["Automated Cold Emailing", "Attachment Handling", "User Friendly UI"],
-                links: { view: "https://email-resume-sender-kyne.onrender.com", github: "https://github.com/anjha1/Email-Resume-Sender", pdf: "docs/email.pdf", detailsPdf: "docs/email_details.pdf", qaPdf: "docs/email_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Web app to send mass personalized emails with attachments.",
-                qa: [{q: "Protocol?", a: "SMTP."}]
-            },
-            {
-                type: "project",
-                title: "Tic Tac Toe Game",
-                subtitle: "Game Development",
-                summary: ["2-Player Game", "Win Detection Logic", "Clean UI"],
-                links: { view: "https://anjha1.github.io/Tic-Tac-Toe-Game/", github: "https://github.com/anjha1/Tic-Tac-Toe-Game", pdf: "docs/ttt.pdf", detailsPdf: "docs/ttt_details.pdf", qaPdf: "docs/ttt_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Classic game built with HTML/CSS/JS.",
-                qa: [{q: "Logic?", a: "Array checking for win combinations."}]
-            },
-            {
-                type: "project",
-                title: "Weather App",
-                subtitle: "API Integration",
-                summary: ["Real-time Weather", "Location Based", "Responsive Design"],
-                links: { view: "https://anjha1.github.io/Weather-App/", github: "https://github.com/anjha1/Weather-App", pdf: "docs/weather.pdf", detailsPdf: "docs/weather_details.pdf", qaPdf: "docs/weather_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Fetches weather data from open APIs.",
-                qa: [{q: "API used?", a: "OpenWeatherMap API."}]
-            },
-            {
-                type: "project",
-                title: "DevDetective",
-                subtitle: "GitHub Profile Finder",
-                summary: ["GitHub API", "Profile Stats", "Repo Listing"],
-                links: { view: "https://anjha1.github.io/DevDetective/", github: "https://github.com/anjha1/DevDetective", pdf: "docs/devdetective.pdf", detailsPdf: "docs/dev_details.pdf", qaPdf: "docs/dev_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Fetches and displays GitHub user data.",
-                qa: [{q: "Auth?", a: "No auth required for public data."}]
-            },
-            {
-                type: "project",
-                title: "Covid-19 Analysis Report",
-                subtitle: "Data Analysis (EDA)",
-                summary: ["Pandas Profiling", "Automated EDA", "Variable Insights"],
-                links: { view: "https://anjha1.github.io/Covid-19-india-Data-Analysis-Report/", github: "https://github.com/anjha1/Covid-19-india-Data-Analysis-Report", pdf: "docs/covid.pdf", detailsPdf: "docs/covid_details.pdf", qaPdf: "docs/covid_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Automated analysis of Covid-19 data.",
-                qa: [{q: "Library?", a: "YData Profiling (Pandas Profiling)."}]
-            },
-            {
-                type: "project",
-                title: "Custom DAI (Ads)",
-                subtitle: "Video Ad Insertion",
-                summary: ["Dynamic Ad Insertion", "Random Selection", "Seamless Stream"],
-                links: { view: "https://anjha1.github.io/Custom-DAI-with-Multiple-Random-Ads/", github: "https://github.com/anjha1/Custom-DAI-with-Multiple-Random-Ads", pdf: "docs/dai.pdf", detailsPdf: "docs/dai_details.pdf", qaPdf: "docs/dai_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Inserts random ads into video streams dynamically.",
-                qa: [{q: "Benefit?", a: "Reduces ad fatigue."}]
-            },
-            {
-                type: "project",
-                title: "Vehicle Fleet Optimization",
-                subtitle: "Operations Research",
-                summary: ["Cost Reduction", "Route Optimization", "Maintenance Schedule"],
-                links: { view: "#", github: "https://github.com/anjha1/DevDetective", pdf: "docs/fleet.pdf", detailsPdf: "docs/fleet_details.pdf", qaPdf: "docs/fleet_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Analyzes fleet usage to reduce fuel and maintenance costs.",
-                qa: [{q: "Goal?", a: "Sustainability and cost saving."}]
-            },
-            {
-                type: "project",
-                title: "Corporate Simulations",
-                subtitle: "Tata / Quantium / PwC / AWS",
-                summary: ["Data Viz", "Uplift Testing", "Cloud Architecture"],
-                links: { view: "#", github: "#", pdf: "docs/simulations.pdf", detailsPdf: "docs/sim_details.pdf", qaPdf: "docs/sim_qa.pdf", workflow: "#", architecture: "#" },
-                details: "Collection of Forage job simulations covering Data Viz, Analytics, and Cloud Arch.",
-                qa: [{q: "Learning?", a: "Applying tech skills to specific business problems."}]
-            }
+            { type: "project", title: "✨ Pixora AI - Image Editor", subtitle: "Full Stack AI SaaS", summary: ["Generative AI", "SaaS (Stripe)", "Next.js 15"], links: { view: "https://pixora-ai-8zbh.onrender.com", github: "https://github.com/anjha1/pixora-ai", pdf: "docs/Pixora_Documentation.pdf", detailsPdf: "docs/Pixora_Details.pdf", qaPdf: "docs/Pixora_QA.pdf", workflow: "docs/Pixora_Workflow.pdf", architecture: "docs/Pixora_Architecture.pdf" }, details: "Magic Studio for image editing...", qa: [{q: "Why Next.js?", a: "For full-stack capabilities."}] },
+            { type: "project", title: "Diamond Price Prediction", subtitle: "ML Regression", summary: ["Price Prediction", "Flask API", "93% Accuracy"], links: { view: "https://diamondpriceprediction-egr9.onrender.com/", github: "https://github.com/anjha1/DiamondPricePrediction", pdf: "docs/diamond.pdf", detailsPdf: "docs/diamond_details.pdf", qaPdf: "docs/diamond_qa.pdf", workflow: "docs/diamond_flow.pdf", architecture: "docs/diamond_arch.pdf" }, details: "Estimates diamond prices...", qa: [{q: "Why XGBoost?", a: "Gradient boosting handles structured data better."}] },
+            { type: "project", title: "Book Rec. System", subtitle: "Hybrid Engine", summary: ["Collaborative Filtering", "Top 50 UI", "92% Accuracy"], links: { view: "https://book-recommendation-system-anjha.onrender.com", github: "https://github.com/anjha1/Book-Recommendation-System", pdf: "docs/books.pdf", detailsPdf: "docs/books_details.pdf", qaPdf: "docs/books_qa.pdf", workflow: "#", architecture: "#" }, details: "Recommends books...", qa: [{q: "Metric?", a: "Cosine Similarity..."}] },
+            { type: "project", title: "Zapkart - Self Checkout", subtitle: "IoT & Web App", summary: ["Barcode Scanning", "Real-time DB", "Queue Reduction"], links: { view: "https://anjha1.github.io/zapkart/", github: "https://github.com/anjha1/zapkart", pdf: "docs/zapkart.pdf", detailsPdf: "docs/zapkart_details.pdf", qaPdf: "docs/zapkart_qa.pdf", workflow: "#", architecture: "#" }, details: "Smart cart system...", qa: [{q: "Latency?", a: "Firebase updates..."}] },
+            { type: "project", title: "SMS Spam Detection", subtitle: "NLP Classification", summary: ["TF-IDF", "Streamlit UI", "Spam/Ham"], links: { view: "https://sms-spam-detection-app-necs.onrender.com", github: "https://github.com/anjha1/SMS-Spam-Detection-App", pdf: "docs/spam.pdf", detailsPdf: "docs/spam_details.pdf", qaPdf: "docs/spam_qa.pdf", workflow: "#", architecture: "#" }, details: "Classifies messages...", qa: [{q: "Algorithm?", a: "Naive Bayes..."}] },
+            { type: "project", title: "Employee Burnout Prediction", subtitle: "Regression", summary: ["Kaggle Data", "Risk Score", "HR Insights"], links: { view: "https://employee-burnout-prediction-and-analysis-ga4d.onrender.com", github: "https://github.com/anjha1/Employee-Burnout-Prediction-And-Analysis", pdf: "docs/burnout.pdf", detailsPdf: "docs/burnout_details.pdf", qaPdf: "docs/burnout_qa.pdf", workflow: "#", architecture: "#" }, details: "Predicts burnout risk...", qa: [{q: "Impact?", a: "Proactive HR measures..."}] },
+            { type: "project", title: "Forest Fire Prediction", subtitle: "Regression", summary: ["FWI Prediction", "AutoAI", "R2 Score: 0.98"], links: { view: "https://fwi-fire-weather-index-prediction-project-pa24.onrender.com", github: "https://github.com/anjha1/FWI-Fire-Weather-Index-Prediction-project/tree/master", pdf: "docs/forest.pdf", detailsPdf: "docs/forest_details.pdf", qaPdf: "docs/forest_qa.pdf", workflow: "#", architecture: "#" }, details: "Predicted Fire Weather Index...", qa: [{q: "Regularization?", a: "Ridge Regression..."}] },
+            { type: "project", title: "Alpha Thalassemia Classifier", subtitle: "Medical ML", summary: ["Phenotype Prediction", "98% Accuracy", "Healthcare"], links: { view: "#", github: "https://github.com/anjha1/Alpha-Thalassemia-Classifier-A-Machine-Learning-Approach", pdf: "docs/alpha.pdf", detailsPdf: "docs/alpha_details.pdf", qaPdf: "docs/alpha_qa.pdf", workflow: "#", architecture: "#" }, details: "Predicts phenotypes...", qa: [{q: "Data?", a: "Clinical data..."}] },
+            { type: "project", title: "Email Resume Sender", subtitle: "Automation", summary: ["Cold Emailing", "Attachments", "Web UI"], links: { view: "https://email-resume-sender-kyne.onrender.com", github: "https://github.com/anjha1/Email-Resume-Sender", pdf: "docs/email.pdf", detailsPdf: "docs/email_details.pdf", qaPdf: "docs/email_qa.pdf", workflow: "#", architecture: "#" }, details: "Sends mass emails...", qa: [{q: "Protocol?", a: "SMTP..."}] },
+            { type: "project", title: "Tic Tac Toe Game", subtitle: "Game Dev", summary: ["2-Player", "Win Logic", "Clean UI"], links: { view: "https://anjha1.github.io/Tic-Tac-Toe-Game/", github: "https://github.com/anjha1/Tic-Tac-Toe-Game", pdf: "docs/ttt.pdf", detailsPdf: "docs/ttt_details.pdf", qaPdf: "docs/ttt_qa.pdf", workflow: "#", architecture: "#" }, details: "Classic game...", qa: [{q: "Logic?", a: "Array checking..."}] },
+            { type: "project", title: "Weather App", subtitle: "API Integration", summary: ["Real-time Data", "Location Based", "Responsive"], links: { view: "https://anjha1.github.io/Weather-App/", github: "https://github.com/anjha1/Weather-App", pdf: "docs/weather.pdf", detailsPdf: "docs/weather_details.pdf", qaPdf: "docs/weather_qa.pdf", workflow: "#", architecture: "#" }, details: "Fetches weather...", qa: [{q: "API?", a: "OpenWeatherMap..."}] },
+            { type: "project", title: "DevDetective", subtitle: "GitHub API", summary: ["Profile Stats", "Repo List", "Search"], links: { view: "https://anjha1.github.io/DevDetective/", github: "https://github.com/anjha1/DevDetective", pdf: "docs/devdetective.pdf", detailsPdf: "docs/dev_details.pdf", qaPdf: "docs/dev_qa.pdf", workflow: "#", architecture: "#" }, details: "Displays GitHub data...", qa: [{q: "Auth?", a: "Public API..."}] },
+            { type: "project", title: "Covid-19 Analysis", subtitle: "Data Analysis", summary: ["Automated EDA", "Pandas Profiling", "Insights"], links: { view: "https://anjha1.github.io/Covid-19-india-Data-Analysis-Report/", github: "https://github.com/anjha1/Covid-19-india-Data-Analysis-Report", pdf: "docs/covid.pdf", detailsPdf: "docs/covid_details.pdf", qaPdf: "docs/covid_qa.pdf", workflow: "#", architecture: "#" }, details: "Automated analysis...", qa: [{q: "Library?", a: "YData Profiling..."}] },
+            { type: "project", title: "Custom DAI (Ads)", subtitle: "Video Tech", summary: ["Dynamic Ads", "Random Insertion", "Seamless"], links: { view: "https://anjha1.github.io/Custom-DAI-with-Multiple-Random-Ads/", github: "https://github.com/anjha1/Custom-DAI-with-Multiple-Random-Ads", pdf: "docs/dai.pdf", detailsPdf: "docs/dai_details.pdf", qaPdf: "docs/dai_qa.pdf", workflow: "#", architecture: "#" }, details: "Inserts ads dynamically...", qa: [{q: "Benefit?", a: "Less ad fatigue..."}] },
+            { type: "project", title: "Vehicle Fleet Optimization", subtitle: "Operations", summary: ["Cost Reduction", "Route Opt.", "Maintenance"], links: { view: "#", github: "https://github.com/anjha1/DevDetective", pdf: "docs/fleet.pdf", detailsPdf: "docs/fleet_details.pdf", qaPdf: "docs/fleet_qa.pdf", workflow: "#", architecture: "#" }, details: "Analyzes fleet usage...", qa: [{q: "Goal?", a: "Cost saving..."}] },
+            { type: "project", title: "Corporate Simulations", subtitle: "Forage", summary: ["Data Viz", "Uplift Testing", "Cloud Arch"], links: { view: "#", github: "#", pdf: "docs/simulations.pdf", detailsPdf: "docs/sim_details.pdf", qaPdf: "docs/sim_qa.pdf", workflow: "#", architecture: "#" }, details: "Job simulations...", qa: [{q: "Learning?", a: "Applied skills..."}] }
         ];
 
         // ======================================================
@@ -686,7 +498,7 @@
                     buttonsHtml += `<a href="${item.links.architecture || '#'}" target="_blank" class="btn btn-arch">🏗️ Architecture</a>`;
                 }
 
-                // --- 4. INTERNSHIP BUTTONS ---
+                // --- 4. INTERNSHIP BUTTONS (RENAMED as requested) ---
                 if (item.type === 'internship') {
                     // RENAMED AS REQUESTED
                     buttonsHtml += `<a href="${item.links.detailsPdf || '#'}" target="_blank" class="btn btn-details-pdf">📄 Intern Proj Details</a>`;
@@ -757,7 +569,7 @@
         }
 
         // Initial Load
-        updateCounts(); // Calculate numbers first
+        updateCounts(); // Updates numbers on buttons
         renderCards('all');
 
     </script>
