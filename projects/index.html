@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,14 +8,16 @@
     <meta name="google-site-verification" content="OZg3Z_fhGyx8x2_WwYAvI0VNYr1vObwIowBJEiRDy2Y" />
     <title>Projects - Achhuta Nand Jha</title>
     <style>
+        /* General Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color:  #e9cfb7ab;;
+            background-color: #e9cfb7ab;
             color: #333;
         }
 
+        /* Header & Navigation */
         header {
             background-color: black;
             color: #fff;
@@ -39,10 +40,11 @@
             text-decoration: none;
         }
 
+        /* Layout Sections */
         section {
             padding: 20px;
             margin: 20px;
-            background-color:  #d18e413b;;
+            background-color: #d18e413b;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -57,11 +59,11 @@
             bottom: 0;
         }
 
+        /* Project Grid & Cards */
         .project-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
-            
         }
 
         .project-card {
@@ -69,7 +71,7 @@
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow:  0 4px 40px rgb(8, 254, 69);;
+            box-shadow: 0 4px 40px rgb(8, 254, 69);
             flex: 1;
             min-width: 300px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -78,14 +80,11 @@
         .project-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 6px 12px rgba(255, 0, 0, 3);
-            border: 2px solid rgba(15, 25, 230, 3); 
-            border-radius: 8px; 
+            border: 2px solid rgba(15, 25, 230, 3);
+            border-radius: 8px;
         }
 
-        .project-card h2 {
-            margin-top: 0;
-            color: #7105e4;
-        }
+        .project-card h2,
         .project-card h3 {
             margin-top: 0;
             color: #7105e4;
@@ -118,6 +117,16 @@
             background-color: #cd1010;
         }
 
+        .project-image {
+            width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* CTA Section */
         .cta-section {
             text-align: center;
             padding: 40px 20px;
@@ -145,15 +154,8 @@
         .cta-section a:hover {
             background-color: #29a8cf;
         }
-        .project-image {
-            width: 100%;
-            max-height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
 
+        /* Animations (Commented Out) */
         /* .scrolling-text {
             display: inline-block;
             white-space: nowrap;
@@ -163,15 +165,12 @@
         }
 
         @keyframes move-text {
-            from {
-                transform: translateX(-100%);
-            }
-            to {
-                transform: translateX(100%);
-            }
-        } */
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+        } 
+        */
 
-        /* Mobile-first approach */
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             header h1 {
                 font-size: 2.5rem;
@@ -227,14 +226,13 @@
                 height: 120px;
             }
 
-            /* Adjust hitwebcounter image */
             .hitwebcounter img {
                 width: 100%;
                 height: auto;
             }
         }
 
-        /* Desktop styles */
+        /* Desktop Specifics */
         @media (min-width: 769px) {
             .hamburger {
                 display: none;
@@ -243,6 +241,8 @@
     </style>
 </head>
 <body>
+    
+    <!-- Header -->
     <header>
         <div class="hamburger" onclick="toggleMenu()">☰</div>
         <h1>My Projects</h1>
@@ -252,29 +252,53 @@
                 <li><a href="https://www.achhuta.info/experience/">Experience</a></li>
                 <li><a href="https://www.achhuta.info/contact/">Contact</a></li>
                 <li><a href="https://www.achhuta.info/certification/">Certification</a></li>
-
             </ul>
         </nav>
     </header>
 
+    <!-- Main Content -->
     <section id="projects">
         <!-- <h1 style="text-align: center; font-size: 30px">My Projects</h1> -->
-       <h4 class="scrolling-text" style="text-align: center;color: rgb(106, 0, 0);">Please note: The website will take approximately 1 minute to load after clicking 'Show Project'. Kindly wait while the system initializes.</h4>
-         <div class="project-grid">
-        <div class="project-card">
-            <h2>Diamond Price Prediction</h2>
-            <img src="images/diamond-price-prediction.jpg" alt="Diamond Prediction" class="project-image">
-            <ul>
-                <li>Predicts diamond price using regression and key features like carat, cut, and clarity.</li>
-                <li>Flask app with real-time prediction .</li>
-                <li>Trained on cleaned and preprocessed dataset with 93% accuracy.</li>
-            </ul>
-            <a href="https://diamondpriceprediction-egr9.onrender.com/" target="_blank">View Project</a>
-            <a href="https://github.com/anjha1/DiamondPricePrediction" target="_blank">GitHub</a>
-            <a href="https://github.com/anjha1/DiamondPricePrediction" target="_blank">Project Details</a>
-        </div>
+        <h4 class="scrolling-text" style="text-align: center; color: rgb(106, 0, 0);">
+            Please note: The website will take approximately 1 minute to load after clicking 'Show Project'. Kindly wait while the system initializes.
+        </h4>
 
-        <div class="project-card">
+        <div class="project-grid">
+            
+            <!-- Project: Pixora AI -->
+            <div class="project-card">
+                <h2>Pixora AI - Full-Stack AI Image Editing SaaS</h2>
+                <img src="images\pixora-ai.jpeg" alt="Pixora AI" class="project-image">
+                <ul>
+                    <li>Built a production-ready AI-powered image editing SaaS with background removal, generative fill, upscale, smart crop, and prompt-based edits.</li>
+                    <!-- <li>Implemented secure authentication using NextAuth (Google OAuth + Email) with subscription-based access control.</li> -->
+                    <!-- <li>Integrated Stripe Checkout and Webhooks for automated subscription management.</li> -->
+                    <!-- <li>Used ImageKit for secure uploads and Google Gemini for generative image editing.</li> -->
+                    <li>Designed scalable backend APIs using Next.js App Router, Prisma ORM & PostgreSQL.</li>
+                </ul>
+                <div class="project-links">
+                    <a href="https://pixora-ai-ojzx.onrender.com/" target="_blank">Show Project</a>
+                    <a href="https://github.com/anjha1/Pixora-AI" target="_blank">GitHub</a>
+                    <a href="https://docs.google.com/presentation/d/1V8_d6rchXFqT7QyaK7yl9uaepuICk7-Z/present?slide=id.p1" target="_blank">Project Details</a>
+                </div>
+            </div>
+
+            <!-- Project: Diamond Price Prediction -->
+            <div class="project-card">
+                <h2>Diamond Price Prediction</h2>
+                <img src="images/diamond-price-prediction.jpg" alt="Diamond Prediction" class="project-image">
+                <ul>
+                    <li>Predicts diamond price using regression and key features like carat, cut, and clarity.</li>
+                    <li>Flask app with real-time prediction.</li>
+                    <li>Trained on cleaned and preprocessed dataset with 93% accuracy.</li>
+                </ul>
+                <a href="https://diamondpriceprediction-egr9.onrender.com/" target="_blank">View Project</a>
+                <a href="https://github.com/anjha1/DiamondPricePrediction" target="_blank">GitHub</a>
+                <a href="https://github.com/anjha1/DiamondPricePrediction" target="_blank">Project Details</a>
+            </div>
+
+            <!-- Project: Book Recommendation System -->
+            <div class="project-card">
                 <h3>Book Recommendation System</h3>
                 <img src="images/BookRecommendationSystem.png" alt="Book Recommendation System" class="project-image">
                 <ul>
@@ -282,12 +306,12 @@
                     <li>Achieved 92% accuracy in suggesting relevant books to users.</li>
                     <li>Displays top 50 books and personalized suggestions in the UI.</li>
                 </ul>
-
                 <a href="https://book-recommendation-system-frontend-nkdc.onrender.com/" target="_blank">Show Project</a>
                 <a href="https://github.com/anjha1/Book-Recommendation-System" target="_blank">GitHub</a>
                 <a href="https://docs.google.com/presentation/d/1kHPt2pCdlIo2NrbOR7aCWPyRVy8jdndM/edit?usp=sharing&ouid=113285117088012313521&rtpof=true&sd=true" target="_blank">Project Details</a>
             </div>
-         <!-- Project 1: SMS Spam Detection App -->
+
+            <!-- Project: SMS Spam Detection App -->
             <div class="project-card">
                 <h2>SMS Spam Detection App</h2>
                 <img src="images/SMSSpamDetectionApp.png" alt="SMS Spam Detection App" class="project-image">
@@ -300,9 +324,11 @@
                 <a href="https://github.com/anjha1/SMS-Spam-Detection-App" target="_blank">GitHub</a>
                 <a href="https://drive.google.com/file/d/1pIJjT69SP-pT_BAJcyFYpI1qlRhRzQfJ/view" target="_blank">Project Details</a>
             </div>
-         <!-- Project 4: Employee Burnout Prediction -->
+
+            <!-- Project: Employee Burnout Prediction -->
             <div class="project-card">
                 <h2>Employee Burnout Prediction</h2>
+                <img src="images\Burn Rate Prediction.jpeg" alt="Burn Rate Prediction" class="project-image">
                 <ul>
                     <li>Predicts employee burnout risk using regression and ML techniques.</li>
                     <li>Integrates Kaggle data for detailed analysis and real-time predictions.</li>
@@ -312,9 +338,11 @@
                 <a href="https://github.com/anjha1/Employee-Burnout-Prediction-And-Analysis" target="_blank">GitHub</a>
                 <a href="https://docs.google.com/presentation/d/14FPMzLCGXlcPNu76mgrqzxUI_1qKScGa/present?slide=id.p1" target="_blank">Project Details</a>
             </div>
-         <!-- Project 3: Forest Fire Prediction and Analysis -->
+
+            <!-- Project: Forest Fire Prediction and Analysis -->
             <div class="project-card">
                 <h2>Forest Fire Prediction and Analysis</h2>
+                <img src="images\FWI Prediction.jpeg" alt="FWI Prediction" class="project-image">
                 <ul>
                     <li>Predicted forest fires using AutoAI and environmental data analysis.</li>
                     <li>Achieved high R2 (0.9830) with a Linear Regression model.</li>
@@ -324,9 +352,10 @@
                 <a href="https://github.com/anjha1/FWI-Fire-Weather-Index-Prediction-project/tree/master" target="_blank">GitHub</a>
                 <a href="https://docs.google.com/presentation/d/1H4SC7LzhdlLmLjnB8Uwgz9UG711DRrGT/present?slide=id.p1" target="_blank">Project Details</a>
             </div>
-       
-            <div class="project-card">
-                <h2> Zapkart - Smart Self-Checkout Solution 🛒💡 </h2>
+
+            <!-- Project: Zapkart -->
+            <!-- <div class="project-card">
+                <h2>Zapkart - Smart Self-Checkout Solution 🛒💡</h2>
                 <ul>
                     <li>Eliminates long checkout queues with a smart self-checkout system.</li>
                     <li>Interactive display panel for easy item location and seamless shopping.</li>
@@ -335,11 +364,9 @@
                 <a href="https://anjha1.github.io/zapkart/" target="_blank">Show Project</a>
                 <a href="https://github.com/anjha1/zapkart" target="_blank">GitHub</a>
                 <a href="https://docs.google.com/presentation/d/1geJfFOGlF-iX1cvcfIpRPQxvAQbkvoQu/present?slide=id.p1" target="_blank">Project Details</a>
-            </div>
-            
-          
+            </div> -->
 
-            <!-- Project 2: Alpha Thalassemia Classifier -->
+            <!-- Project: Alpha Thalassemia Classifier -->
             <div class="project-card">
                 <h2>Alpha Thalassemia Classifier</h2>
                 <ul>
@@ -352,25 +379,21 @@
                 <a href="https://drive.google.com/file/d/1g8pjfos0hW1T6rGAPE9Z0sQk23RInM_2/view" target="_blank">Project Details</a>
             </div>
 
-            
-            
-
-           
-             <!-- Project 6: Weather App -->
-             <div class="project-card">
+            <!-- Project: Email Resume Sender -->
+            <!-- <div class="project-card">
                 <h2>Email Resume Sender</h2>
                 <ul>
                     <li>Allows users to send personalized job application emails directly to recruiters.</li>
                     <li>Automatically attaches the user's resume and custom message to each email.</li>
                     <li>Includes a simple and user-friendly interface for easy input and submission.</li>
-                </ul>                
+                </ul>
                 <a href="https://email-resume-sender-kyne.onrender.com" target="_blank">View Project</a>
                 <a href="https://github.com/anjha1/Email-Resume-Sender" target="_blank">GitHub</a>
                 <a href="https://github.com/anjha1/Email-Resume-Sender" target="_blank">Project Details</a>
-            </div>
+            </div> -->
 
-            <!-- Project 5: Tic Tac Toe Game -->
-            <div class="project-card">
+            <!-- Project: Tic Tac Toe Game -->
+            <!-- <div class="project-card">
                 <h2>Tic Tac Toe Game</h2>
                 <ul>
                     <li>Developed a 2-player game with a clean and intuitive interface.</li>
@@ -380,10 +403,10 @@
                 <a href="https://anjha1.github.io/Tic-Tac-Toe-Game/" target="_blank">View Project</a>
                 <a href="https://github.com/anjha1/Tic-Tac-Toe-Game" target="_blank">GitHub</a>
                 <a href="https://docs.google.com/presentation/d/1upjlKgQoBF2-NaXNUbCXQxQbSVonIkeJ/present?slide=id.p1" target="_blank">Project Details</a>
-            </div>
+            </div> -->
 
-            <!-- Project 6: Weather App -->
-            <div class="project-card">
+            <!-- Project: Weather App -->
+            <!-- <div class="project-card">
                 <h2>Weather App</h2>
                 <ul>
                     <li>Provides real-time weather updates, forecasts, and alerts.</li>
@@ -393,10 +416,10 @@
                 <a href="https://anjha1.github.io/Weather-App/" target="_blank">View Project</a>
                 <a href="https://github.com/anjha1/Weather-App" target="_blank">GitHub</a>
                 <a href="https://docs.google.com/presentation/d/1fV4H0zuityk3jdtoujIX4LihdZOlTx2Y/present?slide=id.p1" target="_blank">Project Details</a>
-            </div>
+            </div> -->
 
-            <!-- Project 7: DevDetective for GitHub -->
-            <div class="project-card">
+            <!-- Project: DevDetective for GitHub -->
+            <!-- <div class="project-card">
                 <h2>DevDetective for GitHub</h2>
                 <ul>
                     <li>Fetches and displays GitHub profile data, repositories, and contributions.</li>
@@ -406,9 +429,10 @@
                 <a href="https://anjha1.github.io/DevDetective/" target="_blank">View Project</a>
                 <a href="https://github.com/anjha1/DevDetective" target="_blank">GitHub</a>
                 <a href="https://github.com/anjha1/DevDetective" target="_blank">Project Details</a>
-            </div>
-            <!-- Project : DevDetective for GitHub -->
-            <div class="project-card">
+            </div> -->
+
+            <!-- Project: Covid-19 India Data Analysis -->
+            <!-- <div class="project-card">
                 <h2>Covid-19 india Data Analysis Report</h2>
                 <ul>
                     <li>Key insights: Variable distributions, correlations, missing values, and data types.</li>
@@ -417,9 +441,10 @@
                 <a href="https://anjha1.github.io/Covid-19-india-Data-Analysis-Report/" target="_blank">View Project</a>
                 <a href="https://github.com/anjha1/Covid-19-india-Data-Analysis-Report" target="_blank">GitHub</a>
                 <a href="https://anjha1.github.io/Covid-19-india-Data-Analysis-Report/" target="_blank">Project Details</a>
-            </div>
+            </div> -->
 
-            <div class="project-card">
+            <!-- Project: Custom DAI -->
+            <!-- <div class="project-card">
                 <h2>Custom DAI with Multiple Random Ads</h2>
                 <ul>
                     <li>Randomized Ad Selection: The system uses multiple random ads to create a diverse and engaging experience, reducing ad fatigue and increasing ad effectiveness.</li>
@@ -428,10 +453,10 @@
                 <a href="https://anjha1.github.io/Custom-DAI-with-Multiple-Random-Ads/" target="_blank">View Project</a>
                 <a href="https://github.com/anjha1/Custom-DAI-with-Multiple-Random-Ads" target="_blank">GitHub</a>
                 <a href="https://anjha1.github.io/Custom-DAI-with-Multiple-Random-Ads/" target="_blank">Project Details</a>
-            </div>
+            </div> -->
 
-            <!-- Project 8: Vehicle Fleet Management Optimization -->
-            <div class="project-card">
+            <!-- Project: Vehicle Fleet Management -->
+            <!-- <div class="project-card">
                 <h2>Vehicle Fleet Management Optimization</h2>
                 <ul>
                     <li>Analyzes fleet usage, fuel costs, and maintenance for cost reduction.</li>
@@ -441,86 +466,71 @@
                 <a href="https://anjha1.github.io/DevDetective/" target="_blank">View Project</a>
                 <a href="https://github.com/anjha1/Covid-19-india-Data-Analysis-Report">GitHub</a>
                 <a href="https://github.com/anjha1/DevDetective" target="_blank">Project Details</a>
-            </div>
+            </div> -->
 
-            <!-- Project 9: Tata Data Visualization Simulation -->
-            <!-- <div class="project-card">
+            <!-- Comments for pending projects retained below -->
+            <!-- 
+            <div class="project-card">
                 <h2>Tata Data Visualization Simulation</h2>
-                <ul>
-                    <li>Created impactful visualizations for executive decision-making.</li>
-                    <li>Prepared insightful queries for client leadership meetings.</li>
-                    <li>Enhanced presentation and data storytelling for business insights.</li>
-                </ul>
-                <a href="#">View Project</a>
-            </div> -->
-
-            <!-- Project 10: Quantium Data Analytics Simulation -->
-            <!-- <div class="project-card">
+                ...
+            </div> 
+            -->
+            <!-- 
+            <div class="project-card">
                 <h2>Quantium Data Analytics Simulation</h2>
-                <ul>
-                    <li>Utilized transaction datasets to derive commercial insights.</li>
-                    <li>Conducted uplift testing for layout optimization in retail stores.</li>
-                    <li>Delivered evidence-based recommendations to improve outcomes.</li>
-                </ul>
-                <a href="#">View Project</a>
-            </div> -->
-
-            <!-- Project 11: PwC Power BI Simulation -->
-            <!-- <div class="project-card">
+                ...
+            </div> 
+            -->
+            <!-- 
+            <div class="project-card">
                 <h2>PwC Power BI Simulation</h2>
-                <ul>
-                    <li>Designed Power BI dashboards showcasing KPIs effectively.</li>
-                    <li>Analyzed HR data to address gender balance at executive levels.</li>
-                    <li>Strengthened communication with actionable data-driven insights.</li>
-                </ul>
-                <a href="#">View Project</a>
-            </div> -->
-
-            <!-- Project 12: AWS Architecture Design Simulation -->
-            <!-- <div class="project-card">
+                ...
+            </div> 
+            -->
+            <!-- 
+            <div class="project-card">
                 <h2>AWS Architecture Design Simulation</h2>
-                <ul>
-                    <li>Developed a scalable hosting architecture using Elastic Beanstalk.</li>
-                    <li>Simplified architecture for client understanding and cost analysis.</li>
-                    <li>Addressed performance issues for a growing client effectively.</li>
-                </ul>
-                <a href="#">View Project</a>
-            </div> -->
+                ...
+            </div> 
+            -->
         </div>
     </section>
 
-    <!-- Call to Action Section -->
-    
-
-    <!-- <footer>
+    <!-- Footer (Commented Out in Original) -->
+    <!-- 
+    <footer>
         <p>&copy; 2025 Achhuta Nand Jha. All rights reserved.</p>
-    </footer> -->
+    </footer> 
+    -->
 
+    <!-- Scripts -->
     <script>
-        // You can add interactivity here if needed
-        document.addEventListener('DOMContentLoaded', function() {
+        // DOM Ready Check
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('Document is ready!');
         });
-            window.watsonAssistantChatOptions = {
-              integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449", // The ID of this integration.
-              region: "au-syd", // The region your integration is hosted in.
-              serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb", // The ID of your service instance.
-              onLoad: async (instance) => { await instance.render(); }
-            };
-            setTimeout(function(){
-              const t=document.createElement('script');
-              t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
-              document.head.appendChild(t);
-            });
-    </script>
-    <script>
+
+        // Watson Assistant Integration
+        window.watsonAssistantChatOptions = {
+            integrationID: "33e8634c-c6ab-4f20-b1b4-2c8923060449", // The ID of this integration.
+            region: "au-syd", // The region your integration is hosted in.
+            serviceInstanceID: "9956602b-0c5c-4cba-8771-3088b454c8cb", // The ID of your service instance.
+            onLoad: async (instance) => { await instance.render(); }
+        };
+        setTimeout(function () {
+            const t = document.createElement('script');
+            t.src = "https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+            document.head.appendChild(t);
+        });
+
+        // Mobile Menu Toggle
         function toggleMenu() {
             const navUl = document.querySelector('nav ul');
             navUl.classList.toggle('active');
         }
 
         // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             const navUl = document.querySelector('nav ul');
             const hamburger = document.querySelector('.hamburger');
             if (!event.target.closest('nav') && !event.target.closest('.hamburger')) {
@@ -528,6 +538,6 @@
             }
         });
     </script>
-    
+
 </body>
 </html>
