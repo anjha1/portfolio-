@@ -75,7 +75,7 @@
         header {
             background-color: #000;
             color: #fff;
-            padding: 20px 0;
+            padding: 12px 0; /* Reduced from 20px */
             text-align: center;
             position: sticky;
             top: 0;
@@ -83,35 +83,40 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        h1 { margin: 0; font-size: 1.8rem; }
+        h1 { 
+            margin: 0; 
+            font-size: 1.4rem; /* Reduced from 1.8rem */
+        }
 
         nav ul {
             list-style: none;
             padding: 0;
-            margin-top: 10px;
+            margin: 4px 0 0 0; /* Reduced margin top from 10px */
         }
 
         nav ul li { display: inline; margin: 0 10px; }
-        nav ul li a { color: #ccc; text-decoration: none; font-weight: bold; font-size: 1rem; transition: color 0.3s; }
+        nav ul li a { color: #ccc; text-decoration: none; font-weight: bold; font-size: 0.9rem; transition: color 0.3s; }
         nav ul li a:hover { color: #1197cd; }
 
         /* Filter Tabs */
         .filter-container {
             text-align: center;
-            padding: 15px;
+            padding: 8px; /* Reduced from 15px */
             background-color: #222;
-            margin-bottom: 25px;
+            margin-top: 8px;
+            margin-bottom: 0px; /* Reduced margin bottom */
         }
 
         .filter-btn {
             background-color: transparent;
             border: 2px solid #555;
             color: #ddd;
-            padding: 8px 18px;
-            margin: 5px;
+            padding: 6px 14px; /* Reduced padding */
+            margin: 3px; /* Reduced margin */
             cursor: pointer;
             border-radius: 25px;
             font-weight: 600;
+            font-size: 0.85rem; /* Reduced font size */
             transition: all 0.3s;
         }
 

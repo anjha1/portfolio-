@@ -332,7 +332,7 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT (Initially behind login screen) -->
+    <!-- MAIN CONTENT -->
     <div id="main-app" style="display:none;">
         <header>
             <h1>Interview Readiness Portal</h1>
@@ -375,28 +375,37 @@
 
     <script>
         // ======================================================
-        // LOGIN LOGIC (STRICT REDIRECT)
+        // SECURITY LOGIC (HASHING)
         // ======================================================
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = (hash << 5) - hash + char;
+                hash |= 0; 
+            }
+            return hash;
+        }
+
         function checkPassword() {
             const input = document.getElementById('passwordInput').value;
             const loginScreen = document.getElementById('login-screen');
             const mainApp = document.getElementById('main-app');
 
-            if(input === "ANJHA") {
-                // Correct Password - Unlock
+            
+            if(simpleHash(input) === 62425974) { 
                 loginScreen.style.opacity = '0';
                 setTimeout(() => {
                     loginScreen.style.display = 'none';
                     mainApp.style.display = 'block';
-                    document.body.style.overflow = 'auto'; // Re-enable scrolling
+                    document.body.style.overflow = 'auto'; 
                 }, 500); 
             } else {
-                // Wrong Password - REDIRECT IMMEDIATELY
+                // Wrong Password - REDIRECT
                 window.location.href = "https://www.achhuta.info/";
             }
         }
 
-        // Allow Enter key to submit password
         document.getElementById("passwordInput").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 checkPassword();
@@ -404,17 +413,18 @@
         });
 
         // ======================================================
-        // DATABASE - ALL DATA (Resumes: 6, Internships: 13, Projects: 16)
+        // DATABASE - ALL DATA
         // ======================================================
         const database = [
-            
             // --- 1. RESUMES (6 ROLES) ---
-            { type: "resume", title: "Data Scientist Resume", subtitle: "Target: Data Science / AI Research", summary: ["Focus: Statistical Analysis & ML Models", "Tools: Python, SQL, Scikit-Learn", "Experience: Shell, Microsoft"], links: { pdf: "https://anjha1.github.io/Anjha-3D-Resume/", detailsPdf: "https://anjha1.github.io/Anjha-3D-Resume/", qaPdf: "https://anjha1.github.io/Anjha-3D-Resume/" }, details: "Tailored for Data Science...", qa: [{q: "Walk me through this resume", a: "Start with Education -> Shell Internship..."}] },
+            { type: "resume", title: "Data Scientist Resume", subtitle: "Target: Data Science / AI Research", summary: ["Focus: Statistical Analysis & ML Models", "Tools: Python, SQL, Scikit-Learn", "Experience: Shell, Microsoft"], links: { pdf: "https://drive.google.com/file/d/1-0y6yHKBBGwUXHKvVioEuSKNocuB8BMw/view?usp=sharing", detailsPdf: "docs/DS_Resume_Details.pdf", qaPdf: "docs/DS_Resume_QA.pdf" }, details: "Tailored for Data Science...", qa: [{q: "Walk me through this resume", a: "Start with Education -> Shell Internship..."}] },
             { type: "resume", title: "AI Engineer Resume", subtitle: "Target: NLP / GenAI Roles", summary: ["Focus: LLMs, Gemini, OpenAI API", "Tools: LangChain, Next.js, Python", "Experience: IBM SkillsBuild, Pixora AI"], links: { pdf: "resumes/AI_Engineer_Resume.pdf", detailsPdf: "docs/AI_Resume_Details.pdf", qaPdf: "docs/AI_Resume_QA.pdf" }, details: "Emphasizes Generative AI...", qa: [{q: "Strongest AI Project?", a: "Pixora AI because it integrates..."}] },
-            { type: "resume", title: "Data Analyst Resume", subtitle: "Target: Business Intelligence / Analytics", summary: ["Focus: Power BI, EDA, Visualization", "Tools: Excel, SQL, Pandas", "Experience: Vodafone Idea, Unified Mentor"], links: { pdf: "resumes/Data_Analyst_Resume.pdf", detailsPdf: "docs/DA_Resume_Details.pdf", qaPdf: "docs/DA_Resume_QA.pdf" }, details: "Focuses on Data Cleaning...", qa: [{q: "How do you handle missing data?", a: "Explained in the Vodafone internship..."}] },
-            { type: "resume", title: "Web Development Resume", subtitle: "Target: MERN Stack / Frontend", summary: ["Focus: React, Node.js, Databases", "Tools: MongoDB, Tailwind, Redux", "Experience: EY GDS, VaultofCodes"], links: { pdf: "resumes/Web_Dev_Resume.pdf", detailsPdf: "docs/Web_Resume_Details.pdf", qaPdf: "docs/Web_Resume_QA.pdf" }, details: "Highlights Full Stack skills...", qa: [{q: "Explain MERN architecture", a: "MongoDB (DB) -> Express..."}] },
+            { type: "resume", title: "Data Analyst Resume", subtitle: "Target: Business Intelligence / Analytics", summary: ["Focus: Power BI, EDA, Visualization", "Tools: Excel, SQL, Pandas", "Experience: Vodafone Idea, Unified Mentor"], links: { pdf: "https://drive.google.com/file/d/1oWk5-HIjEaGySyw0FQZYJ2BcQVC1NX6_/view?usp=sharing", detailsPdf: "docs/DA_Resume_Details.pdf", qaPdf: "docs/DA_Resume_QA.pdf" }, details: "Focuses on Data Cleaning...", qa: [{q: "How do you handle missing data?", a: "Explained in the Vodafone internship..."}] },
+            { type: "resume", title: "Web Development Resume", subtitle: "Target: MERN Stack / Frontend", summary: ["Focus: React, Node.js, Databases", "Tools: MongoDB, Tailwind, Redux", "Experience: EY GDS, VaultofCodes"], links: { pdf: "https://drive.google.com/file/d/1DCXJrtNus2jnZrYApZoKWEpMsIAnx5op/view?usp=sharing", detailsPdf: "docs/Web_Resume_Details.pdf", qaPdf: "docs/Web_Resume_QA.pdf" }, details: "Highlights Full Stack skills...", qa: [{q: "Explain MERN architecture", a: "MongoDB (DB) -> Express..."}] },
             { type: "resume", title: "ML Engineer Resume", subtitle: "Target: ML Ops / Model Deployment", summary: ["Focus: Model Training, Deployment", "Tools: Flask, Docker, XGBoost", "Experience: CodSoft, Shell"], links: { pdf: "resumes/ML_Engineer_Resume.pdf", detailsPdf: "docs/ML_Resume_Details.pdf", qaPdf: "docs/ML_Resume_QA.pdf" }, details: "Focuses on ML pipeline...", qa: [{q: "Difference fit/transform?", a: "Fit calculates parameters..."}] },
-            { type: "resume", title: "General Software Resume", subtitle: "Target: SDE / General Tech", summary: ["Focus: DSA, Problem Solving, Core CS", "Tools: C++, Java, Python", "Projects: All Rounder"], links: { pdf: "resumes/General_Resume.pdf", detailsPdf: "docs/General_Resume_Details.pdf", qaPdf: "docs/General_Resume_QA.pdf" }, details: "A balanced resume...", qa: [{q: "Preferred Language?", a: "Python for Dev/AI..."}] },
+            { type: "resume", title: "General Software Resume", subtitle: "Target: SDE / General Tech", summary: ["Focus: DSA, Problem Solving, Core CS", "Tools: C++, Java, Python", "Projects: All Rounder"], links: { pdf: "https://drive.google.com/file/d/1mBUZORGoJGpyNatzx0klmB-kPrlUHCwo/view?usp=sharing", detailsPdf: "docs/General_Resume_Details.pdf", qaPdf: "docs/General_Resume_QA.pdf" }, details: "A balanced resume...", qa: [{q: "Preferred Language?", a: "Python for Dev/AI..."}] },
+            { type: "resume", title: "Software Engineering Resume", subtitle: "Target: SDE / Backend / Full-Stack Roles", summary: ["Focus: DSA, System Design, Scalable APIs", "Tools: Python, Java, Node.js, SQL", "Experience: Pixora AI, VaultofCodes, IBM"], links: { pdf: "https://drive.google.com/file/d/1joEpdaNuzZLggK0cLWbUJUTPVFCSNHEe/view?usp=sharing", detailsPdf: "docs/SE_Resume_Details.pdf", qaPdf: "docs/SE_Resume_QA.pdf" }, details: "Highlights strong foundations in data structures, backend engineering, full-stack development, and real-world project experience with scalable systems and APIs.", qa: [{ q: "What makes you a strong Software Engineer?", a: "My ability to combine DSA with real product development — I have built full-stack and backend systems like Pixora AI and production apps during VaultofCodes." }, { q: "Which project best represents your engineering skills?", a: "Pixora AI — it uses Next.js, Prisma, PostgreSQL, Stripe, and scalable APIs, showing both system design and real-world engineering." }] },
+
 
             // --- 2. INTERNSHIPS (13 Total) ---
             { type: "internship", title: "Full Stack Intern - EY GDS", subtitle: "Dec 2024 - Jan 2025 | MERN", summary: ["MERN Stack Development", "Scalable Web Apps", "AI Tools Masterclass"], links: { pdf: "internships/EY_Cert.pdf", overview: "internships/EY_Overview.pdf", detailsPdf: "internships/EY_Details.pdf", qaPdf: "internships/EY_QA.pdf" }, details: "Developed full-stack apps...", qa: [{q: "Role in team?", a: "Backend API development..."}] },
