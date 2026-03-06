@@ -75,7 +75,8 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md transition" onclick="navigate('chapters')">
                     <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-layer-group"></i></div>
                     <h3 class="font-bold text-lg mb-2">14 Chapters</h3>
@@ -95,6 +96,26 @@
                     <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-code"></i></div>
                     <h3 class="font-bold text-lg mb-2">Coding Practice</h3>
                     <p class="text-sm text-gray-500">Hands-on problem statements and 50 fully solved implementations.</p>
+                </div>
+            </div>
+
+            <!-- Video Crash Course Section -->
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex items-center mb-6">
+                    <i class="fa-brands fa-youtube text-red-600 text-4xl mr-4"></i>
+                    <div>
+                        <h3 class="font-bold text-2xl text-gray-800">Exam Preparation Crash Course</h3>
+                        <p class="text-gray-500 font-medium">Node.js Backend Exam Preparation | Unix, Git, Node.js, Express & REST API Explained</p>
+                    </div>
+                </div>
+                <div class="relative w-full overflow-hidden pt-[56.25%] rounded-xl shadow-inner bg-gray-900 border-2 border-gray-200">
+                    <iframe class="absolute top-0 left-0 w-full h-full" 
+                        src="https://www.youtube.com/embed/vEBT4oy1-4U" 
+                        title="Node.js Backend Exam Preparation | Unix, Git, Node.js, Express & REST API Explained video" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
                 </div>
             </div>
         </section>
