@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JVM Deep-Dive Architecture Handbook — HotSpot VM Internals, JIT & GC at the Source Code Level</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1f2937;
+  --border: #30363d;
+  --accent: #f97316;
+  --accent2: #38bdf8;
+  --accent3: #a78bfa;
+  --accent4: #34d399;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --text-dim: #6e7681;
+  --code-bg: #0d1117;
+  --red: #f85149;
+  --yellow: #f0c27f;
+  --green: #3fb950;
+  --nav-w: 280px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Lora', Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  display: flex;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ========== SIDEBAR ========== */
+#sidebar {
+  width: var(--nav-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0;
+  overflow-y: auto;
+  z-index: 100;
+  padding-bottom: 2rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--surface);
+}
+
+#sidebar::-webkit-scrollbar { width: 6px; }
+#sidebar::-webkit-scrollbar-track { background: var(--surface); }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+#sidebar .logo {
+  padding: 1.5rem 1.2rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  background: linear-gradient(135deg, rgba(249,115,22,0.1) 0%, transparent 100%);
+}
+
+#sidebar .logo span {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 0.25rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+#sidebar nav { padding: 0.5rem 0; }
+
+#sidebar nav a {
+  display: block;
+  padding: 0.4rem 1.2rem 0.4rem 1rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  line-height: 1.4;
+}
+
+#sidebar nav a:hover {
+  color: var(--text);
+  background: var(--surface2);
+  border-left-color: var(--accent);
+}
+
+#sidebar nav a.active {
+  color: var(--accent);
+  background: var(--surface2);
+  border-left-color: var(--accent);
+  font-weight: 700;
+}
+
+#sidebar nav a.active::before {
+  content: '▶';
+  position: absolute;
+  left: 0.3rem;
+  font-size: 0.5rem;
+  color: var(--accent);
+}
+
+#sidebar nav .nav-group {
+  padding: 0.8rem 1.2rem 0.3rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+/* ========== BACK TO TOP ========== */
+#back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(249,115,22,0.4);
+  z-index: 1000;
+}
+
+#back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+#back-to-top:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(249,115,22,0.6);
+}
+
+/* ========== MAIN CONTENT ========== */
+#main {
+  margin-left: var(--nav-w);
+  flex: 1;
+  max-width: 100%;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 40%, #1a1f2e 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 5rem 4rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: 'JVM';
+  position: absolute;
+  right: -20px;
+  top: -40px;
+  font-family: 'Syne', sans-serif;
+  font-size: 18rem;
+  font-weight: 800;
+  color: rgba(249,115,22,0.04);
+  user-select: none;
+  line-height: 1;
+}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.15;
+  max-width: 700px;
+  margin-bottom: 1rem;
+}
+
+.hero h1 span { color: var(--accent); }
+
+.hero .subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+}
+
+.hero .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.hero .tag {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--accent2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.hero .tag:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* ========== CONTENT AREA ========== */
+.content { padding: 3rem 4rem; max-width: 1000px; }
+
+section {
+  margin-bottom: 5rem;
+  scroll-margin-top: 2rem;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+section:hover {
+  transform: translateY(-2px);
+}
+
+h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border);
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+h2:hover::after {
+  width: 100px;
+}
+
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent2);
+  margin: 2rem 0 0.75rem;
+  transition: all 0.2s ease;
+}
+
+h3:hover {
+  color: var(--accent);
+  transform: translateX(5px);
+}
+
+h2::before {
+  content: attr(data-num);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent2);
+  margin: 2rem 0 0.75rem;
+}
+
+h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent3);
+  margin: 1.5rem 0 0.5rem;
+  transition: color 0.2s ease;
+}
+
+h4:hover {
+  color: var(--accent2);
+}
+
+p { margin-bottom: 1rem; color: var(--text); }
+p + p { margin-top: 0; }
+
+a {
+  color: var(--accent2);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+strong { color: var(--yellow); font-weight: 600; }
+em { color: var(--accent2); font-style: italic; }
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  background: var(--surface2);
+  color: var(--accent3);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+code:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: #e6edf3;
+  transition: all 0.3s ease;
+}
+
+pre:hover {
+  box-shadow: 0 4px 20px rgba(249,115,22,0.15);
+  border-color: var(--accent);
+}
+
+pre .comment { color: #8b949e; }
+pre .kw { color: #ff7b72; }
+pre .str { color: #a5d6ff; }
+pre .num { color: #79c0ff; }
+pre .fn { color: #d2a8ff; }
+pre .cls { color: #ffa657; }
+pre .op { color: #c9d1d9; }
+pre .label { color: #7ee787; }
+
+.diagram {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent2);
+  border-radius: 6px;
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--accent2);
+  white-space: pre;
+  transition: all 0.3s ease;
+}
+
+.diagram:hover {
+  box-shadow: 0 4px 20px rgba(56,189,248,0.15);
+  border-color: var(--accent2);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+table th {
+  background: var(--surface2);
+  color: var(--accent);
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  text-align: left;
+  position: sticky;
+  top: 0;
+}
+
+table td {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: top;
+  transition: background 0.2s ease;
+}
+
+table tr:hover td {
+  background: rgba(56,189,248,0.1);
+}
+
+table tr:nth-child(even) td { background: rgba(31,41,55,0.4); }
+table tr:nth-child(even):hover td { background: rgba(56,189,248,0.15); }
+
+.callout {
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-left: 4px solid;
+  font-size: 0.92rem;
+  transition: all 0.3s ease;
+}
+
+.callout:hover {
+  transform: translateX(5px);
+}
+
+.callout.info { background: rgba(56,189,248,0.08); border-color: var(--accent2); color: var(--accent2); }
+.callout.warn { background: rgba(240,194,127,0.08); border-color: var(--yellow); color: var(--yellow); }
+.callout.danger { background: rgba(248,81,73,0.1); border-color: var(--red); color: var(--red); }
+.callout.tip { background: rgba(52,211,153,0.08); border-color: var(--accent4); color: var(--accent4); }
+.callout strong { color: inherit; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+li { margin-bottom: 0.4rem; transition: color 0.2s; }
+li:hover { color: var(--accent2); }
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 3rem 0;
+}
+
+.badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  margin-right: 0.3rem;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.badge-orange { background: rgba(249,115,22,0.15); color: var(--accent); border: 1px solid rgba(249,115,22,0.3); }
+.badge-blue { background: rgba(56,189,248,0.15); color: var(--accent2); border: 1px solid rgba(56,189,248,0.3); }
+.badge-purple { background: rgba(167,139,250,0.15); color: var(--accent3); border: 1px solid rgba(167,139,250,0.3); }
+.badge-green { background: rgba(52,211,153,0.15); color: var(--accent4); border: 1px solid rgba(52,211,153,0.3); }
+.badge-red { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 2rem 4rem;
+  color: var(--text-dim);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; }
+  .hero, .content { padding: 2rem 1.5rem; }
+}
+</style>
+<script>
+// Back to Top Button
+const backToTopBtn = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 300) {
+    backToTopBtn.classList.add('visible');
+  } else {
+    backToTopBtn.classList.remove('visible');
+  }
+});
+
+backToTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Active Navigation Highlighting
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('#sidebar nav a');
+
+function highlightNav() {
+  let scrollPos = window.scrollY + 100;
+  
+  sections.forEach(section => {
+    const top = section.offsetTop;
+    const height = section.offsetHeight;
+    const id = section.getAttribute('id');
+    
+    if (scrollPos >= top && scrollPos < top + height) {
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + id) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+}
+
+window.addEventListener('scroll', highlightNav);
+highlightNav();
+</script>
+</head>
+<body>
+
+<!-- ========== BACK TO TOP BUTTON ========== -->
+<button id="back-to-top" title="Back to Top">↑</button>
+
+<!-- ========== SIDEBAR ========== -->
+<aside id="sidebar">
+  <div class="logo">JVM Deep-Dive<span>HotSpot Internals · JIT · GC · CPU</span></div>
+  <nav>
+    <div class="nav-group">Fundamentals</div>
+    <a href="#s1">01 · Java Execution Pipeline</a>
+    <a href="#s2">02 · JVM Architecture</a>
+    <a href="#s3">03 · HotSpot Source Tree</a>
+    <a href="#s4">04 · Class Loading Internals</a>
+    <a href="#s5">05 · Class Initialization Order</a>
+    <div class="nav-group">Runtime</div>
+    <a href="#s6">06 · Bytecode Engine</a>
+    <a href="#s7">07 · Runtime Data Areas</a>
+    <a href="#s8">08 · Object Memory Layout</a>
+    <a href="#s9">09 · Static vs Instance Vars</a>
+    <div class="nav-group">Memory & GC</div>
+    <a href="#s10">10 · Heap Architecture</a>
+    <a href="#s11">11 · TLABs</a>
+    <a href="#s12">12 · GC Algorithms</a>
+    <a href="#s13">13 · GC Barriers</a>
+    <a href="#s14">14 · Safepoints</a>
+    <div class="nav-group">JIT Compilation</div>
+    <a href="#s15">15 · JIT Compiler Arch</a>
+    <a href="#s16">16 · JIT Optimizations</a>
+    <a href="#s17">17 · Escape Analysis</a>
+    <a href="#s18">18 · Vectorization</a>
+    <div class="nav-group">Concurrency</div>
+    <a href="#s19">19 · Java Memory Model</a>
+    <a href="#s20">20 · Synchronization</a>
+    <a href="#s21">21 · String Pool</a>
+    <div class="nav-group">Engineering</div>
+    <a href="#s22">22 · Machine Code Gen</a>
+    <a href="#s23">23 · JVM Performance</a>
+    <a href="#s24">24 · Failure Analysis</a>
+    <a href="#s25">25 · Debugging Tools</a>
+    <a href="#s26">26 · Full Memory Map</a>
+    <a href="#s27">27 · Bytecode to CPU</a>
+    <a href="#s28">28 · Interview Traps</a>
+  </nav>
+</aside>
+
+<!-- ========== MAIN ========== -->
+<div id="main">
+
+<div class="hero">
+  <h1>JVM Deep-Dive<br><span>Architecture Handbook</span></h1>
+  <p class="subtitle">HotSpot VM Internals · JIT Compilation · Garbage Collection · Bytecode to Silicon — For Systems Engineers and FAANG Candidates</p>
+  <div class="tags">
+    <span class="tag">JVM Engineers</span>
+    <span class="tag">OpenJDK Contributors</span>
+    <span class="tag">HotSpot Internals</span>
+    <span class="tag">JIT Compilation</span>
+    <span class="tag">GC Algorithms</span>
+    <span class="tag">FAANG Interviews</span>
+    <span class="tag">Distributed Systems</span>
+    <span class="tag">Performance Engineering</span>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ===== SECTION 1 ===== -->
+<section id="s1">
+<h2 data-num="Section 01">Complete Java Execution Pipeline</h2>
+
+<p>The journey from a <code>.java</code> source file to CPU instructions is a multi-stage pipeline involving lexical analysis, bytecode generation, class loading, bytecode verification, linking, JIT compilation, machine code generation, and finally CPU execution. Understanding each stage is fundamental to diagnosing performance problems, memory issues, and subtle concurrency bugs in production systems.</p>
+
+<h3>Full Pipeline Overview</h3>
+<div class="diagram">
+┌─────────────────────────────────────────────────────────────────────┐
+│                    JAVA EXECUTION PIPELINE                          │
+│                                                                     │
+│  ┌──────────────┐     javac      ┌──────────────┐                  │
+│  │  .java Source│ ──────────────▶│ .class Byte  │                  │
+│  │  (Source Code│                │  code File   │                  │
+│  └──────────────┘                └──────┬───────┘                  │
+│                                         │                           │
+│                                         ▼                           │
+│                              ┌──────────────────┐                  │
+│                              │  ClassLoader Sub │                  │
+│                              │  system          │                  │
+│                              │  Loading         │                  │
+│                              │  → Verification  │                  │
+│                              │  → Linking       │                  │
+│                              │  → Initialization│                  │
+│                              └────────┬─────────┘                  │
+│                                       │                             │
+│                          ┌────────────▼────────────┐               │
+│                          │     Execution Engine     │               │
+│                          │                          │               │
+│                   ┌──────▼──────┐    ┌─────────────▼───┐          │
+│                   │ Interpreter │    │  JIT Compiler    │          │
+│                   │ (Tier 0/1)  │    │  C1 → C2 Tier   │          │
+│                   └──────┬──────┘    └────────┬────────┘          │
+│                          │                    │                     │
+│                          │         ┌──────────▼──────────┐        │
+│                          │         │  Native Machine Code │        │
+│                          │         │  (x86_64 / AArch64) │        │
+│                          └─────────┴──────────┬──────────┘        │
+│                                               │                     │
+│                                    ┌──────────▼──────────┐        │
+│                                    │   CPU Pipeline       │        │
+│                                    │   Execution          │        │
+│                                    └─────────────────────┘        │
+└─────────────────────────────────────────────────────────────────────┘</div>
+
+<h3>Stage 1 — javac Compilation</h3>
+<p>The <code>javac</code> compiler performs: lexical analysis (tokenization), syntax analysis (parse tree), semantic analysis (type checking, name resolution), constant folding, and bytecode generation. It outputs a <code>.class</code> file containing the JVM bytecode — a platform-independent intermediate representation.</p>
+
+<p>The <code>.class</code> file contains: a magic number (<code>0xCAFEBABE</code>), major/minor version, constant pool, access flags, class/interface hierarchy, field descriptors, method descriptors, bytecode for each method, and attribute tables (SourceFile, LineNumberTable, LocalVariableTable, etc.).</p>
+
+<pre><span class="comment">// Java Source</span>
+<span class="kw">public class</span> <span class="cls">Add</span> {
+    <span class="kw">public static int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+        <span class="kw">return</span> a + b;
+    }
+}
+
+<span class="comment">// Compiled bytecode (javap -c Add.class)</span>
+<span class="label">public static int add(int, int);</span>
+  Code:
+    0: iload_0         <span class="comment">// push a onto operand stack</span>
+    1: iload_1         <span class="comment">// push b onto operand stack</span>
+    2: iadd            <span class="comment">// pop 2, add, push result</span>
+    3: ireturn         <span class="comment">// return int on top of stack</span></pre>
+
+<h3>Stage 2 — Class Loading</h3>
+<p>The ClassLoader subsystem reads <code>.class</code> bytes into the JVM's Method Area (Metaspace). The three built-in loaders form a strict delegation hierarchy. Loading is <strong>lazy by default</strong> — a class is not loaded until it is first actively used.</p>
+
+<h3>Stage 3 — Bytecode Verification</h3>
+<p>The bytecode verifier enforces JVM type safety. It checks: that the stack never overflows or underflows, that local variable types are consistent, that field and method references are valid, and that final methods are not overridden. This is a critical security boundary — it ensures that even malicious bytecode cannot subvert JVM memory safety.</p>
+
+<h3>Stage 4 — Linking (Prepare + Resolve)</h3>
+<p><strong>Preparation</strong> allocates memory for static fields and sets them to default values (0, null, false). <strong>Resolution</strong> replaces symbolic references in the constant pool with direct references (memory pointers) to classes, fields, and methods. Resolution can be eager or lazy depending on JVM flags.</p>
+
+<h3>Stage 5 — Initialization</h3>
+<p>The class's <code>&lt;clinit&gt;</code> method is invoked — executing static field assignments and static initializer blocks in textual order. Initialization is synchronized: the JVM guarantees that only one thread initializes a class, and subsequent threads see the initialized state without synchronization (via the class loading lock).</p>
+
+<h3>Stage 6 — Interpreter Execution (Tier 0)</h3>
+<p>The template interpreter dispatches each bytecode instruction via a pre-generated native code fragment (a "template"). Each bytecode has its own assembly stub. The interpreter maintains a per-method invocation counter. When a method's counter exceeds <code>CompileThreshold</code> (default: 10,000), it is submitted to the JIT compiler queue.</p>
+
+<h3>Stage 7 — Tiered JIT Compilation</h3>
+<p>HotSpot uses tiered compilation: Tier 0 = interpreter, Tier 1 = C1 (no profiling), Tier 2 = C1 (limited profiling), Tier 3 = C1 (full profiling), Tier 4 = C2 (maximum optimization). Methods graduate through tiers based on invocation and back-edge (loop) counters.</p>
+
+<h3>Stage 8 — Machine Code Execution</h3>
+<p>JIT-compiled code is stored in the Code Cache (a JVM-managed native memory region). Execution jumps into this cache, bypassing the interpreter entirely. The JVM may deoptimize compiled code back to the interpreter if speculative optimizations (like inlining based on CHA) are invalidated by class loading events.</p>
+</section>
+
+<!-- ===== SECTION 2 ===== -->
+<section id="s2">
+<h2 data-num="Section 02">JVM Architecture — System Level</h2>
+
+<p>HotSpot is a complex C++ application (~4 million lines of code in OpenJDK). Understanding its subsystem boundaries and their interactions is essential for advanced JVM tuning and modification.</p>
+
+<div class="diagram">
+┌────────────────────────────────────────────────────────────────────────┐
+│                         JVM PROCESS BOUNDARY                          │
+│                                                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐ │
+│  │                   CLASS LOADER SUBSYSTEM                         │ │
+│  │  Bootstrap CL ──▶ Platform CL ──▶ App CL ──▶ Custom CL          │ │
+│  │       │                                                           │ │
+│  │   (loads rt.jar,                                                  │ │
+│  │    java.base)                                                     │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                   │  loads into                                        │
+│  ┌────────────────▼─────────────────────────────────────────────────┐ │
+│  │                    RUNTIME DATA AREAS                             │ │
+│  │                                                                   │ │
+│  │  ┌─────────┐  ┌─────────────────────────────────────────────┐   │ │
+│  │  │Metaspace│  │               HEAP                          │   │ │
+│  │  │(class   │  │  ┌───────────────┐  ┌────────────────────┐  │   │ │
+│  │  │metadata,│  │  │ Young Gen     │  │  Old Gen           │  │   │ │
+│  │  │method   │  │  │ Eden│S0│S1   │  │  (Tenured)         │  │   │ │
+│  │  │data)    │  │  └───────────────┘  └────────────────────┘  │   │ │
+│  │  └─────────┘  └─────────────────────────────────────────────┘   │ │
+│  │                                                                   │ │
+│  │  Per-Thread:                                                      │ │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │ │
+│  │  │ JVM Stack│  │PC Reg    │  │Native    │  │ JVM Stack    │   │ │
+│  │  │ Thread-1 │  │Thread-1  │  │Method Stk│  │ Thread-N     │   │ │
+│  │  └──────────┘  └──────────┘  └──────────┘  └──────────────┘   │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+│                   │                                                     │
+│  ┌────────────────▼─────────────────────────────────────────────────┐ │
+│  │                    EXECUTION ENGINE                               │ │
+│  │  ┌───────────────┐  ┌──────────────┐  ┌──────────────────────┐  │ │
+│  │  │  Interpreter  │  │ JIT Compiler │  │  Garbage Collectors  │  │ │
+│  │  │  (Template)   │  │  C1 / C2     │  │  G1 / ZGC / Shen.   │  │ │
+│  │  └───────────────┘  └──────────────┘  └──────────────────────┘  │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+│                   │                                                     │
+│  ┌────────────────▼─────────────────────────────────────────────────┐ │
+│  │             NATIVE METHOD INTERFACE (JNI)                        │ │
+│  │             Native Libraries (libc, libpthread, etc.)            │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────────────┘</div>
+
+<h3>ClassLoader Subsystem</h3>
+<p>Responsible for finding, loading, verifying, and initializing class files. Interacts directly with the file system, JAR files, module descriptors, and the network (for remote class loading). The result of loading is stored in Metaspace as a <code>Klass</code> C++ object, paired with a heap-allocated <code>java.lang.Class</code> mirror object.</p>
+
+<h3>Runtime Data Areas</h3>
+<p><strong>Metaspace</strong> (native memory): class metadata, method bytecode, constant pools, vtables, itables. <strong>Heap</strong> (GC-managed): all Java objects and arrays. <strong>Thread Stacks</strong>: per-thread, contains frames for each method call. <strong>PC Register</strong>: points to current bytecode (undefined for native methods). <strong>Native Method Stack</strong>: C stack used when executing JNI native methods.</p>
+
+<h3>Execution Engine</h3>
+<p>The execution engine has three major components that cooperate continuously: the <strong>template interpreter</strong> (executes bytecode until hot), the <strong>JIT compiler</strong> (compiles hot methods to native code), and the <strong>garbage collector</strong> (reclaims dead objects while respecting safepoints and GC barriers emitted by both the interpreter and JIT).</p>
+
+<h3>Native Interface (JNI)</h3>
+<p>JNI bridges Java and native C/C++ code. The JVM pushes/pops JNI frames on the thread's native call stack. JNI handles require explicit lifecycle management — GC roots are pinned while in native frames to prevent object relocation by concurrent collectors.</p>
+</section>
+
+<!-- ===== SECTION 3 ===== -->
+<section id="s3">
+<h2 data-num="Section 03">HotSpot Source Code Structure</h2>
+
+<p>Navigating the OpenJDK HotSpot source tree is daunting initially. Understanding the layout enables targeted exploration and modification.</p>
+
+<div class="diagram">
+OpenJDK/src/hotspot/share/
+├── runtime/           ← JVM lifecycle, threads, safepoints, monitors
+│   ├── thread.hpp/cpp        ← JavaThread, VMThread, CompilerThread
+│   ├── safepoint.hpp/cpp     ← Safepoint mechanism
+│   ├── synchronizer.hpp/cpp  ← Monitor inflation, ObjectSynchronizer
+│   └── reflectionUtils.hpp   ← Reflection support
+│
+├── interpreter/       ← Template interpreter, bytecode dispatch
+│   ├── templateInterpreter.hpp/cpp
+│   ├── bytecodeInterpreter.hpp/cpp
+│   └── templateTable.hpp/cpp  ← Per-bytecode assembly generation
+│
+├── compiler/          ← JIT compilation infrastructure
+│   ├── compileBroker.hpp/cpp  ← Compilation task queue
+│   └── compilerDefinitions.hpp
+│
+├── gc/                ← All GC implementations
+│   ├── shared/        ← Common GC infrastructure
+│   ├── g1/            ← G1 GC
+│   ├── z/             ← ZGC
+│   ├── shenandoah/    ← Shenandoah GC
+│   ├── parallel/      ← Parallel GC
+│   └── serial/        ← Serial GC
+│
+├── oops/              ← Object representation (oops = Ordinary Object Pointers)
+│   ├── oop.hpp/cpp           ← Base object representation
+│   ├── klass.hpp/cpp         ← Class metadata
+│   ├── markWord.hpp/cpp      ← Object header mark word
+│   ├── instanceKlass.hpp     ← Regular class metadata
+│   └── arrayKlass.hpp        ← Array class metadata
+│
+├── memory/            ← Memory management
+│   ├── heap.hpp/cpp          ← Code heap
+│   ├── metaspace/            ← Metaspace internals
+│   └── allocation.hpp        ← JVM internal allocation
+│
+├── jit/               ← C1 and C2 compiler bridges
+├── classfile/         ← Class file parsing, class loading
+└── prims/             ← JNI, JVMTI implementations</div>
+
+<h3>Key Source Files for JVM Internals</h3>
+<table>
+<tr><th>File</th><th>Responsibility</th><th>Key Concepts</th></tr>
+<tr><td><code>oops/oop.hpp</code></td><td>Base class for all Java objects in JVM</td><td>Mark word, klass pointer, field layout</td></tr>
+<tr><td><code>oops/klass.hpp</code></td><td>Class metadata representation</td><td>vtable, itable, layout helper</td></tr>
+<tr><td><code>oops/markWord.hpp</code></td><td>Object header mark word layout</td><td>Lock state, hash code, GC age</td></tr>
+<tr><td><code>runtime/safepoint.cpp</code></td><td>Safepoint polling and synchronization</td><td>Thread suspension, deoptimization</td></tr>
+<tr><td><code>interpreter/templateTable.cpp</code></td><td>Per-bytecode native code templates</td><td>Bytecode dispatch, stack manipulation</td></tr>
+<tr><td><code>gc/g1/g1CollectedHeap.cpp</code></td><td>G1 GC heap management</td><td>Region management, concurrent marking</td></tr>
+<tr><td><code>compiler/compileBroker.cpp</code></td><td>JIT compilation task management</td><td>Compilation queue, tier transitions</td></tr>
+</table>
+
+<h3>OOP Hierarchy</h3>
+<p>In HotSpot, "oop" means <em>Ordinary Object Pointer</em> — a pointer to a Java object on the heap. The C++ type hierarchy is:</p>
+<pre><span class="cls">oop</span>                          <span class="comment">// base pointer type</span>
+  └─ <span class="cls">instanceOop</span>           <span class="comment">// regular Java object instance</span>
+  └─ <span class="cls">arrayOop</span>              <span class="comment">// base for arrays</span>
+       └─ <span class="cls">objArrayOop</span>      <span class="comment">// array of object references</span>
+       └─ <span class="cls">typeArrayOop</span>     <span class="comment">// array of primitives (int[], byte[], etc.)</span>
+
+<span class="cls">Klass</span>                        <span class="comment">// class metadata (in Metaspace)</span>
+  └─ <span class="cls">InstanceKlass</span>         <span class="comment">// regular class</span>
+  └─ <span class="cls">ArrayKlass</span>            <span class="comment">// array class</span>
+       └─ <span class="cls">ObjArrayKlass</span>    <span class="comment">// reference array</span>
+       └─ <span class="cls">TypeArrayKlass</span>   <span class="comment">// primitive array</span></pre>
+</section>
+
+<!-- ===== SECTION 4 ===== -->
+<section id="s4">
+<h2 data-num="Section 04">Class Loading Internals</h2>
+
+<p>Class loading is a three-phase process: <strong>Loading</strong> (finding and reading the class file bytes), <strong>Linking</strong> (verification + preparation + resolution), and <strong>Initialization</strong> (executing <code>&lt;clinit&gt;</code>). Each phase has strict rules and ordering guarantees.</p>
+
+<h3>ClassLoader Hierarchy</h3>
+<div class="diagram">
+                    ┌─────────────────────────────┐
+                    │     Bootstrap ClassLoader    │
+                    │  (C++ code, no Java object)  │
+                    │  Loads: java.base module      │
+                    │  Source: JAVA_HOME/lib/       │
+                    └──────────────┬──────────────┘
+                                   │ parent
+                    ┌──────────────▼──────────────┐
+                    │  Platform ClassLoader        │
+                    │  (was Extension CL in Java 8)│
+                    │  Loads: java.se and other    │
+                    │  platform modules            │
+                    └──────────────┬──────────────┘
+                                   │ parent
+                    ┌──────────────▼──────────────┐
+                    │  Application (System) CL     │
+                    │  Loads: classpath entries    │
+                    │  -cp / CLASSPATH env         │
+                    └──────────────┬──────────────┘
+                                   │ parent
+                    ┌──────────────▼──────────────┐
+                    │   User-Defined ClassLoaders  │
+                    │   (OSGi, Spring, Tomcat, etc)│
+                    └─────────────────────────────┘</div>
+
+<h3>Parent Delegation Model</h3>
+<p>When a ClassLoader receives a <code>loadClass(name)</code> request, it <strong>always delegates to its parent first</strong>. Only if the parent cannot find the class does the child attempt to load it. This ensures that core Java classes (e.g., <code>java.lang.String</code>) are always loaded by Bootstrap, preventing malicious replacement of system classes.</p>
+
+<pre><span class="comment">// ClassLoader.loadClass() — simplified logic</span>
+<span class="kw">protected synchronized</span> <span class="cls">Class</span>&lt;?&gt; <span class="fn">loadClass</span>(<span class="cls">String</span> name, <span class="kw">boolean</span> resolve) {
+    <span class="cls">Class</span>&lt;?&gt; c = <span class="fn">findLoadedClass</span>(name);      <span class="comment">// check cache</span>
+    <span class="kw">if</span> (c == <span class="kw">null</span>) {
+        <span class="kw">try</span> {
+            <span class="kw">if</span> (parent != <span class="kw">null</span>)
+                c = parent.<span class="fn">loadClass</span>(name, <span class="kw">false</span>);  <span class="comment">// delegate up</span>
+            <span class="kw">else</span>
+                c = <span class="fn">findBootstrapClass</span>(name);         <span class="comment">// bootstrap</span>
+        } <span class="kw">catch</span> (<span class="cls">ClassNotFoundException</span> e) {
+            c = <span class="fn">findClass</span>(name);   <span class="comment">// child handles it</span>
+        }
+    }
+    <span class="kw">if</span> (resolve) <span class="fn">resolveClass</span>(c);
+    <span class="kw">return</span> c;
+}</pre>
+
+<h3>Class Identity</h3>
+<p>In the JVM, a class is uniquely identified by the tuple <code>(fully-qualified-name, ClassLoader-instance)</code>. Two classes with the same name loaded by different ClassLoaders are <strong>completely different types</strong> — instances of one cannot be cast to the other, even if they have identical bytecode. This is the source of the notorious <code>ClassCastException</code> in application servers.</p>
+
+<div class="callout warn"><strong>ClassLoader Leak:</strong> If a ClassLoader instance is held alive by any live reference (e.g., a static field in a class it loaded, a thread context classloader), all classes it loaded — and their static fields — are retained in Metaspace, causing <code>OutOfMemoryError: Metaspace</code> in hot-deploy scenarios.</div>
+
+<h3>Custom ClassLoader Implementation</h3>
+<pre><span class="kw">public class</span> <span class="cls">BytecodeClassLoader</span> <span class="kw">extends</span> <span class="cls">ClassLoader</span> {
+    <span class="kw">private final byte</span>[] bytecode;
+
+    <span class="kw">public</span> <span class="cls">BytecodeClassLoader</span>(<span class="kw">byte</span>[] bytecode) {
+        <span class="kw">super</span>(<span class="cls">ClassLoader</span>.<span class="fn">getSystemClassLoader</span>());
+        <span class="kw">this</span>.bytecode = bytecode;
+    }
+
+    <span class="kw">@Override
+    protected</span> <span class="cls">Class</span>&lt;?&gt; <span class="fn">findClass</span>(<span class="cls">String</span> name) {
+        <span class="comment">// defineClass performs Linking (verify + prepare + resolve)</span>
+        <span class="kw">return</span> <span class="fn">defineClass</span>(name, bytecode, <span class="num">0</span>, bytecode.length);
+    }
+}</pre>
+
+<h3>Dynamic Module Loading (JPMS)</h3>
+<p>In Java 9+, the module system wraps ClassLoaders with module visibility rules. A class can only load another class if the module declaring it exports the package. The Bootstrap CL is now responsible for <code>java.base</code>, while the Platform CL covers other JDK modules. Named modules provide stronger encapsulation guarantees than the old classpath model.</p>
+
+<h3>Linking — Deep Internals</h3>
+<table>
+<tr><th>Phase</th><th>What Happens</th><th>Errors Thrown</th></tr>
+<tr><td><strong>Verification</strong></td><td>Bytecode format checks, type safety validation, stack shape analysis, instruction reachability</td><td><code>VerifyError</code></td></tr>
+<tr><td><strong>Preparation</strong></td><td>Static field memory allocated; set to zero-values. No code executed yet.</td><td>OOM for Metaspace</td></tr>
+<tr><td><strong>Resolution</strong></td><td>Symbolic refs in constant pool replaced with direct refs (pointers). Lazy or eager per JVM.</td><td><code>NoClassDefFoundError</code>, <code>LinkageError</code></td></tr>
+</table>
+</section>
+
+<!-- ===== SECTION 5 ===== -->
+<section id="s5">
+<h2 data-num="Section 05">Class Initialization Order — Exact Execution Rules</h2>
+
+<p>Class initialization ordering is one of the most-tested JVM topics in FAANG interviews. The JVM specification defines a precise ordering that must be understood at the bytecode level.</p>
+
+<h3>Complete Ordering Rules</h3>
+<div class="diagram">
+CLASS INITIALIZATION ORDER (JVM Spec §5.5)
+─────────────────────────────────────────────────────
+
+Step 1: Superclass initialized first (recursively)
+         └─ Object is always initialized before any class
+
+Step 2: Static variable default values (0/null/false)
+         └─ Assigned during PREPARATION, not initialization
+
+Step 3: Static initializers and static variable assignments
+         └─ Executed in TEXTUAL ORDER (top to bottom)
+         └─ Combined into a single <clinit>() method
+
+INSTANCE CREATION ORDER (per new invocation)
+─────────────────────────────────────────────────────
+
+Step 1: Allocate memory on Heap, zero-initialize all fields
+
+Step 2: Instance variable default values (already done above)
+
+Step 3: Instance initializer blocks (IIBs) and instance variable
+         assignments, in TEXTUAL ORDER, combined into <init>()
+
+Step 4: Constructor body executes AFTER IIBs
+         └─ super() is always FIRST call in constructor
+
+Step 5: Instance methods are callable only after construction</div>
+
+<h3>Initialization Triggers (Active Uses)</h3>
+<p>A class is initialized only when it is <em>actively used</em>. Passive uses (e.g., accessing a <code>static final</code> compile-time constant, creating an array of the type) do <strong>not</strong> trigger initialization.</p>
+
+<table>
+<tr><th>Trigger</th><th>Active Use?</th><th>Notes</th></tr>
+<tr><td><code>new ClassName()</code></td><td>✅ Yes</td><td>Most common trigger</td></tr>
+<tr><td>Call a static method</td><td>✅ Yes</td><td>Inherited static methods initialize the declaring class</td></tr>
+<tr><td>Access/assign a static field</td><td>✅ Yes</td><td>Unless it's a <code>static final</code> compile-time constant</td></tr>
+<tr><td><code>Class.forName("Foo")</code></td><td>✅ Yes</td><td>By default; use <code>initialize=false</code> to suppress</td></tr>
+<tr><td>First invocation of a subclass</td><td>✅ Yes</td><td>Triggers superclass initialization first</td></tr>
+<tr><td>Access <code>static final int X = 5</code></td><td>❌ No</td><td>Compile-time constant — inlined by javac</td></tr>
+<tr><td><code>new Foo[]</code></td><td>❌ No</td><td>Array creation doesn't initialize element type</td></tr>
+</table>
+
+<h3>Tricky Interview Case — Static Initialization Ordering</h3>
+<pre><span class="kw">class</span> <span class="cls">Parent</span> {
+    <span class="kw">static int</span> x = <span class="fn">initX</span>();          <span class="comment">// Step A</span>
+    <span class="kw">static</span> { <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Parent static block, x="</span> + x); } <span class="comment">// Step B</span>
+    <span class="kw">static int</span> <span class="fn">initX</span>() { <span class="kw">return</span> <span class="num">10</span>; }
+}
+
+<span class="kw">class</span> <span class="cls">Child</span> <span class="kw">extends</span> <span class="cls">Parent</span> {
+    <span class="kw">static int</span> y = <span class="num">20</span>;                <span class="comment">// Step D (after Parent init)</span>
+    <span class="kw">static</span> { <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Child static block, y="</span> + y); } <span class="comment">// Step E</span>
+    <span class="kw">int</span> instanceY = <span class="num">100</span>;             <span class="comment">// Step G (per instance)</span>
+    { <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Child IIB, instanceY="</span> + instanceY); } <span class="comment">// Step H</span>
+    <span class="cls">Child</span>() { <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Child constructor"</span>); }  <span class="comment">// Step I</span>
+}
+
+<span class="comment">// new Child() output:</span>
+<span class="comment">// Parent static block, x=10       ← Parent &lt;clinit&gt; runs first</span>
+<span class="comment">// Child static block, y=20        ← Child &lt;clinit&gt; runs second</span>
+<span class="comment">// Child IIB, instanceY=100        ← IIB before constructor body</span>
+<span class="comment">// Child constructor               ← Constructor last</span></pre>
+
+<h3>The Forward Reference Trap</h3>
+<pre><span class="kw">class</span> <span class="cls">ForwardRef</span> {
+    <span class="kw">static int</span> a = b + <span class="num">1</span>;   <span class="comment">// b is 0 here! (default value during preparation)</span>
+    <span class="kw">static int</span> b = <span class="num">5</span>;
+
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(a);  <span class="comment">// prints 1, NOT 6!</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(b);  <span class="comment">// prints 5</span>
+    }
+}</pre>
+
+<div class="callout danger"><strong>Interview Trap:</strong> Static fields are set to default values (0) during Preparation. During Initialization they are assigned in textual order. <code>a = b + 1</code> executes when <code>b</code> is still 0, giving <code>a = 1</code>, not <code>6</code>.</div>
+
+<h3>Initialization Deadlock</h3>
+<p>The JVM uses a per-class initialization lock. If two threads race to initialize classes A and B, where A's <code>&lt;clinit&gt;</code> references B and B's <code>&lt;clinit&gt;</code> references A, a circular initialization deadlock occurs. The JVM specification (§5.5 step 3) documents this as a potential deadlock — the JVM does <strong>not</strong> detect or prevent it.</p>
+</section>
+
+<!-- ===== SECTION 6 ===== -->
+<section id="s6">
+<h2 data-num="Section 06">JVM Bytecode Engine — Stack-Based Execution</h2>
+
+<p>The JVM is a <strong>stack-based virtual machine</strong>. Unlike register-based VMs (like Dalvik/ART), all bytecode instructions operate on an <strong>operand stack</strong> within a stack frame. Understanding this model is essential for reasoning about bytecode correctness and JIT optimization opportunities.</p>
+
+<h3>Stack Frame Structure</h3>
+<div class="diagram">
+┌─────────────────────────────────────────────────────┐
+│               JVM STACK FRAME                       │
+│                                                     │
+│  ┌─────────────────────────────────────────────┐   │
+│  │           OPERAND STACK                     │   │
+│  │  ┌───────┐  ← top of stack (TOS)            │   │
+│  │  │  val3 │                                  │   │
+│  │  ├───────┤                                  │   │
+│  │  │  val2 │                                  │   │
+│  │  ├───────┤                                  │   │
+│  │  │  val1 │  ← bottom of stack               │   │
+│  │  └───────┘                                  │   │
+│  │  Max depth = max_stack (from .class file)   │   │
+│  └─────────────────────────────────────────────┘   │
+│                                                     │
+│  ┌─────────────────────────────────────────────┐   │
+│  │       LOCAL VARIABLE TABLE                  │   │
+│  │  [0] = this (instance methods)              │   │
+│  │  [1] = first parameter                      │   │
+│  │  [2] = second parameter                     │   │
+│  │  [3] = first local variable                 │   │
+│  │  ...                                        │   │
+│  │  Max slots = max_locals (from .class file)  │   │
+│  └─────────────────────────────────────────────┘   │
+│                                                     │
+│  ┌─────────────────────────────────────────────┐   │
+│  │       FRAME DATA                            │   │
+│  │  Return address (caller PC)                 │   │
+│  │  Reference to runtime constant pool         │   │
+│  │  Exception dispatch table pointer           │   │
+│  └─────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────┘</div>
+
+<h3>Bytecode Example — Arithmetic</h3>
+<pre><span class="comment">// Java source</span>
+<span class="kw">public static int</span> <span class="fn">compute</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+    <span class="kw">int</span> c = a + b;
+    <span class="kw">return</span> c * <span class="num">2</span>;
+}
+
+<span class="comment">// Bytecode (javap -c)</span>
+<span class="label">0: iload_0</span>    <span class="comment">// push local[0] (a) → stack: [a]</span>
+<span class="label">1: iload_1</span>    <span class="comment">// push local[1] (b) → stack: [a, b]</span>
+<span class="label">2: iadd</span>       <span class="comment">// pop 2, add, push   → stack: [a+b]</span>
+<span class="label">3: istore_2</span>   <span class="comment">// pop → local[2] (c) → stack: []</span>
+<span class="label">4: iload_2</span>    <span class="comment">// push local[2] (c)  → stack: [c]</span>
+<span class="label">5: iconst_2</span>   <span class="comment">// push constant 2    → stack: [c, 2]</span>
+<span class="label">6: imul</span>       <span class="comment">// pop 2, multiply    → stack: [c*2]</span>
+<span class="label">7: ireturn</span>    <span class="comment">// return int on TOS</span></pre>
+
+<h3>Complete Bytecode Instruction Reference</h3>
+<table>
+<tr><th>Category</th><th>Instructions</th><th>Description</th></tr>
+<tr><td><strong>Load (stack push)</strong></td><td><code>iload, lload, fload, dload, aload</code></td><td>Push local variable onto stack</td></tr>
+<tr><td><strong>Store (stack pop)</strong></td><td><code>istore, lstore, fstore, dstore, astore</code></td><td>Pop stack top to local variable</td></tr>
+<tr><td><strong>Constants</strong></td><td><code>iconst_0..5, lconst, fconst, dconst, aconst_null, bipush, sipush, ldc</code></td><td>Push literal/constant pool values</td></tr>
+<tr><td><strong>Arithmetic</strong></td><td><code>iadd, isub, imul, idiv, irem, ineg, ishl, ishr, iushr, iand, ior, ixor</code></td><td>Integer arithmetic/bitwise</td></tr>
+<tr><td><strong>Long/Float/Double</strong></td><td><code>ladd, fadd, dadd, ...</code></td><td>64-bit and floating-point ops</td></tr>
+<tr><td><strong>Conversion</strong></td><td><code>i2l, i2f, i2d, l2i, f2i, d2i, i2b, i2c, i2s</code></td><td>Primitive type widening/narrowing</td></tr>
+<tr><td><strong>Object creation</strong></td><td><code>new, newarray, anewarray, multianewarray</code></td><td>Heap allocation</td></tr>
+<tr><td><strong>Field access</strong></td><td><code>getfield, putfield, getstatic, putstatic</code></td><td>Instance and static field I/O</td></tr>
+<tr><td><strong>Method invocation</strong></td><td><code>invokevirtual, invokeinterface, invokestatic, invokespecial, invokedynamic</code></td><td>Method dispatch</td></tr>
+<tr><td><strong>Control flow</strong></td><td><code>if_icmpeq, if_icmplt, goto, tableswitch, lookupswitch</code></td><td>Branches and jumps</td></tr>
+<tr><td><strong>Return</strong></td><td><code>ireturn, lreturn, freturn, dreturn, areturn, return</code></td><td>Method return with value</td></tr>
+<tr><td><strong>Stack ops</strong></td><td><code>pop, pop2, dup, dup2, swap</code></td><td>Stack manipulation</td></tr>
+<tr><td><strong>Monitors</strong></td><td><code>monitorenter, monitorexit</code></td><td>Synchronized block enter/exit</td></tr>
+</table>
+
+<h3>Method Invocation Types — Critical Distinction</h3>
+<table>
+<tr><th>Instruction</th><th>Use Case</th><th>Dispatch Mechanism</th></tr>
+<tr><td><code>invokevirtual</code></td><td>Regular instance method call</td><td>vtable lookup (polymorphic)</td></tr>
+<tr><td><code>invokeinterface</code></td><td>Interface method call</td><td>itable lookup (slower than vtable)</td></tr>
+<tr><td><code>invokestatic</code></td><td>Static method call</td><td>Direct (no dispatch needed)</td></tr>
+<tr><td><code>invokespecial</code></td><td><code>super()</code>, <code>this()</code>, private, <code>&lt;init&gt;</code></td><td>Direct reference, no vtable</td></tr>
+<tr><td><code>invokedynamic</code></td><td>Lambdas, method handles, Groovy/Kotlin</td><td>Bootstrap method + call site</td></tr>
+</table>
+
+<h3>Template Interpreter — How Bytecode Dispatches</h3>
+<p>HotSpot's template interpreter does NOT use a switch/case bytecode loop. Instead, at JVM startup, it pre-generates assembly stubs for every bytecode. The dispatch table is a fixed array of code pointers. At the end of each bytecode stub, the interpreter reads the next opcode byte and jumps directly to the next stub — this is called <em>threaded dispatch</em>.</p>
+
+<pre><span class="comment">// Conceptual dispatcher (actual code is assembly generated by templateTable.cpp)</span>
+<span class="comment">// After each instruction, dispatch to next:</span>
+<span class="comment">// 1. Read byte at PC → opcode</span>
+<span class="comment">// 2. Increment PC</span>
+<span class="comment">// 3. Jump to dispatch_table[opcode]</span>
+
+<span class="comment">// This eliminates branch mispredictions on the dispatch switch</span>
+<span class="comment">// and allows CPU to pipeline bytecode execution</span></pre>
+</section>
+
+<!-- ===== SECTION 7 ===== -->
+<section id="s7">
+<h2 data-num="Section 07">Runtime Data Areas — Deep Internals</h2>
+
+<h3>Complete Memory Map</h3>
+<div class="diagram">
+PROCESS VIRTUAL ADDRESS SPACE
+────────────────────────────────────────────────────────────────────
+High Address
+│
+│  ┌──────────────────────────────────────────────────────────────┐
+│  │  NATIVE MEMORY (OS-allocated, not GC-managed)               │
+│  │                                                              │
+│  │  ┌─────────────┐  ← MetaspaceSize / MaxMetaspaceSize        │
+│  │  │  Metaspace  │     Class metadata, method bytecode,       │
+│  │  │             │     constant pools, vtables, itables        │
+│  │  └─────────────┘                                            │
+│  │  ┌─────────────┐                                            │
+│  │  │ Code Cache  │     JIT-compiled native code (nmethod)     │
+│  │  │             │     -XX:ReservedCodeCacheSize (default 240M) │
+│  │  └─────────────┘                                            │
+│  └──────────────────────────────────────────────────────────────┘
+│
+│  ┌──────────────────────────────────────────────────────────────┐
+│  │  JAVA HEAP (GC-managed)        -Xms / -Xmx                  │
+│  │                                                              │
+│  │  G1/CMS/Parallel:                                            │
+│  │  ┌───────────────────────┐ ┌──────────────────────────────┐ │
+│  │  │   Young Generation    │ │    Old Generation (Tenured)  │ │
+│  │  │ ┌──────┬────┬────┐   │ │                              │ │
+│  │  │ │ Eden │ S0 │ S1 │   │ │   Long-lived objects         │ │
+│  │  │ └──────┴────┴────┘   │ │   Classes' static fields     │ │
+│  │  └───────────────────────┘ └──────────────────────────────┘ │
+│  └──────────────────────────────────────────────────────────────┘
+│
+│  ┌──────────────────────────────────────────────────────────────┐
+│  │  PER-THREAD AREAS (1 per JavaThread)                        │
+│  │                                                              │
+│  │  ┌──────────────────────────────┐                           │
+│  │  │ JVM Stack  (-Xss, default 1M)│  Stack frames for each   │
+│  │  │ ┌──────────────────────────┐ │  Java method call        │
+│  │  │ │ Frame N (deepest)        │ │                           │
+│  │  │ ├──────────────────────────┤ │                           │
+│  │  │ │ Frame 2                  │ │                           │
+│  │  │ ├──────────────────────────┤ │                           │
+│  │  │ │ Frame 1 (main method)    │ │                           │
+│  │  │ └──────────────────────────┘ │                           │
+│  │  └──────────────────────────────┘                           │
+│  │  ┌───────────┐  ← 4 bytes (32-bit) or 8 bytes (64-bit)     │
+│  │  │ PC Register│  bytecode instruction pointer per thread    │
+│  │  └───────────┘                                              │
+│  │  ┌───────────────────┐                                      │
+│  │  │ Native Method Stack│  C stack for JNI calls              │
+│  │  └───────────────────┘                                      │
+│  └──────────────────────────────────────────────────────────────┘
+Low Address</div>
+
+<h3>Metaspace Deep Dive</h3>
+<p>Metaspace replaced PermGen in Java 8. It resides in <strong>native memory</strong> (outside the Java heap), managed by its own allocator using memory-mapped files (<code>mmap</code>). Key structures stored in Metaspace:</p>
+<ul>
+  <li><strong>InstanceKlass</strong>: class metadata, field descriptors, method descriptors</li>
+  <li><strong>ConstantPool</strong>: the class's runtime constant pool (symbolic + resolved references)</li>
+  <li><strong>Method</strong>: method metadata, bytecode array, exception table</li>
+  <li><strong>vtable/itable</strong>: virtual dispatch tables for polymorphic method calls</li>
+  <li><strong>Annotations, generic signatures</strong>: reflection metadata</li>
+</ul>
+
+<div class="callout info"><strong>Static Variables:</strong> In Java 8+, static fields are stored as part of the <code>java.lang.Class</code> mirror object on the <strong>heap</strong>, not in Metaspace. This means static fields ARE subject to GC (the Class object must remain reachable).</div>
+
+<h3>Thread Stack — Frame Layout</h3>
+<p>Each method invocation creates a <strong>stack frame</strong>. The JVM spec defines the frame's logical contents: local variable table, operand stack, frame data. In HotSpot's template interpreter, additional hidden slots are added for interpreter state (method pointer, bytecode pointer, last SP saved for deoptimization).</p>
+
+<table>
+<tr><th>Memory Area</th><th>Thread-local?</th><th>GC-managed?</th><th>Overflow Error</th></tr>
+<tr><td>Heap</td><td>❌ Shared</td><td>✅ Yes</td><td><code>OutOfMemoryError</code></td></tr>
+<tr><td>Metaspace</td><td>❌ Shared</td><td>⚠️ On CL GC</td><td><code>OutOfMemoryError: Metaspace</code></td></tr>
+<tr><td>Thread Stack</td><td>✅ Per-thread</td><td>❌ No</td><td><code>StackOverflowError</code></td></tr>
+<tr><td>PC Register</td><td>✅ Per-thread</td><td>❌ No</td><td>N/A</td></tr>
+<tr><td>Native Stack</td><td>✅ Per-thread</td><td>❌ No</td><td>Native stack overflow (SIGSEGV)</td></tr>
+<tr><td>Code Cache</td><td>❌ Shared</td><td>❌ No</td><td><code>OutOfMemoryError: Code Cache</code></td></tr>
+</table>
+</section>
+
+<!-- ===== SECTION 8 ===== -->
+<section id="s8">
+<h2 data-num="Section 08">HotSpot Object Memory Layout</h2>
+
+<p>Every Java object on the heap has a precise binary layout defined by HotSpot. Understanding this layout is essential for memory analysis, GC tuning, and off-heap programming with tools like <code>Unsafe</code> or JEP 454 (Foreign Memory API).</p>
+
+<h3>Object Layout Diagram</h3>
+<div class="diagram">
+HEAP MEMORY — Object Layout (64-bit JVM, compressed OOPs enabled)
+─────────────────────────────────────────────────────────────────────
+Offset  Size   Field
+───────────────────────────────────────────────────────────────────
++0      8 B    MARK WORD
+               ┌─────────────────────────────────────────────────┐
+               │ Bits 63..3: varies by lock state (see below)    │
+               │ Bits 2..1:  lock bits  00=unlocked              │
+               │             (fastpath)  01=biased               │
+               │                         10=lightweight          │
+               │                         11=heavyweight          │
+               │ Bit  0:    age bits (GC age, 4 bits max=15)     │
+               └─────────────────────────────────────────────────┘
+
++8      4 B    KLASS POINTER (compressed oop → 32-bit)
+               Pointer to Klass in Metaspace
+               (null with -XX:-UseCompressedClassPointers)
+
++12     0-4B   PADDING (alignment to 8-byte boundary)
+
++12/16  N B    INSTANCE DATA
+               Fields laid out by HotSpot (NOT necessarily
+               in declaration order — arranged by:
+               1. doubles/longs (8B)
+               2. ints/floats (4B)
+               3. shorts/chars (2B)
+               4. bytes/booleans (1B)
+               5. oops (references, 4B compressed / 8B full)
+               6. Padding to align to 8B)
+
+               ARRAYS additionally have:
++12/16  4 B    ARRAY LENGTH field (before element data)</div>
+
+<h3>Mark Word States</h3>
+<table>
+<tr><th>State</th><th>Bits Layout</th><th>When Active</th></tr>
+<tr><td><strong>Unlocked</strong></td><td><code>[identity hash (25)][age (4)][0][01]</code></td><td>Normal unhashed, unlocked object</td></tr>
+<tr><td><strong>Biased</strong></td><td><code>[thread ID (54)][epoch (2)][age (4)][1][01]</code></td><td>Lock biased toward a thread (eliminated in Java 21)</td></tr>
+<tr><td><strong>Lightweight</strong></td><td><code>[ptr to lock record (62)][00]</code></td><td>Thread holds lock, uncontended</td></tr>
+<tr><td><strong>Heavyweight</strong></td><td><code>[ptr to ObjectMonitor (62)][10]</code></td><td>Inflated monitor, contended lock</td></tr>
+<tr><td><strong>GC mark</strong></td><td><code>[forwarding ptr (62)][11]</code></td><td>Object being moved by GC</td></tr>
+</table>
+
+<h3>Compressed OOPs</h3>
+<p>On 64-bit JVMs with heap &lt; 32GB, <code>-XX:+UseCompressedOops</code> (default on) stores object references as 32-bit values. The JVM transparently scales these compressed pointers by a factor of 8 (since all objects are 8-byte aligned), effectively addressing 32GB with 32 bits. This reduces memory footprint by ~30–40% compared to uncompressed 64-bit pointers.</p>
+
+<pre><span class="comment">// Object size calculation example</span>
+<span class="kw">class</span> <span class="cls">Example</span> {
+    <span class="kw">int</span>    a;    <span class="comment">// 4 bytes</span>
+    <span class="kw">long</span>   b;    <span class="comment">// 8 bytes</span>
+    <span class="kw">byte</span>   c;    <span class="comment">// 1 byte</span>
+    <span class="cls">Object</span> ref;  <span class="comment">// 4 bytes (compressed oop)</span>
+}
+<span class="comment">// Layout (HotSpot field reordering):</span>
+<span class="comment">//  +0:  mark word       8 bytes</span>
+<span class="comment">//  +8:  klass pointer   4 bytes (compressed)</span>
+<span class="comment">//  +12: int a           4 bytes    ← HotSpot puts 4B fields first after klass</span>
+<span class="comment">//  +16: long b          8 bytes    ← then 8B fields</span>
+<span class="comment">//  +24: byte c          1 byte</span>
+<span class="comment">//  +25: 3 bytes padding</span>
+<span class="comment">//  +28: ref (oop)       4 bytes (compressed)</span>
+<span class="comment">//  Total: 32 bytes</span>
+
+<span class="comment">// Use JOL (Java Object Layout) to inspect:</span>
+<span class="comment">// System.out.println(ClassLayout.parseClass(Example.class).toPrintable());</span></pre>
+
+<h3>Identity Hash Code in Mark Word</h3>
+<p>The first call to <code>System.identityHashCode(obj)</code> (or <code>obj.hashCode()</code> if not overridden) causes the JVM to compute a hash and store it in the mark word. This is a one-time, lazy computation. The hash value is <strong>permanently embedded</strong> in the object header — once set, the object can never be biased-locked (the bits are occupied).</p>
+</section>
+
+<!-- ===== SECTION 9 ===== -->
+<section id="s9">
+<h2 data-num="Section 09">Static vs Instance Variables — Memory Diagrams</h2>
+<pre><span class="kw">class</span> <span class="cls">Test</span> {
+    <span class="kw">static int</span>    a = <span class="num">42</span>;      <span class="comment">// class-level, stored in Class object on heap</span>
+    <span class="kw">static</span> <span class="cls">String</span> b = <span class="str">"hello"</span>; <span class="comment">// reference in Class object, String in String pool</span>
+    <span class="kw">int</span>           x;           <span class="comment">// per-instance, in each object's heap allocation</span>
+    <span class="cls">String</span>        name;        <span class="comment">// per-instance reference</span>
+}</pre>
+
+<div class="diagram">
+MEMORY LAYOUT
+──────────────────────────────────────────────────────────────────────
+STACK (Thread 1)              HEAP                       METASPACE
+┌──────────────────┐    ┌─────────────────────────┐   ┌────────────┐
+│ main() frame     │    │  java.lang.Class object  │   │  Klass for │
+│  ┌────────────┐  │    │  for Test                │   │  Test      │
+│  │ t1 = ──────┼──┼──▶ │  ┌─────────────────┐    │   │  (vtable,  │
+│  │ t2 = ──────┼──┼──┐ │  │ static int a=42 │    │◀──┼─ klass ptr)│
+│  │            │  │  │ │  │ static String b─┼──▶ │   └────────────┘
+│  └────────────┘  │  │ │  │  (ref to pool)  │    │
+└──────────────────┘  │ │  └─────────────────┘    │
+                      │ │                           │
+                      │ │  Test instance (t1)       │   STRING POOL
+                      │ │  addr: 0x7F3C1000         │   ┌──────────┐
+                      └▶│  ┌──────────────────┐    │   │ "hello"  │
+                        │  │ mark word        │    │◀──┼─ (b ref) │
+                        │  │ klass ptr → Meta │    │   └──────────┘
+                        │  │ int x = 0        │    │
+                        │  │ name = null      │    │
+                        │  └──────────────────┘    │
+                        └─────────────────────────┘</div>
+
+<h3>Key Rules</h3>
+<ul>
+  <li><strong>Static variables</strong> live in the <code>java.lang.Class</code> mirror object on the heap (since Java 8). They are GC roots only as long as the Class object is reachable.</li>
+  <li><strong>Instance variables</strong> live inside each object allocation on the heap — zero-initialized when allocated, then set by constructors/initializers.</li>
+  <li><strong>Local variables</strong> (primitives) live in stack frame's local variable table — they are NOT initialized by default (must be explicitly assigned before use, enforced by the verifier).</li>
+  <li><strong>Local reference variables</strong> — the <em>reference</em> (pointer) is on the stack, but the <em>object it points to</em> is always on the heap.</li>
+</ul>
+
+<table>
+<tr><th>Variable Type</th><th>Where Stored</th><th>Default Value</th><th>GC Root?</th></tr>
+<tr><td>Static primitive</td><td>Class object (heap)</td><td>0 / false</td><td>Via Class object</td></tr>
+<tr><td>Static reference</td><td>Class object (heap)</td><td>null</td><td>Via Class object</td></tr>
+<tr><td>Instance primitive</td><td>Object body (heap)</td><td>0 / false</td><td>Via enclosing object</td></tr>
+<tr><td>Instance reference</td><td>Object body (heap)</td><td>null</td><td>Via enclosing object</td></tr>
+<tr><td>Local primitive</td><td>Stack frame LVT</td><td>Undefined (error)</td><td>No (stack-scoped)</td></tr>
+<tr><td>Local reference</td><td>Stack frame LVT</td><td>Undefined (error)</td><td>Yes (GC scans stacks)</td></tr>
+</table>
+</section>
+
+<!-- ===== SECTION 10 ===== -->
+<section id="s10">
+<h2 data-num="Section 10">Heap Architecture Internals</h2>
+
+<h3>Generational Heap Layout</h3>
+<div class="diagram">
+JAVA HEAP  (-Xms2g -Xmx8g example)
+──────────────────────────────────────────────────────────────────────────
+
+┌───────────────────────────────────┬────────────────────────────────────┐
+│         YOUNG GENERATION          │        OLD GENERATION              │
+│         (~1/3 of heap)            │        (~2/3 of heap)              │
+│                                   │                                    │
+│  ┌────────────────┐ ┌────┐ ┌────┐ │  ┌──────────────────────────────┐ │
+│  │                │ │    │ │    │ │  │                              │ │
+│  │     EDEN       │ │ S0 │ │ S1 │ │  │      TENURED SPACE           │ │
+│  │   (new alloc)  │ │    │ │    │ │  │    (long-lived objects)       │ │
+│  │   ~80% young   │ │10% │ │10% │ │  │                              │ │
+│  │                │ │    │ │    │ │  │                              │ │
+│  └────────────────┘ └────┘ └────┘ │  └──────────────────────────────┘ │
+└───────────────────────────────────┴────────────────────────────────────┘
+
+Object lifecycle:
+  new Object()  ──▶  EDEN
+       │
+  Minor GC (Eden full)
+       │
+       ├──▶ DEAD?  ──▶  (collected)
+       │
+       └──▶ ALIVE? ──▶  S0 (age=1)
+                │
+          Minor GC again
+                │
+                ├──▶ DEAD? ──▶ (collected)
+                │
+                └──▶ ALIVE? ──▶ S1 (age=2)
+                         │
+                    ... (oscillate S0/S1 each minor GC)
+                         │
+                    age >= MaxTenuringThreshold (default 15)
+                         │
+                         └──▶  OLD GENERATION (promoted)</div>
+
+<h3>Object Allocation Fast Path</h3>
+<p>Most allocations use the <strong>bump-pointer</strong> allocator in the thread's TLAB (Thread-Local Allocation Buffer). This is an O(1) operation: increment a pointer, check against the TLAB limit, done. No locking required.</p>
+
+<pre><span class="comment">// Pseudocode for fast allocation (actual: assembly in templateTable.cpp)</span>
+<span class="kw">oop</span> <span class="fn">fast_allocate</span>(<span class="kw">size_t</span> size) {
+    <span class="kw">oop</span> result = tlab_top;         <span class="comment">// current top of TLAB</span>
+    tlab_top += size;              <span class="comment">// bump pointer</span>
+    <span class="kw">if</span> (tlab_top &lt;= tlab_end) {    <span class="comment">// fits in TLAB?</span>
+        <span class="fn">memset</span>(result, 0, size);   <span class="comment">// zero-initialize</span>
+        <span class="kw">return</span> result;             <span class="comment">// done — no lock!</span>
+    }
+    <span class="comment">// TLAB exhausted: slow path (refill or allocate directly in Eden)</span>
+    <span class="kw">return</span> <span class="fn">slow_allocate</span>(size);
+}</pre>
+
+<h3>Promotion Rules</h3>
+<table>
+<tr><th>Condition</th><th>What Happens</th></tr>
+<tr><td>Object age &gt;= MaxTenuringThreshold</td><td>Promoted to Old Gen</td></tr>
+<tr><td>Survivor space &gt;= 50% full (TargetSurvivorRatio)</td><td>Dynamic threshold lowering; some objects promoted early</td></tr>
+<tr><td>Object too large for Eden (Humongous threshold)</td><td>G1: Allocated directly into Humongous region; CMS/Parallel: allocated in Old Gen</td></tr>
+<tr><td>Old Gen GC pressure (Concurrent Mode Failure)</td><td>Fall-back Full GC (stop-the-world compaction)</td></tr>
+</table>
+</section>
+
+<!-- ===== SECTION 11 ===== -->
+<section id="s11">
+<h2 data-num="Section 11">Thread-Local Allocation Buffers (TLAB)</h2>
+
+<p>TLABs are a critical performance optimization that allows threads to allocate memory without any synchronization. Each Java thread owns a private region of Eden space called a TLAB.</p>
+
+<div class="diagram">
+EDEN SPACE with TLABs
+──────────────────────────────────────────────────────────────────────
+
+EDEN
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                │
+│  │  TLAB T-1   │  │  TLAB T-2   │  │  TLAB T-3   │  (free space) │
+│  │  start──────┤  │  start──────┤  │  start──────┤               │
+│  │  top  ──────┤  │  top  ──────┤  │  top  ──────┤               │
+│  │  end  ──────┘  │  end  ──────┘  │  end  ──────┘               │
+│  │  (Thread 1)    │  (Thread 2)    │  (Thread 3)                  │
+│  └─────────────┘  └─────────────┘  └─────────────┘               │
+└─────────────────────────────────────────────────────────────────────┘
+
+Allocation in TLAB (Thread 1):
+  result = tlab.top
+  tlab.top += object_size  ← no CAS, no lock!
+  if (tlab.top <= tlab.end) return result  ← fast path</div>
+
+<h3>TLAB Sizing and Refill</h3>
+<p>TLAB size is adaptive. HotSpot tracks allocation rate per thread and adjusts TLAB size to balance between too-frequent refills (overhead) and too-large TLABs (waste/fragmentation). The target is approximately one TLAB refill per GC pause interval.</p>
+
+<p>When a TLAB is exhausted and the requested object is small, a new TLAB is allocated from Eden using a CAS (compare-and-swap) on Eden's global free pointer. If the object is larger than the remaining TLAB space and smaller than <code>-XX:TLABWasteTargetPercent</code>, the JVM fills the TLAB remainder with a "filler" object (so GC can walk it) and allocates a new TLAB.</p>
+
+<h3>PLAB — Promotion-Local Allocation Buffers</h3>
+<p>During GC, surviving objects are copied to the Survivor or Old space. To avoid per-object CAS during copying, GC threads use <strong>PLABs</strong> — private buffers in the destination space. Multiple GC threads can work in parallel without contention. PLAB sizes are also adaptive.</p>
+
+<table>
+<tr><th>Flag</th><th>Default</th><th>Effect</th></tr>
+<tr><td><code>-XX:TLABSize</code></td><td>Adaptive (~2KB-1MB)</td><td>Initial TLAB size per thread</td></tr>
+<tr><td><code>-XX:+ResizeTLAB</code></td><td>true</td><td>Enable adaptive TLAB resizing</td></tr>
+<tr><td><code>-XX:TLABWasteTargetPercent</code></td><td>1%</td><td>Max Eden waste from unfilled TLABs</td></tr>
+<tr><td><code>-XX:+PrintTLAB</code></td><td>false</td><td>Print TLAB statistics per GC</td></tr>
+</table>
+</section>
+
+<!-- ===== SECTION 12 ===== -->
+<section id="s12">
+<h2 data-num="Section 12">Garbage Collection Algorithms — Deep Internals</h2>
+
+<h3>Generational Hypothesis</h3>
+<p>The fundamental insight driving all generational collectors: <em>most objects die young</em>. Empirically, 80-98% of objects in typical Java workloads are unreachable after a single minor GC. This enables short, inexpensive minor GCs that reclaim most garbage without scanning long-lived objects.</p>
+
+<h3>Serial GC</h3>
+<p>Single-threaded stop-the-world collector. Uses mark-compact for Old Gen. Suitable for single-core machines and small heaps (&lt;100MB). Activated with <code>-XX:+UseSerialGC</code>.</p>
+
+<h3>Parallel GC (Throughput Collector)</h3>
+<p>Multi-threaded stop-the-world. Uses parallel copying for Young Gen, parallel mark-compact for Old Gen. Optimizes for maximum throughput. Default in Java 8. Activated with <code>-XX:+UseParallelGC</code>. Key parameter: <code>-XX:MaxGCPauseMillis</code> (soft target).</p>
+
+<h3>G1 GC — Garbage First</h3>
+<p>Default collector since Java 9. Divides heap into equal-sized <strong>regions</strong> (default 1–32MB). No fixed Young/Old partitions — regions are tagged as Eden, Survivor, or Old dynamically. Concurrent marking runs alongside application threads. Then <strong>Garbage First</strong>: selects regions with most garbage for collection first.</p>
+
+<div class="diagram">
+G1 HEAP — REGION-BASED LAYOUT
+──────────────────────────────────────────────────────────────────────
+┌────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┐
+│ E  │ E  │ S  │ O  │ O  │ H  │ H  │ E  │ O  │ S  │ E  │ F  │ F  │
+└────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┘
+
+E = Eden region  (Young)
+S = Survivor region (Young)
+O = Old region
+H = Humongous region (objects > 50% of region size)
+F = Free region
+
+G1 Collection Phases:
+1. YOUNG-ONLY PHASE:
+   a. Concurrent Marking (SATB algorithm, runs with app)
+   b. Remark (stop-the-world, finalize marking)
+   c. Cleanup (reclaim fully-dead regions)
+
+2. MIXED PHASE:
+   a. Evacuate selected Eden + Survivor + some Old regions
+   b. Copy live objects to free regions
+   c. Old regions with most garbage selected first</div>
+
+<h3>ZGC — Z Garbage Collector</h3>
+<p>Low-latency collector targeting sub-millisecond pauses regardless of heap size (tested to 16TB). Uses <strong>colored pointers</strong> (load barriers) and region-based layout. Almost entirely concurrent — mark, relocate, and remap phases run concurrently with application threads. Stop-the-world pauses are &lt;1ms.</p>
+
+<h3>Shenandoah GC</h3>
+<p>Also targeting low latency. Similar to ZGC in goals. Uses <strong>Brooks forwarding pointers</strong> — each object has an extra header field pointing to its current location. During concurrent compaction, the old copy's forwarding pointer redirects reads/writes to the new copy, enabling concurrent evacuation.</p>
+
+<h3>CMS (Concurrent Mark Sweep) — Deprecated</h3>
+<p>CMS was the first concurrent collector in HotSpot. It performs concurrent mark (with app threads running), then stop-the-world remark, then concurrent sweep. Does NOT compact — leads to heap fragmentation over time. Removed in Java 14 (<code>-XX:+UseConcMarkSweepGC</code> throws error).</p>
+
+<h3>GC Algorithm Comparison</h3>
+<table>
+<tr><th>Collector</th><th>Pause Model</th><th>Throughput</th><th>Latency</th><th>Best Use Case</th></tr>
+<tr><td>Serial</td><td>STW all phases</td><td>Low</td><td>High</td><td>Single-core, embedded, tiny heaps</td></tr>
+<tr><td>Parallel</td><td>STW all phases (parallel)</td><td>High</td><td>Medium</td><td>Batch processing, throughput priority</td></tr>
+<tr><td>G1</td><td>Mostly concurrent + short STW</td><td>Good</td><td>Low</td><td>General purpose, &gt;4GB heap</td></tr>
+<tr><td>ZGC</td><td>Sub-ms STW</td><td>Good</td><td>Ultra-low</td><td>Latency-critical, huge heaps</td></tr>
+<tr><td>Shenandoah</td><td>Sub-ms STW</td><td>Good</td><td>Ultra-low</td><td>Latency-critical, Red Hat systems</td></tr>
+</table>
+</section>
+
+<!-- ===== SECTION 13 ===== -->
+<section id="s13">
+<h2 data-num="Section 13">GC Barriers — Write and Read Barriers</h2>
+
+<p>GC barriers are small code snippets injected by the JIT compiler (and interpreter) around heap read/write operations. They allow concurrent GC phases to maintain invariants without stopping the world.</p>
+
+<h3>Write Barrier — Card Marking</h3>
+<p>When an old-generation object's field is updated to point to a young-generation object, GC must know about it (otherwise the young-gen object could be collected because the old-gen reference isn't scanned during minor GC). The <strong>card table</strong> tracks which old-gen memory regions contain pointers to young-gen objects.</p>
+
+<div class="diagram">
+CARD TABLE (one byte per 512B of heap)
+──────────────────────────────────────────────────────────────────────
+Heap address:   0x10000  0x10200  0x10400  0x10600  ...
+                  │        │        │        │
+Card table: [  0  ][dirty][  0  ][  0  ]  ...
+                     ↑
+              This 512B region of Old Gen
+              contains a reference to Young Gen
+              Card is "dirtied" by write barrier
+
+Write barrier code (simplified):
+  // After: oldObj.field = newObj;
+  card_table[addr_of_oldObj / 512] = DIRTY;
+  // GC scans dirty cards to find cross-generational references</div>
+
+<h3>SATB Barrier — G1 / Shenandoah</h3>
+<p><strong>Snapshot-At-The-Beginning (SATB)</strong>: G1's concurrent marker takes a conceptual "snapshot" of the live object graph at the start of concurrent marking. As the application mutates the heap, any reference that is <em>overwritten</em> must be logged (to preserve the snapshot invariant). The write barrier logs old reference values to SATB queues.</p>
+
+<pre><span class="comment">// SATB write barrier pseudocode (G1)</span>
+<span class="kw">void</span> <span class="fn">satb_write_barrier</span>(<span class="kw">oop</span>* field_addr) {
+    <span class="kw">oop</span> old_value = *field_addr;
+    <span class="kw">if</span> (marking_active &amp;&amp; old_value != <span class="kw">null</span>) {
+        <span class="comment">// Log old value to SATB queue (to be rescanned)</span>
+        satb_queue.<span class="fn">enqueue</span>(old_value);
+    }
+    <span class="comment">// Actual field write proceeds normally</span>
+}</pre>
+
+<h3>Load Barrier — ZGC</h3>
+<p>ZGC uses <strong>load barriers</strong> on every reference load from the heap. The barrier checks <em>colored pointer</em> metadata bits to determine if the referenced object needs to be relocated. If yes, the barrier updates the reference in-place to point to the new location. This enables concurrent relocation without stopping the world.</p>
+
+<pre><span class="comment">// ZGC load barrier pseudocode</span>
+<span class="kw">oop</span> <span class="fn">load_barrier</span>(<span class="kw">oop</span>* addr) {
+    <span class="kw">oop</span> ref = *addr;
+    <span class="kw">if</span> (ref.metadata_bits &amp; BAD_COLOR_BITS) {
+        <span class="comment">// Object needs remapping or relocation</span>
+        ref = <span class="fn">slow_path_fixup</span>(addr, ref);
+    }
+    <span class="kw">return</span> ref;   <span class="comment">// guaranteed to be in correct location</span>
+}</pre>
+
+<h3>Performance Impact of Barriers</h3>
+<p>Barriers add overhead to every heap read or write. ZGC's load barrier adds ~4ns overhead per reference load. G1's write barrier (card marking + SATB) adds ~2-5ns per write. JIT compilers inline barriers and apply optimizations to eliminate redundant barrier checks.</p>
+</section>
+
+<!-- ===== SECTION 14 ===== -->
+<section id="s14">
+<h2 data-num="Section 14">Safepoints — Stopping the World</h2>
+
+<p>A <strong>safepoint</strong> is a point in execution where all JVM threads are in a known, consistent state — enabling the JVM to perform operations that require exclusive access to the heap (GC, deoptimization, stack scanning, class redefinition).</p>
+
+<h3>How Safepoints Work</h3>
+<div class="diagram">
+SAFEPOINT MECHANISM
+──────────────────────────────────────────────────────────────────────
+
+  VMThread requests safepoint
+        │
+        ▼
+  JVM sets "safepoint requested" flag
+        │
+        ├──── Threads executing BYTECODES:
+        │     At each backward branch and method entry,
+        │     the template interpreter polls a memory location.
+        │     When safepoint is requested, that page is made
+        │     inaccessible → SIGSEGV → JVM signal handler →
+        │     thread blocks at safepoint
+        │
+        ├──── Threads in JIT-compiled code:
+        │     JIT emits polling instructions at:
+        │       - method entries
+        │       - loop back-edges
+        │       - return points
+        │     Reads from safepoint polling page → SIGSEGV
+        │     → thread blocks
+        │
+        ├──── Threads in native code (JNI):
+        │     Cannot block immediately (in native code)
+        │     Must check flag when returning to Java
+        │     GC doesn't need to wait — native frames
+        │     are "safe" (no Java heap manipulation)
+        │
+        └──── Thread blocked/sleeping:
+              Already safe — no action needed
+
+  All threads at safepoint
+        │
+        ▼
+  VMThread performs: GC / deopt / stack scan / etc.
+        │
+        ▼
+  VMThread resumes all threads</div>
+
+<h3>Safepoint Polling Mechanism</h3>
+<p>Modern HotSpot uses a dedicated <strong>polling page</strong> in virtual memory. Under normal execution, this page is readable (poll = read from page = no-op). When a safepoint is needed, the JVM makes this page <em>inaccessible</em> using <code>mprotect()</code>. Threads reading the page receive a SIGSEGV, which the JVM signal handler converts into a safepoint block.</p>
+
+<pre><span class="comment">// JIT-generated polling at method exit (x86_64 assembly)</span>
+<span class="comment">;; After completing method body:</span>
+<span class="label">testb  rax, [safepoint_polling_page]</span>   <span class="comment">; poll the page</span>
+<span class="comment">;; If page is accessible: no-op, continue</span>
+<span class="comment">;; If page is protected: SIGSEGV → JVM blocks thread at safepoint</span></pre>
+
+<h3>Deoptimization at Safepoints</h3>
+<p>When a JIT optimization is invalidated (e.g., an inlined virtual call's target class changes due to class loading), the JVM schedules a <strong>deoptimization</strong>. At the next safepoint, compiled frames are converted back to interpreter frames. The JVM uses on-stack replacement (OSR) to resume execution in the interpreter at the exact bytecode position where the deopt occurred.</p>
+
+<h3>Time-to-Safepoint Latency</h3>
+<p>A critical GC performance metric is "time to safepoint" — the time from requesting a safepoint to all threads reaching it. Causes of long TTSP: tight loops with no safepoint polls (rare in modern HotSpot), JNI-heavy workloads, or very long-running native calls. Monitor with <code>-XX:+SafepointTimeout -XX:SafepointTimeoutDelay=200</code>.</p>
+</section>
+
+<!-- ===== SECTION 15 ===== -->
+<section id="s15">
+<h2 data-num="Section 15">JIT Compiler Architecture — C1 and C2</h2>
+
+<p>HotSpot has two JIT compilers that cooperate via tiered compilation. Understanding their compilation pipelines is essential for performance tuning and debugging unexpected slowdowns.</p>
+
+<h3>Tiered Compilation Levels</h3>
+<table>
+<tr><th>Tier</th><th>Executor</th><th>Optimization Level</th><th>Profiling?</th></tr>
+<tr><td>0</td><td>Template Interpreter</td><td>None</td><td>Method invocation + back-edge counters</td></tr>
+<tr><td>1</td><td>C1</td><td>Simple (no profiling)</td><td>No</td></tr>
+<tr><td>2</td><td>C1</td><td>Limited</td><td>Invocation + back-edge counters only</td></tr>
+<tr><td>3</td><td>C1</td><td>Full C1</td><td>Full profiling: branch stats, type profiles, call target profiles</td></tr>
+<tr><td>4</td><td>C2</td><td>Maximum</td><td>No (uses Tier 3 profile data)</td></tr>
+</table>
+
+<h3>C1 Compiler Pipeline</h3>
+<div class="diagram">
+C1 COMPILATION PIPELINE
+──────────────────────────────────────────────────────────────────────
+Bytecode
+  │
+  ▼
+HIR (High-level IR)
+  │  [build SSA (Static Single Assignment) form]
+  │  [local value numbering]
+  │  [null check elimination]
+  │
+  ▼
+LIR (Low-level IR)
+  │  [register allocation (linear scan)]
+  │  [peephole optimizations]
+  │
+  ▼
+Machine Code
+  │  [nmethod stored in Code Cache]
+  │  [patching callsites for inline caches]
+  ▼
+Native execution</div>
+
+<h3>C2 Compiler Pipeline</h3>
+<div class="diagram">
+C2 COMPILATION PIPELINE (sea of nodes IR)
+──────────────────────────────────────────────────────────────────────
+Bytecode + Tier-3 Profile Data
+  │
+  ▼
+Parse + Inline (recursive, using CHA + profile-based inlining)
+  │
+  ▼
+Ideal Graph (Sea of Nodes — value nodes + control nodes)
+  │
+  ▼
+OPTIMIZATION PASSES:
+  ├── Global Value Numbering
+  ├── Constant Folding
+  ├── Dead Code Elimination
+  ├── Loop Transformations (unrolling, vectorization)
+  ├── Escape Analysis → Stack Allocation / Scalar Replacement
+  ├── Lock Elimination (via escape analysis)
+  ├── Conditional Constant Propagation
+  └── Algebraic Simplifications
+  │
+  ▼
+Scheduling + Register Allocation (graph coloring)
+  │
+  ▼
+Machine Code Emission
+  │
+  ▼
+nmethod stored in Code Cache</div>
+
+<h3>Compilation Thresholds</h3>
+<pre><span class="comment">// With TieredCompilation (default Java 8+)</span>
+<span class="comment">// Interpreter → C1 Tier 3 when:</span>
+<span class="comment">//   invocation_count > CompileThreshold * InterpreterProfilePercentage / 100</span>
+<span class="comment">//   back_edge_count   > OnStackReplacePercentage * CompileThreshold / 100</span>
+<span class="comment">//   (defaults: CompileThreshold=10000, InterpreterProfilePercentage=33)</span>
+
+<span class="comment">// C1 Tier 3 → C2 Tier 4 when:</span>
+<span class="comment">//   C1-profiled invocation count exceeds threshold</span>
+<span class="comment">//   (roughly 15,000 invocations total)</span>
+
+<span class="comment">// To force immediate C2 compilation (testing):</span>
+<span class="comment">// -XX:CompileThreshold=1 -XX:-TieredCompilation</span></pre>
+
+<h3>Inline Cache and Megamorphic Call Sites</h3>
+<p>For <code>invokevirtual</code>, the first call site is <em>monomorphic</em> — C1/C2 inline the single observed target (using C1/C2 inlining). If a second type appears, the call site becomes <em>bimorphic</em> (two-way branch). If more than two types appear, it becomes <em>megamorphic</em> — the JIT falls back to a vtable dispatch without inlining. Megamorphic call sites are a significant optimization barrier; keeping call sites monomorphic is critical for performance-sensitive code.</p>
+</section>
+
+<!-- ===== SECTION 16 ===== -->
+<section id="s16">
+<h2 data-num="Section 16">JIT Optimizations — Deep Dive</h2>
+
+<h3>Method Inlining</h3>
+<p>The most impactful JIT optimization. When a callee method is inlined, the call overhead disappears and the combined code graph enables further optimizations (constant folding, dead code elimination, etc.).</p>
+
+<pre><span class="comment">// Before inlining</span>
+<span class="kw">int</span> result = obj.<span class="fn">getValue</span>();  <span class="comment">// method call overhead</span>
+<span class="kw">int</span> getValue() { <span class="kw">return</span> <span class="kw">this</span>.value; }
+
+<span class="comment">// After inlining (C2's IR)</span>
+<span class="kw">int</span> result = obj.value;  <span class="comment">// direct field access, no call</span></pre>
+
+<p>C2 inlines methods up to <code>-XX:MaxInlineSize</code> (default 35 bytecodes) and <code>-XX:InlineSmallCode</code> (default 1000 bytes of compiled code). Recursive inlining is bounded by <code>-XX:MaxInlineLevel</code> (default 9 levels).</p>
+
+<h3>Dead Code Elimination (DCE)</h3>
+<p>C2's sea-of-nodes IR naturally eliminates unreachable nodes. If a condition is provably always true/false (from profiling), the dead branch is eliminated. Example: after type-checking inlining, null checks on provably non-null references are eliminated.</p>
+
+<h3>Constant Folding and Propagation</h3>
+<pre><span class="kw">final int</span> X = <span class="num">10</span>;
+<span class="kw">int</span> y = X * <span class="num">3</span>;  <span class="comment">// folded to: int y = 30; at compile time</span>
+<span class="kw">if</span> (y > <span class="num">20</span>)   <span class="comment">// folded to: if (true) → dead else branch eliminated</span></pre>
+
+<h3>Loop Unrolling</h3>
+<p>Short loops with small fixed iteration counts are unrolled — the loop body is repeated N times with the loop control reduced or eliminated. This reduces branch prediction pressure and enables SIMD vectorization.</p>
+
+<pre><span class="comment">// Source</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">4</span>; i++) arr[i] = i * <span class="num">2</span>;
+
+<span class="comment">// After loop unrolling (4x):</span>
+arr[<span class="num">0</span>] = <span class="num">0</span>; arr[<span class="num">1</span>] = <span class="num">2</span>; arr[<span class="num">2</span>] = <span class="num">4</span>; arr[<span class="num">3</span>] = <span class="num">6</span>;
+<span class="comment">// No loop overhead at all!</span></pre>
+
+<h3>Null Check Elimination</h3>
+<p>After a null check in one code path, C2 tracks that the reference is non-null on the "passes" path, eliminating subsequent redundant null checks. This is called <em>flow-sensitive type refinement</em>.</p>
+
+<h3>Range Check Elimination (RCE)</h3>
+<p>For array accesses inside loops with provably bounded indices, C2 hoists the range check outside the loop (checked once before the loop starts, not on every iteration):</p>
+
+<pre><span class="comment">// Before RCE:</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; arr.length; i++) {
+    <span class="comment">// implicit: if (i < 0 || i >= arr.length) throw AIOOBE</span>
+    sum += arr[i];
+}
+
+<span class="comment">// After RCE: check hoisted, loop body is bounds-check-free</span>
+<span class="kw">if</span> (arr.length > <span class="num">0</span>) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; arr.length; i++) {
+        sum += arr[i];  <span class="comment">// no bounds check!</span>
+    }
+}</pre>
+</section>
+
+<!-- ===== SECTION 17 ===== -->
+<section id="s17">
+<h2 data-num="Section 17">Escape Analysis — Stack Allocation and Scalar Replacement</h2>
+
+<p>Escape analysis determines whether an object allocated in a method can "escape" that method (i.e., be referenced from outside). Objects that do not escape can be subject to powerful optimizations.</p>
+
+<h3>Escape States</h3>
+<table>
+<tr><th>State</th><th>Meaning</th><th>Optimization Possible</th></tr>
+<tr><td><strong>NoEscape</strong></td><td>Object only used within the allocating method; never passed to another method or stored in a field</td><td>Scalar replacement + Stack allocation</td></tr>
+<tr><td><strong>ArgEscape</strong></td><td>Object passed to methods but those methods don't store it globally</td><td>Lock elimination</td></tr>
+<tr><td><strong>GlobalEscape</strong></td><td>Object stored in static field, returned from method, or passed to native</td><td>None — must heap allocate</td></tr>
+</table>
+
+<h3>Scalar Replacement</h3>
+<p>When an object is NoEscape, C2 can decompose it into its individual fields as scalar values (removing the object entirely). This eliminates heap allocation, reduces GC pressure, and allows the scalar values to live in CPU registers.</p>
+
+<pre><span class="kw">class</span> <span class="cls">Point</span> { <span class="kw">int</span> x, y; }
+
+<span class="kw">int</span> <span class="fn">sumCoords</span>() {
+    <span class="cls">Point</span> p = <span class="kw">new</span> <span class="cls">Point</span>();  <span class="comment">// NoEscape: p never leaves this method</span>
+    p.x = <span class="num">3</span>; p.y = <span class="num">4</span>;
+    <span class="kw">return</span> p.x + p.y;
+}
+
+<span class="comment">// After scalar replacement — NO heap allocation:</span>
+<span class="kw">int</span> <span class="fn">sumCoords</span>() {
+    <span class="kw">int</span> px = <span class="num">3</span>;   <span class="comment">// scalar: p.x</span>
+    <span class="kw">int</span> py = <span class="num">4</span>;   <span class="comment">// scalar: p.y</span>
+    <span class="kw">return</span> px + py;  <span class="comment">// constant-folded to: return 7</span>
+}</pre>
+
+<h3>Lock Elimination</h3>
+<p>If an object is NoEscape or ArgEscape, its monitor lock can never be contended — no other thread can see it. C2 eliminates <code>synchronized</code> blocks on such objects entirely:</p>
+
+<pre><span class="kw">synchronized</span> (<span class="kw">new</span> <span class="cls">Object</span>()) {   <span class="comment">// lock on NoEscape object</span>
+    doWork();                      <span class="comment">// synchronized block eliminated by JIT!</span>
+}
+
+<span class="comment">// Also applies to StringBuffer (synchronized) operations</span>
+<span class="comment">// if the StringBuffer doesn't escape the method</span>
+<span class="cls">StringBuffer</span> sb = <span class="kw">new</span> <span class="cls">StringBuffer</span>();
+sb.<span class="fn">append</span>(<span class="str">"a"</span>).<span class="fn">append</span>(<span class="str">"b"</span>);   <span class="comment">// locks eliminated — sb is NoEscape</span></pre>
+
+<h3>Escape Analysis Limits</h3>
+<p>Escape analysis in C2 is interprocedural within the inlining budget. Objects that escape through methods not inlined (too large, recursive, megamorphic) are not candidates. JVM flags:</p>
+<pre><span class="comment">-XX:+DoEscapeAnalysis      (default: true in Java 8+)</span>
+<span class="comment">-XX:+EliminateAllocations  (default: true — enable scalar replacement)</span>
+<span class="comment">-XX:+EliminateLocks        (default: true — enable lock elimination)</span>
+<span class="comment">-XX:+PrintEscapeAnalysis   (debug: print EA results)</span></pre>
+</section>
+
+<!-- ===== SECTION 18 ===== -->
+<section id="s18">
+<h2 data-num="Section 18">Vectorization — SIMD Optimizations</h2>
+
+<p>Modern CPUs support SIMD (Single Instruction, Multiple Data) instructions — SSE2/SSE4, AVX/AVX2/AVX-512 on x86, NEON on AArch64. These instructions operate on 128–512 bit wide registers, processing 4–16 integers (or 2–8 doubles) per instruction. C2 auto-vectorizes certain loop patterns.</p>
+
+<h3>Auto-Vectorization Conditions</h3>
+<p>For C2 to vectorize a loop:</p>
+<ul>
+  <li>Loop must have a countable iteration count</li>
+  <li>No loop-carried dependencies (iterations must be independent)</li>
+  <li>Array accesses must be sequential (stride-1)</li>
+  <li>Operations must be vectorizable (arithmetic, comparisons, simple logical)</li>
+</ul>
+
+<pre><span class="comment">// Vectorizable loop:</span>
+<span class="kw">int</span>[] a = ..., b = ..., c = ...;
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+    c[i] = a[i] + b[i];  <span class="comment">// independent iterations — vectorized!</span>
+}
+
+<span class="comment">// C2 may emit (AVX2, processes 8 ints at a time):</span>
+<span class="comment">; vmovdqu ymm0, [a + i*4]    ; load 8 ints from a</span>
+<span class="comment">; vmovdqu ymm1, [b + i*4]    ; load 8 ints from b</span>
+<span class="comment">; vpaddd  ymm2, ymm0, ymm1   ; add 8 ints in parallel</span>
+<span class="comment">; vmovdqu [c + i*4], ymm2    ; store 8 ints to c</span>
+
+<span class="comment">// NOT vectorizable (loop-carried dependency):</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt; n; i++) {
+    a[i] = a[i-<span class="num">1</span>] + b[i];  <span class="comment">// depends on previous iteration</span>
+}</pre>
+
+<h3>Panama Vector API (Java 16+ incubator, stable Java 21+)</h3>
+<p>The Vector API provides explicit SIMD programming in Java, guaranteed to map to hardware vector instructions. Unlike auto-vectorization (best-effort), the Vector API guarantees vector execution:</p>
+
+<pre><span class="kw">import</span> jdk.incubator.vector.*;
+<span class="cls">VectorSpecies</span>&lt;<span class="cls">Integer</span>&gt; SPECIES = <span class="cls">IntVector</span>.SPECIES_256;  <span class="comment">// 256-bit = 8 ints</span>
+
+<span class="kw">void</span> <span class="fn">addArrays</span>(<span class="kw">int</span>[] a, <span class="kw">int</span>[] b, <span class="kw">int</span>[] c) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; a.length; i += SPECIES.<span class="fn">length</span>()) {
+        <span class="cls">IntVector</span> va = <span class="cls">IntVector</span>.<span class="fn">fromArray</span>(SPECIES, a, i);
+        <span class="cls">IntVector</span> vb = <span class="cls">IntVector</span>.<span class="fn">fromArray</span>(SPECIES, b, i);
+        va.<span class="fn">add</span>(vb).<span class="fn">intoArray</span>(c, i);   <span class="comment">// SIMD add, guaranteed</span>
+    }
+}</pre>
+</section>
+
+<!-- ===== SECTION 19 ===== -->
+<section id="s19">
+<h2 data-num="Section 19">Java Memory Model — Happens-Before and Visibility</h2>
+
+<p>The Java Memory Model (JMM), specified in JSR-133, defines the semantics of multithreaded Java programs. Without the JMM, compilers and CPUs can reorder memory operations in ways that produce counterintuitive results.</p>
+
+<h3>Memory Visibility Problem</h3>
+<pre><span class="comment">// Without synchronization — BROKEN</span>
+<span class="kw">boolean</span> flag = <span class="kw">false</span>;
+
+<span class="comment">// Thread 1:</span>
+data = <span class="fn">compute</span>();  <span class="comment">// (1)</span>
+flag = <span class="kw">true</span>;       <span class="comment">// (2)</span>
+
+<span class="comment">// Thread 2:</span>
+<span class="kw">while</span> (!flag) {}   <span class="comment">// spin (3)</span>
+use(data);          <span class="comment">// (4) MAY SEE STALE DATA!</span>
+<span class="comment">// Thread 2 could see flag=true but data still 0</span>
+<span class="comment">// CPU can reorder (1) and (2)</span>
+<span class="comment">// CPU's store buffer may not flush to cache in order</span></pre>
+
+<h3>Happens-Before Rules</h3>
+<p>Action A <em>happens-before</em> action B means: A's effects are guaranteed to be visible to B. The JMM defines the following happens-before edges:</p>
+
+<table>
+<tr><th>Rule</th><th>HB Edge</th></tr>
+<tr><td><strong>Program order</strong></td><td>Within a single thread: A before B in source → A HB B</td></tr>
+<tr><td><strong>Monitor lock</strong></td><td><code>unlock(m)</code> HB every subsequent <code>lock(m)</code> on the same monitor</td></tr>
+<tr><td><strong>Volatile write</strong></td><td><code>volatile write to v</code> HB every subsequent <code>volatile read of v</code></td></tr>
+<tr><td><strong>Thread start</strong></td><td><code>Thread.start()</code> HB all actions in the started thread</td></tr>
+<tr><td><strong>Thread join</strong></td><td>All actions in T HB <code>T.join()</code> returning</td></tr>
+<tr><td><strong>Object finalization</strong></td><td>End of constructor HB start of finalizer</td></tr>
+<tr><td><strong>Transitivity</strong></td><td>If A HB B and B HB C, then A HB C</td></tr>
+</table>
+
+<h3>Volatile Semantics</h3>
+<p>A <code>volatile</code> field provides two guarantees: <strong>visibility</strong> (every read sees the last write) and <strong>ordering</strong> (no reordering across a volatile access). The JIT must not cache volatile variables in registers and must emit memory fences.</p>
+
+<div class="diagram">
+VOLATILE MEMORY FENCES (x86_64)
+──────────────────────────────────────────────────────────────────────
+
+Volatile WRITE:
+  [normal stores] 
+  LOCK XCHG (acts as full StoreLoad fence on x86)
+  // prevents subsequent loads from seeing stale values
+  // ensures this store is globally visible
+
+Volatile READ:
+  [just a plain load on x86 — x86 is TSO, loads are ordered]
+  // On ARM/POWER: need LoadLoad + LoadStore fence
+  // ARM: ldar instruction (load-acquire)
+
+Java volatile write → Java volatile read: full fence
+Java volatile read → Java volatile write: no fence needed (HB from same thread)</div>
+
+<h3>Double-Checked Locking — The Classic Trap</h3>
+<pre><span class="comment">// BROKEN before Java 5 / without volatile:</span>
+<span class="kw">private static</span> <span class="cls">Singleton</span> instance;
+<span class="kw">public static</span> <span class="cls">Singleton</span> <span class="fn">getInstance</span>() {
+    <span class="kw">if</span> (instance == <span class="kw">null</span>) {
+        <span class="kw">synchronized</span> (<span class="cls">Singleton</span>.<span class="kw">class</span>) {
+            <span class="kw">if</span> (instance == <span class="kw">null</span>)
+                instance = <span class="kw">new</span> <span class="cls">Singleton</span>();  <span class="comment">// UNSAFE!</span>
+        }
+    }
+    <span class="kw">return</span> instance;
+}
+<span class="comment">// Problem: "new Singleton()" is NOT atomic:</span>
+<span class="comment">// 1. Allocate memory for Singleton</span>
+<span class="comment">// 2. Call constructor (initialize fields)</span>
+<span class="comment">// 3. Assign reference to instance</span>
+<span class="comment">// Steps 2 and 3 CAN be reordered by CPU/compiler!</span>
+<span class="comment">// Thread B may see a non-null but uninitialized instance</span>
+
+<span class="comment">// CORRECT — volatile prevents reordering:</span>
+<span class="kw">private static volatile</span> <span class="cls">Singleton</span> instance;
+<span class="comment">// volatile write in step 3 prevents CPU from reordering with step 2</span></pre>
+
+<h3>Memory Barrier Types</h3>
+<table>
+<tr><th>Barrier</th><th>Prevents</th><th>JMM Use Case</th></tr>
+<tr><td>LoadLoad</td><td>Load reordering with prior load</td><td>Volatile read</td></tr>
+<tr><td>LoadStore</td><td>Store reordering with prior load</td><td>Volatile read</td></tr>
+<tr><td>StoreStore</td><td>Store reordering with prior store</td><td>Before volatile write</td></tr>
+<tr><td>StoreLoad</td><td>Load reordering with prior store</td><td>After volatile write (strongest; prevents all reordering)</td></tr>
+</table>
+</section>
+
+<!-- ===== SECTION 20 ===== -->
+<section id="s20">
+<h2 data-num="Section 20">JVM Synchronization Internals</h2>
+
+<p>Every Java object is a potential lock (monitor). The JVM implements a three-tier locking strategy to minimize overhead for the common case (no contention).</p>
+
+<h3>Lock State Transitions</h3>
+<div class="diagram">
+LOCK STATE MACHINE
+──────────────────────────────────────────────────────────────────────
+
+         UNLOCKED (mark word: [hash|age|0|01])
+              │
+              │  First synchronized entry by Thread T
+              │  (if biased locking enabled)
+              ▼
+         BIASED (mark word: [ThreadID|epoch|age|1|01])
+              │
+              │  Another thread tries to lock same object
+              │  → revoke bias at safepoint
+              ▼
+         LIGHTWEIGHT (mark word: [ptr to lock record|00])
+              │
+              │  Contention: second thread tries to lock
+              │  while first holds it
+              │  → inflate to heavyweight
+              ▼
+         HEAVYWEIGHT (mark word: [ptr to ObjectMonitor|10])
+              │
+              │  Java 21+: Biased locking REMOVED
+              │  Lightweight locking still present
+              ▼
+         Contended blocking (ObjectMonitor entry queue)</div>
+
+<h3>Lightweight Locking</h3>
+<p>When a thread enters a <code>synchronized</code> block (and biased locking is not applicable), it performs a CAS to atomically swap the mark word: it stores the original mark word in a <em>lock record</em> on its stack, then sets the mark word to point to this lock record (with lock bits = 00). If the CAS succeeds, the thread owns the lock. On exit, CAS swaps back. This is O(1) and requires no OS kernel involvement.</p>
+
+<pre><span class="comment">// Lightweight lock entry (monitorenter bytecode)</span>
+lock_record.displaced_header = object->mark_word()  <span class="comment">// save original</span>
+<span class="kw">if</span> (CAS(object->mark_word, original, ptr_to_lock_record | LOCKED_BITS)) {
+    <span class="comment">// CAS succeeded: thread owns the lock</span>
+} <span class="kw">else</span> <span class="kw">if</span> (is_our_lock_record(object->mark_word)) {
+    <span class="comment">// Recursive lock: increment recursion count</span>
+} <span class="kw">else</span> {
+    <span class="comment">// Contention: inflate to heavyweight (ObjectMonitor)</span>
+    <span class="fn">inflate_and_enter</span>(object);
+}</pre>
+
+<h3>ObjectMonitor — Heavyweight Lock Internals</h3>
+<p>When a lock is inflated, HotSpot allocates an <code>ObjectMonitor</code> C++ object. This contains: the owner thread, an entry list (waiting to acquire), a wait set (threads in <code>Object.wait()</code>), and a recursion counter.</p>
+
+<pre><span class="comment">// ObjectMonitor key fields (hotspot/src/share/vm/runtime/objectMonitor.hpp)</span>
+<span class="kw">class</span> <span class="cls">ObjectMonitor</span> {
+  <span class="kw">volatile</span> <span class="cls">markWord</span> _header;      <span class="comment">// saved displaced mark word</span>
+  <span class="kw">volatile</span> <span class="cls">JavaThread</span>* _owner;    <span class="comment">// owning thread</span>
+  <span class="kw">volatile</span> <span class="kw">intptr_t</span>  _recursions; <span class="comment">// recursion depth</span>
+  <span class="cls">ObjectWaiter</span>*      _EntryList;  <span class="comment">// threads blocked on entry</span>
+  <span class="cls">ObjectWaiter</span>*      _WaitSet;    <span class="comment">// threads in wait()</span>
+  <span class="kw">volatile</span> <span class="kw">int</span>       _waiters;    <span class="comment">// count of wait() callers</span>
+};</pre>
+
+<h3>Biased Locking Removed (Java 21)</h3>
+<p>Biased locking was removed as a feature in Java 21 (deprecated in Java 15, removed in Java 21). Modern hardware CAS operations are cheap enough that the biased locking optimization's benefit (eliminating CAS on uncontended locks) was outweighed by the cost of revoking bias at safepoints when contention did occur.</p>
+
+<div class="callout tip"><strong>Production Advice:</strong> For Java 17+, add <code>-XX:-UseBiasedLocking</code> to avoid biased locking overhead. In Java 21+, biased locking is gone. Measure lock contention with <code>jstack</code> or JFR LockEvent.</div>
+</section>
+
+<!-- ===== SECTION 21 ===== -->
+<section id="s21">
+<h2 data-num="Section 21">String Pool Internals</h2>
+
+<p>Java's <code>String</code> class is immutable, making sharing safe. The JVM maintains a <strong>String Constant Pool</strong> (also called the String intern table) in the heap (since Java 7) backed by a fixed-size hash table.</p>
+
+<h3>How String Literals Are Interned</h3>
+<div class="diagram">
+STRING POOL INTERNMENT FLOW
+──────────────────────────────────────────────────────────────────────
+
+"hello"  ←  String literal in bytecode (LDC instruction)
+    │
+    ▼
+JVM checks StringTable hash map:
+    ├── Found? → return reference to existing String object
+    └── Not found? → create new String in heap,
+                     add to StringTable, return reference
+
+StringTable (in-heap hash map, default 65536 buckets in Java 11+):
+  Key: String content (char sequence)
+  Value: Reference to String object in heap
+
+Pool is GC-able since Java 7 (strings in heap, not PermGen)</div>
+
+<h3>intern() and == vs equals()</h3>
+<pre><span class="cls">String</span> s1 = <span class="str">"Java"</span>;            <span class="comment">// interned, pool ref</span>
+<span class="cls">String</span> s2 = <span class="str">"Java"</span>;            <span class="comment">// same pool ref as s1</span>
+<span class="cls">String</span> s3 = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"Java"</span>); <span class="comment">// new heap object, NOT pool</span>
+<span class="cls">String</span> s4 = s3.<span class="fn">intern</span>();       <span class="comment">// returns pool ref</span>
+
+<span class="cls">System</span>.out.<span class="fn">println</span>(s1 == s2);  <span class="comment">// TRUE  — same pool object</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s1 == s3);  <span class="comment">// FALSE — different objects</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s1 == s4);  <span class="comment">// TRUE  — s4 is pool ref</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s1.<span class="fn">equals</span>(s3)); <span class="comment">// TRUE  — same content</span></pre>
+
+<h3>Compile-Time String Concatenation (Java 9+ invokedynamic)</h3>
+<p>Since Java 9, string concatenation using <code>+</code> uses <code>invokedynamic</code> with <code>StringConcatFactory</code> (rather than <code>StringBuilder</code> as in Java 8). This enables JVM-level optimization of string building strategies at runtime.</p>
+
+<pre><span class="comment">// Java source:</span>
+<span class="cls">String</span> s = name + <span class="str">" has age "</span> + age;
+
+<span class="comment">// Java 8 bytecode (old StringBuilder approach):</span>
+<span class="comment">// new StringBuilder → append(name) → append(" has age ") → append(age) → toString()</span>
+
+<span class="comment">// Java 9+ bytecode (invokedynamic approach):</span>
+<span class="comment">// invokedynamic #1 (StringConcatFactory.makeConcatWithConstants)</span>
+<span class="comment">// Bootstrap: generates optimized byte[] assembly at runtime</span></pre>
+
+<h3>String Deduplication (G1 GC)</h3>
+<p>With <code>-XX:+UseStringDeduplication</code> (G1 only), the GC deduplicated String char arrays that have the same content. This doesn't affect String object identity (different String objects remain different), but their underlying <code>char[]</code> backing arrays are merged, saving memory in workloads with many duplicate strings.</p>
+</section>
+
+<!-- ===== SECTION 22 ===== -->
+<section id="s22">
+<h2 data-num="Section 22">Machine Code Generation — From IR to Assembly</h2>
+
+<p>C2's backend translates its Ideal graph (sea of nodes) through a series of steps to produce native machine code. Understanding this helps diagnose JIT compilation failures and unexpected performance characteristics.</p>
+
+<h3>Register Allocation</h3>
+<p>C2 uses <strong>graph coloring register allocation</strong>. Variables (IR nodes) are mapped to machine registers; when there are more live values than registers, the allocator spills to the stack. The register allocation quality directly determines instruction density and spill overhead.</p>
+
+<h3>Generated Assembly Example</h3>
+<pre><span class="comment">// Java source:</span>
+<span class="kw">public static long</span> <span class="fn">fibonacci</span>(<span class="kw">int</span> n) {
+    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) <span class="kw">return</span> n;
+    <span class="kw">return</span> <span class="fn">fibonacci</span>(n - <span class="num">1</span>) + <span class="fn">fibonacci</span>(n - <span class="num">2</span>);
+}
+
+<span class="comment">// C2-generated x86_64 (simplified, after inlining base case):</span>
+<span class="label">fibonacci:</span>
+  <span class="comment">; prolog: stack frame setup</span>
+  push  rbp
+  mov   rbp, rsp
+  <span class="comment">; check n <= 1</span>
+  cmp   edi, 1
+  jle   .base_case
+  <span class="comment">; fibonacci(n-1)</span>
+  lea   edi, [rdi - 1]
+  call  fibonacci
+  mov   rbx, rax         <span class="comment">; save result</span>
+  <span class="comment">; fibonacci(n-2)</span>
+  lea   edi, [rdi - 2]
+  call  fibonacci
+  add   rax, rbx         <span class="comment">; sum results</span>
+  pop   rbp
+  ret
+<span class="label">.base_case:</span>
+  movsx rax, edi
+  pop   rbp
+  ret</pre>
+
+<h3>Instruction Scheduling</h3>
+<p>C2 schedules instructions to hide CPU pipeline latency. For example, a load (3–4 cycle latency) followed by an immediate use creates a pipeline stall. C2 inserts independent instructions between the load and its first use to overlap execution. On out-of-order CPUs (all modern x86/ARM), the CPU also performs hardware instruction scheduling.</p>
+
+<h3>PrintAssembly — Viewing JIT Output</h3>
+<pre><span class="comment"># Requires hsdis library for disassembly</span>
+java -XX:+PrintCompilation \
+     -XX:+UnlockDiagnosticVMOptions \
+     -XX:+PrintAssembly \
+     -XX:CompileCommand=print,MyClass.myMethod \
+     MyClass</pre>
+</section>
+
+<!-- ===== SECTION 23 ===== -->
+<section id="s23">
+<h2 data-num="Section 23">JVM Performance Engineering</h2>
+
+<h3>Essential JVM Flags Reference</h3>
+<table>
+<tr><th>Flag</th><th>Purpose</th><th>Typical Value</th></tr>
+<tr><td><code>-Xms</code></td><td>Initial heap size</td><td><code>-Xms2g</code> (set = Xmx to avoid resizing)</td></tr>
+<tr><td><code>-Xmx</code></td><td>Maximum heap size</td><td><code>-Xmx8g</code></td></tr>
+<tr><td><code>-Xss</code></td><td>Thread stack size</td><td><code>-Xss512k</code> (reduce for many threads)</td></tr>
+<tr><td><code>-XX:MetaspaceSize</code></td><td>Initial Metaspace size</td><td><code>-XX:MetaspaceSize=256m</code></td></tr>
+<tr><td><code>-XX:MaxMetaspaceSize</code></td><td>Metaspace ceiling (important!)</td><td><code>-XX:MaxMetaspaceSize=512m</code></td></tr>
+<tr><td><code>-XX:+UseG1GC</code></td><td>Use G1 collector</td><td>Default Java 9+</td></tr>
+<tr><td><code>-XX:+UseZGC</code></td><td>Use ZGC collector</td><td>Low-latency apps</td></tr>
+<tr><td><code>-XX:MaxGCPauseMillis</code></td><td>G1 pause target (soft)</td><td><code>-XX:MaxGCPauseMillis=200</code></td></tr>
+<tr><td><code>-XX:GCTimeRatio</code></td><td>Throughput ratio (1/(1+ratio))</td><td><code>-XX:GCTimeRatio=9</code> (10% GC overhead max)</td></tr>
+<tr><td><code>-XX:+PrintGCDetails</code></td><td>Verbose GC logging</td><td>Use in staging/production</td></tr>
+<tr><td><code>-Xlog:gc*:file=/path/gc.log</code></td><td>Unified GC logging (Java 9+)</td><td>Always enable in production</td></tr>
+<tr><td><code>-XX:ReservedCodeCacheSize</code></td><td>JIT code cache size</td><td><code>-XX:ReservedCodeCacheSize=512m</code></td></tr>
+<tr><td><code>-XX:+TieredCompilation</code></td><td>Enable tiered JIT (default)</td><td>Leave enabled</td></tr>
+<tr><td><code>-XX:+HeapDumpOnOutOfMemoryError</code></td><td>Dump heap on OOM</td><td>Always enable in production</td></tr>
+<tr><td><code>-XX:HeapDumpPath=/dumps/</code></td><td>Where to write heap dump</td><td>On fast disk</td></tr>
+</table>
+
+<h3>GC Tuning Strategy</h3>
+<p><strong>Step 1:</strong> Define your goals — throughput, latency, footprint (pick two). <strong>Step 2:</strong> Choose the right collector (G1 for general purpose, ZGC/Shenandoah for latency, Parallel for throughput). <strong>Step 3:</strong> Set heap size (Xms=Xmx to avoid heap resizing pauses). <strong>Step 4:</strong> Tune GC-specific parameters. <strong>Step 5:</strong> Measure with real workload, iterate.</p>
+
+<h3>Monitoring Tools</h3>
+<table>
+<tr><th>Tool</th><th>Command</th><th>What It Shows</th></tr>
+<tr><td><code>jstat</code></td><td><code>jstat -gcutil &lt;pid&gt; 1000</code></td><td>GC statistics: heap usage %, GC count, GC time per second</td></tr>
+<tr><td><code>jmap</code></td><td><code>jmap -heap &lt;pid&gt;</code></td><td>Heap configuration, usage; <code>-histo</code> for live object histogram</td></tr>
+<tr><td><code>jstack</code></td><td><code>jstack &lt;pid&gt;</code></td><td>Thread dumps: detect deadlocks, hotspots, blocked threads</td></tr>
+<tr><td><code>jcmd</code></td><td><code>jcmd &lt;pid&gt; VM.flags</code></td><td>JVM flags, GC stats, heap info, thread info, JFR control</td></tr>
+<tr><td><code>Java Flight Recorder</code></td><td><code>jcmd &lt;pid&gt; JFR.start duration=60s filename=recording.jfr</code></td><td>CPU, memory, GC, I/O, lock contention profiling with &lt;1% overhead</td></tr>
+<tr><td><code>JVM Mission Control</code></td><td>GUI for JFR analysis</td><td>Flame graphs, GC analysis, lock analysis, allocation profiling</td></tr>
+<tr><td><code>async-profiler</code></td><td><code>./profiler.sh -d 30 -f profile.html &lt;pid&gt;</code></td><td>CPU/allocation/lock profiling via AsyncGetCallTrace (no safepoint bias)</td></tr>
+</table>
+
+<h3>Finding Memory Leaks</h3>
+<pre><span class="comment"># 1. Take heap dump</span>
+jcmd &lt;pid&gt; GC.heap_dump /tmp/heap.hprof
+
+<span class="comment"># 2. Analyze with Eclipse Memory Analyzer (MAT)</span>
+<span class="comment">#    - Open heap dump</span>
+<span class="comment">#    - Run "Leak Suspects Report"</span>
+<span class="comment">#    - Look for dominator tree — largest retained heaps</span>
+<span class="comment">#    - Find ClassLoader leaks via "Class Loader Explorer"</span>
+
+<span class="comment"># Common leak patterns:</span>
+<span class="comment"># 1. Static collections holding object references (static Map, List)</span>
+<span class="comment"># 2. Listener/callback registrations never deregistered</span>
+<span class="comment"># 3. ThreadLocal values not removed (especially in thread pools)</span>
+<span class="comment"># 4. Inner class references to outer class (anonymous listeners)</span>
+<span class="comment"># 5. ClassLoader leaks in hot-deploy scenarios</span></pre>
+</section>
+
+<!-- ===== SECTION 24 ===== -->
+<section id="s24">
+<h2 data-num="Section 24">JVM Failure Analysis</h2>
+
+<h3>StackOverflowError</h3>
+<p>Thrown when the JVM thread stack reaches its maximum size (<code>-Xss</code>). Each method call adds a stack frame; deeply recursive methods or infinite recursion exhaust the stack.</p>
+
+<pre><span class="comment">// Cause: infinite recursion</span>
+<span class="kw">void</span> <span class="fn">recurse</span>() { <span class="fn">recurse</span>(); }  <span class="comment">// StackOverflowError after ~1000-10000 frames</span>
+
+<span class="comment">// Cause: legitimate deep recursion on large inputs</span>
+<span class="comment">// Fix: convert to iterative + explicit Stack data structure</span>
+
+<span class="comment">// Diagnosis:</span>
+<span class="comment">// jstack shows all frames in the thread that overflowed</span>
+<span class="comment">// Look for repeating frame pattern at the bottom</span></pre>
+
+<h3>OutOfMemoryError Variants</h3>
+<table>
+<tr><th>OOM Message</th><th>Root Cause</th><th>Diagnosis</th></tr>
+<tr><td><code>Java heap space</code></td><td>Heap exhausted; too many live objects</td><td>Heap dump + MAT; check -Xmx; find leaks</td></tr>
+<tr><td><code>GC overhead limit exceeded</code></td><td>JVM spending &gt;98% time in GC with &lt;2% reclaimed</td><td>Increase heap; find allocation hotspots with JFR</td></tr>
+<tr><td><code>Metaspace</code></td><td>Metaspace exhausted; too many loaded classes</td><td>jcmd VM.classloaders; check for ClassLoader leaks</td></tr>
+<tr><td><code>unable to create new native thread</code></td><td>OS thread limit or process memory exhausted</td><td>Reduce -Xss; reduce thread count; check ulimits</td></tr>
+<tr><td><code>Direct buffer memory</code></td><td>Off-heap direct ByteBuffer exhausted</td><td>Increase -XX:MaxDirectMemorySize; find unreleased buffers</td></tr>
+<tr><td><code>Code Cache</code></td><td>JIT code cache full; JIT compilation disabled</td><td>Increase -XX:ReservedCodeCacheSize; look for code cache flushing</td></tr>
+</table>
+
+<h3>Metaspace Leak — ClassLoader Leak Pattern</h3>
+<pre><span class="comment">// Leak pattern: ClassLoader held alive by Thread</span>
+<span class="cls">Thread</span> t = <span class="kw">new</span> <span class="cls">Thread</span>(task);
+t.<span class="fn">setContextClassLoader</span>(customCL);  <span class="comment">// Thread holds reference to CL</span>
+t.<span class="fn">start</span>();
+<span class="comment">// If thread stays alive in thread pool, customCL (and all its classes) are retained</span>
+
+<span class="comment">// Fix: clear TCCL before returning thread to pool</span>
+<span class="kw">try</span> {
+    task.<span class="fn">run</span>();
+} <span class="kw">finally</span> {
+    <span class="cls">Thread</span>.<span class="fn">currentThread</span>().<span class="fn">setContextClassLoader</span>(originalCL);
+}</pre>
+
+<h3>Diagnosing Long GC Pauses</h3>
+<pre><span class="comment"># Enable detailed GC logging</span>
+-Xlog:gc+phases*=debug:file=gc.log:time,uptime:filecount=5,filesize=20m
+
+<span class="comment"># Common causes of long pauses:</span>
+<span class="comment"># 1. Huge survivor spaces → large copy overhead</span>
+<span class="comment">#    Fix: -XX:SurvivorRatio, -XX:MaxTenuringThreshold</span>
+<span class="comment"># 2. Long time-to-safepoint</span>
+<span class="comment">#    Monitor with: -XX:+PrintSafepointStatistics</span>
+<span class="comment"># 3. G1 Humongous allocations causing early mixed GC</span>
+<span class="comment">#    Increase -XX:G1HeapRegionSize</span>
+<span class="comment"># 4. Concurrent Mode Failure (G1: evacuation failure)</span>
+<span class="comment">#    Increase heap or tune InitiatingHeapOccupancyPercent</span></pre>
+</section>
+
+<!-- ===== SECTION 25 ===== -->
+<section id="s25">
+<h2 data-num="Section 25">JVM Debugging Tools — Complete Reference</h2>
+
+<h3>jstack — Thread Analysis</h3>
+<pre><span class="comment">jstack &lt;pid&gt;               # thread dump to stdout</span>
+<span class="comment">jstack -l &lt;pid&gt;            # + lock information</span>
+<span class="comment">kill -3 &lt;pid&gt;              # trigger thread dump via signal</span>
+<span class="comment">jcmd &lt;pid&gt; Thread.print    # alternative via jcmd</span>
+
+<span class="comment">Thread states in jstack output:</span>
+<span class="comment">RUNNABLE    - executing or ready to run on CPU</span>
+<span class="comment">BLOCKED     - waiting for a monitor lock</span>
+<span class="comment">WAITING     - Object.wait(), Thread.join(), LockSupport.park()</span>
+<span class="comment">TIMED_WAITING - same but with timeout</span>
+<span class="comment">NEW         - not yet started</span>
+<span class="comment">TERMINATED  - finished execution</span></pre>
+
+<h3>jmap — Heap Analysis</h3>
+<pre><span class="comment">jmap -heap &lt;pid&gt;                     # heap summary (generation sizes)</span>
+<span class="comment">jmap -histo &lt;pid&gt;                    # live object histogram (class → count, bytes)</span>
+<span class="comment">jmap -histo:live &lt;pid&gt;               # force GC first, then histogram</span>
+<span class="comment">jmap -dump:live,format=b,file=h.hprof &lt;pid&gt; # heap dump</span></pre>
+
+<h3>jcmd — Swiss Army Knife</h3>
+<pre><span class="comment">jcmd &lt;pid&gt; help                      # list all available commands</span>
+<span class="comment">jcmd &lt;pid&gt; VM.flags                  # all JVM flags (including defaults)</span>
+<span class="comment">jcmd &lt;pid&gt; VM.system_properties      # system properties</span>
+<span class="comment">jcmd &lt;pid&gt; VM.version                # JVM version info</span>
+<span class="comment">jcmd &lt;pid&gt; GC.run                    # trigger GC (hint)</span>
+<span class="comment">jcmd &lt;pid&gt; GC.heap_info              # heap usage</span>
+<span class="comment">jcmd &lt;pid&gt; GC.heap_dump /tmp/h.hprof # heap dump</span>
+<span class="comment">jcmd &lt;pid&gt; Thread.print              # thread dump</span>
+<span class="comment">jcmd &lt;pid&gt; VM.classloaders           # ClassLoader hierarchy</span>
+<span class="comment">jcmd &lt;pid&gt; Compiler.queue            # JIT compilation queue</span>
+<span class="comment">jcmd &lt;pid&gt; Compiler.codecache        # code cache usage</span>
+
+<span class="comment"># Java Flight Recorder</span>
+<span class="comment">jcmd &lt;pid&gt; JFR.start name=myRec duration=60s filename=rec.jfr</span>
+<span class="comment">jcmd &lt;pid&gt; JFR.dump name=myRec filename=rec.jfr</span>
+<span class="comment">jcmd &lt;pid&gt; JFR.stop name=myRec</span></pre>
+
+<h3>Java Flight Recorder (JFR)</h3>
+<p>JFR is a production-safe, low-overhead profiler built into the JVM. It records time-series data about JVM and application events: CPU usage, garbage collection, JIT compilation, I/O, lock acquisition, memory allocation (with stack traces), exceptions, and custom application events. Overhead is &lt;1% CPU in most workloads.</p>
+
+<table>
+<tr><th>JFR Event Category</th><th>What It Reveals</th></tr>
+<tr><td>GC events</td><td>Pause times, GC causes, before/after heap sizes, phase breakdown</td></tr>
+<tr><td>JIT compilation</td><td>Method compilation times, code cache usage, deoptimization events</td></tr>
+<tr><td>Allocation profiling</td><td>Top allocating methods and classes (with stack traces)</td></tr>
+<tr><td>Lock contention</td><td>Locks with highest contention, average wait time, waiters</td></tr>
+<tr><td>CPU/Method profiling</td><td>Hot methods consuming CPU (async sampling)</td></tr>
+<tr><td>I/O profiling</td><td>File and network read/write latency breakdown</td></tr>
+</table>
+</section>
+
+<!-- ===== SECTION 26 ===== -->
+<section id="s26">
+<h2 data-num="Section 26">Complete JVM Memory Map</h2>
+
+<div class="diagram">
+COMPLETE JVM MEMORY MAP (64-bit Linux, Java 21, G1 GC)
+(Conceptual — actual addresses vary by OS, ASLR, heap settings)
+────────────────────────────────────────────────────────────────────────────────
+
+PROCESS VIRTUAL ADDRESS SPACE (48-bit user space = 128TB addressable)
+
+0x7FFF_FFFF_FFFF  ┌─────────────────────────────────────────────┐
+                  │         KERNEL SPACE (inaccessible)          │
+                  ├─────────────────────────────────────────────┤
+                  │         Thread N Stack  (-Xss = 1MB each)   │
+                  │         ┌────────────────────────────────┐  │
+                  │         │ Frame: doWork()                │  │
+                  │         │   LVT: [this, result, i]       │  │
+                  │         │   Operand stack                │  │
+                  │         ├────────────────────────────────┤  │
+                  │         │ Frame: process()               │  │
+                  │         │   LVT: [input, helper]         │  │
+                  │         ├────────────────────────────────┤  │
+                  │         │ Frame: main()                  │  │
+                  │         └────────────────────────────────┘  │
+                  │         ... (Thread 2 Stack, Thread 1 Stack) │
+                  ├─────────────────────────────────────────────┤
+                  │         Native Libraries (libjvm.so, libc)  │
+                  ├─────────────────────────────────────────────┤
+~0x7F00_0000_0000 │         CODE CACHE (ReservedCodeCacheSize)  │
+                  │  ┌──────────────────────────────────────┐   │
+                  │  │ nmethods (JIT-compiled methods)      │   │
+                  │  │   Profiled nmethods (C1 Tier 3)      │   │
+                  │  │   Non-profiled nmethods (C1 Tier 1)  │   │
+                  │  │   Non-nmethods (stubs, adapters)     │   │
+                  │  └──────────────────────────────────────┘   │
+                  ├─────────────────────────────────────────────┤
+~0x7EF0_0000_0000 │         METASPACE (native memory)           │
+                  │  ┌──────────────────────────────────────┐   │
+                  │  │ InstanceKlass for MyApp              │   │
+                  │  │   ConstantPool (resolved refs)       │   │
+                  │  │   Methods array                      │   │
+                  │  │     Method: main() bytecode          │   │
+                  │  │     Method: compute() bytecode       │   │
+                  │  │   vtable [0]=Object::toString        │   │
+                  │  │           [1]=Object::equals         │   │
+                  │  │           [2]=MyApp::myVirtMethod    │   │
+                  │  │ InstanceKlass for java.lang.String   │   │
+                  │  │   ... (all loaded classes)           │   │
+                  │  └──────────────────────────────────────┘   │
+                  ├─────────────────────────────────────────────┤
+~0x0700_0000_0000 │         JAVA HEAP (G1 regions)              │
+                  │  ┌──────────────────────────────────────┐   │
+                  │  │                                      │   │
+                  │  │  ── YOUNG GENERATION REGIONS ──      │   │
+                  │  │  Region 0x0700_0000_0000 [Eden]      │   │
+                  │  │    obj @+0x00: [markword][klass][x=5]│   │
+                  │  │    obj @+0x20: [markword][klass][...] │   │
+                  │  │    TLAB Thread-1: top=@+0x1E00       │   │
+                  │  │  Region 0x0700_0040_0000 [Survivor]  │   │
+                  │  │                                      │   │
+                  │  │  ── OLD GENERATION REGIONS ──        │   │
+                  │  │  Region 0x0700_0080_0000 [Old]       │   │
+                  │  │    long-lived objects                 │   │
+                  │  │    java.lang.Class objects (static   │   │
+                  │  │    fields embedded here)             │   │
+                  │  │                                      │   │
+                  │  │  ── HUMONGOUS REGIONS ──             │   │
+                  │  │  Large objects (>½ region size)      │   │
+                  │  │  span multiple contiguous regions    │   │
+                  │  │                                      │   │
+                  │  │  ── STRING TABLE (in heap) ──        │   │
+                  │  │  StringTable: hash buckets           │   │
+                  │  │    bucket[hash("Java")] → String@    │   │
+                  │  │    bucket[hash("hello")] → String@   │   │
+                  │  └──────────────────────────────────────┘   │
+                  ├─────────────────────────────────────────────┤
+~0x0000_0000_0001 │         JVM binary, mmap'd files            │
+0x0000_0000_0000  └─────────────────────────────────────────────┘</div>
+
+<h3>Object Cross-Reference Map</h3>
+<div class="diagram">
+CROSS-REFERENCE EXAMPLE: String s = new String("hello") in main()
+────────────────────────────────────────────────────────────────────────────────
+
+STACK (Thread 1 main() frame)
+  local[1] = s ──────────────────────────────────┐
+                                                  │
+HEAP                                              │
+  ┌──────────────────────────────────────────┐   │
+  │  String object @ 0x0700_0000_1000        │◀──┘
+  │  +0  markword: 0x0000_0000_0000_0001     │
+  │  +8  klass ptr → String Klass (Metaspace)│───▶ InstanceKlass{java.lang.String}
+  │  +12 hash: 0 (not computed yet)          │
+  │  +16 value → byte[] @ 0x0700_0000_2000   │───┐
+  │  +20 coder: 0 (LATIN1)                   │   │
+  └──────────────────────────────────────────┘   │
+                                                  │
+  ┌──────────────────────────────────────────┐   │
+  │  byte[] @ 0x0700_0000_2000               │◀──┘
+  │  +0  markword                            │
+  │  +8  klass ptr → byte[] TypeArrayKlass   │
+  │  +12 length: 5                           │
+  │  +16 data: 'h' 'e' 'l' 'l' 'o'          │
+  └──────────────────────────────────────────┘
+
+STRING TABLE (intern table, in heap)
+  bucket[hash("hello")] ─────────────────────────▶ String @ 0x0700_0000_3000
+  (different object than s above — s was new String())</div>
+</section>
+
+<!-- ===== SECTION 27 ===== -->
+<section id="s27">
+<h2 data-num="Section 27">Bytecode to CPU — Full Execution Pipeline</h2>
+
+<p>When JIT-compiled code executes on the CPU, it passes through the CPU's own pipeline stages. Understanding CPU execution behavior is essential for the highest-level JVM performance work.</p>
+
+<h3>CPU Execution Pipeline (Modern Out-of-Order x86_64)</h3>
+<div class="diagram">
+x86_64 CPU PIPELINE (Intel Skylake/Ice Lake)
+────────────────────────────────────────────────────────────────────────────────
+
+JIT Machine Code Stream (memory)
+         │
+         ▼
+┌─────────────────────────────────────────────────────┐
+│  FRONTEND (instruction fetch and decode)            │
+│                                                     │
+│  [Instruction Cache (L1i)] → [Branch Predictor]    │
+│                                  │ predicts target  │
+│  [Fetch Unit: 16B/cycle] → [Decode: 4 instr/cycle] │
+│                                                     │
+│  Branch prediction: 97%+ accuracy on regular loops  │
+│  Misprediction penalty: ~15-20 cycles               │
+└─────────────────────┬───────────────────────────────┘
+                      │ Decoded µops
+                      ▼
+┌─────────────────────────────────────────────────────┐
+│  SCHEDULER + OUT-OF-ORDER ENGINE                    │
+│                                                     │
+│  [ROB: Reorder Buffer ~512 µops]                    │
+│  [Reservation Station ~97 µops]                     │
+│                                                     │
+│  Execution Ports:                                   │
+│  Port 0: ALU, mul, div, branch                      │
+│  Port 1: ALU, shuffle, crypto                       │
+│  Port 2: Load                                       │
+│  Port 3: Load                                       │
+│  Port 4: Store data                                 │
+│  Port 5: ALU, vector shuffle                        │
+│  Port 6: ALU, branch                               │
+│  Port 7: Store address                              │
+│                                                     │
+│  Can execute up to 8 µops/cycle out of order         │
+└─────────────────────┬───────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────┐
+│  MEMORY SUBSYSTEM                                   │
+│                                                     │
+│  L1 Data Cache: 32KB, 4 cycles latency             │
+│  L2 Cache:      256KB, 12 cycles latency            │
+│  L3 Cache:      8-32MB, 40+ cycles latency          │
+│  Main Memory:   DDR5, 70-100ns latency              │
+│                                                     │
+│  Critical for JVM: Object graph traversal →         │
+│  pointer chasing causes cache misses on L1/L2/L3    │
+└─────────────────────────────────────────────────────┘</div>
+
+<h3>Branch Prediction and JVM Code</h3>
+<p>JVM bytecode dispatch in the template interpreter relies heavily on branch prediction. Hot loops in JIT code are predictable (same branch taken every iteration). Virtual dispatch through vtables is predictable for monomorphic call sites. The JIT generates <em>type-check inlining guards</em> that are predicted well by the CPU branch predictor.</p>
+
+<h3>Cache Effects on Java Object Graphs</h3>
+<p>Java's object-per-allocation model creates <em>pointer-heavy</em> data structures. Traversing an array of object references involves a pointer indirection per element — each reference load can miss the L1 cache. Key optimization: use value-type arrays (int[], long[]) or off-heap layouts to enable sequential memory access and CPU cache line prefetching.</p>
+
+<pre><span class="comment">// SLOW: pointer indirection, random cache misses</span>
+<span class="cls">Integer</span>[] boxed = <span class="kw">new</span> <span class="cls">Integer</span>[1_000_000];
+<span class="kw">long</span> sum = <span class="num">0</span>;
+<span class="kw">for</span> (<span class="cls">Integer</span> i : boxed) sum += i;  <span class="comment">// each access = potential cache miss</span>
+
+<span class="comment">// FAST: sequential memory, prefetched by CPU</span>
+<span class="kw">int</span>[] primitives = <span class="kw">new</span> <span class="kw">int</span>[1_000_000];
+<span class="kw">long</span> sum = <span class="num">0</span>;
+<span class="kw">for</span> (<span class="kw">int</span> i : primitives) sum += i;   <span class="comment">// cache-line friendly, vectorizable</span></pre>
+
+<h3>JIT Deoptimization and Branch Prediction</h3>
+<p>When C2 deoptimizes a method (due to class loading invalidating an inlined assumption), control returns to the interpreter at a specific bytecode. Frequent deoptimizations can harm branch predictor state. Monitor deoptimizations with <code>-XX:+PrintDeoptimization -XX:+UnlockDiagnosticVMOptions</code>.</p>
+</section>
+
+<!-- ===== SECTION 28 ===== -->
+<section id="s28">
+<h2 data-num="Section 28">Advanced JVM Interview Questions & Traps</h2>
+
+<h3>Class Initialization Traps</h3>
+
+<div class="callout danger">
+<strong>Trap 1: Compile-time constant does NOT trigger initialization</strong><br>
+<code>static final int X = 5</code> is inlined by <code>javac</code> at every use site. Accessing it never loads or initializes the declaring class.
+</div>
+
+<div class="callout danger">
+<strong>Trap 2: Accessing a superclass static through subclass</strong><br>
+<code>Child.parentStaticField</code> initializes <code>Parent</code>, NOT <code>Child</code>. The JLS says initialization happens on the <em>declaring</em> class.
+</div>
+
+<div class="callout danger">
+<strong>Trap 3: Static initializer exception leaves class in broken state</strong><br>
+If <code>&lt;clinit&gt;</code> throws, the class is marked as failed. Every subsequent use of that class throws <code>NoClassDefFoundError</code> (not <code>ExceptionInInitializerError</code> — that's only on the first attempt).
+</div>
+
+<h3>String Pool Traps</h3>
+<pre><span class="cls">String</span> s1 = <span class="str">"a"</span> + <span class="str">"b"</span> + <span class="str">"c"</span>;   <span class="comment">// compile-time: "abc" literal — pooled</span>
+<span class="cls">String</span> s2 = <span class="str">"abc"</span>;               <span class="comment">// same pool object as s1</span>
+<span class="cls">System</span>.<span class="fn">println</span>(s1 == s2);         <span class="comment">// TRUE</span>
+
+<span class="cls">String</span> a = <span class="str">"ab"</span>;
+<span class="cls">String</span> b = a + <span class="str">"c"</span>;              <span class="comment">// runtime concat — NOT pooled</span>
+<span class="cls">System</span>.<span class="fn">println</span>(b == <span class="str">"abc"</span>);     <span class="comment">// FALSE</span>
+
+<span class="kw">final</span> <span class="cls">String</span> a2 = <span class="str">"ab"</span>;          <span class="comment">// compile-time constant</span>
+<span class="cls">String</span> b2 = a2 + <span class="str">"c"</span>;            <span class="comment">// compile-time concat → "abc" literal</span>
+<span class="cls">System</span>.<span class="fn">println</span>(b2 == <span class="str">"abc"</span>);    <span class="comment">// TRUE — javac inlines the concat</span></pre>
+
+<h3>Object Reference vs Object</h3>
+<pre><span class="kw">void</span> <span class="fn">modify</span>(<span class="cls">Object</span> o) {
+    o = <span class="kw">new</span> <span class="cls">Object</span>();  <span class="comment">// DOES NOT affect caller's reference</span>
+}
+<span class="comment">// Java passes references by VALUE — you can't change the caller's variable</span>
+<span class="comment">// But you CAN mutate the object the reference points to</span></pre>
+
+<h3>JVM Advanced Q&A</h3>
+<table>
+<tr><th>Question</th><th>Answer</th></tr>
+<tr><td>Where are static variables stored in Java 8+?</td><td>In the <code>java.lang.Class</code> mirror object, which is on the <strong>heap</strong>. Not in Metaspace. Not on the stack.</td></tr>
+<tr><td>Can the JVM collect a class from Metaspace?</td><td>Yes, if the <code>ClassLoader</code> that loaded it becomes unreachable. Then all classes it loaded (and their Metaspace data) are freed.</td></tr>
+<tr><td>Does System.gc() guarantee collection?</td><td>No. It's a <em>hint</em>. The JVM may ignore it. Use <code>-XX:+ExplicitGCInvokesConcurrent</code> to make it trigger G1 concurrent cycle.</td></tr>
+<tr><td>What is the difference between <code>==</code> and <code>equals()</code> for Integer?</td><td><code>Integer</code> caches values -128 to 127 in an IntegerCache. <code>Integer.valueOf(100) == Integer.valueOf(100)</code> is true (cached). <code>Integer.valueOf(200) == Integer.valueOf(200)</code> is false (outside cache range). Always use <code>equals()</code> for Integer comparison.</td></tr>
+<tr><td>What is a safepoint?</td><td>A point in execution where all Java threads are paused and the JVM has exclusive, consistent access to the heap. Required for GC, deoptimization, class redefinition, and stack sampling.</td></tr>
+<tr><td>What causes megamorphic call site degradation?</td><td>More than 2 different concrete types observed at a virtual call site. C2 cannot inline megamorphic sites, and the JIT falls back to vtable dispatch, losing all inlining-dependent optimizations.</td></tr>
+<tr><td>What is false sharing?</td><td>Two threads writing to different variables that share the same CPU cache line (64 bytes). Each write by one thread invalidates the other thread's cache copy, causing constant cache coherency traffic. Mitigate with <code>@Contended</code> padding or cache-line-aligned allocation.</td></tr>
+<tr><td>What triggers JIT deoptimization?</td><td>Class loading events that invalidate CHA (Class Hierarchy Analysis) assumptions (e.g., a new subclass loaded after inlining), null check failures on speculated non-null refs, type profile changes at guarded inlines, and explicit deoptimization for debugging.</td></tr>
+<tr><td>Why might -Xss affect thread count?</td><td>Each thread requires OS virtual memory for its stack (default 512KB–1MB). With 10,000 threads and 1MB stack size, that's 10GB of virtual address space just for stacks. Reducing -Xss allows more threads but risks StackOverflowError in deeply recursive methods.</td></tr>
+<tr><td>What is on-stack replacement (OSR)?</td><td>JIT compilation of a currently-executing method's loop body, replacing the interpreter frame mid-execution with a compiled frame. Allows hot loops discovered at runtime to be compiled without waiting for the method to complete and be re-invoked.</td></tr>
+</table>
+
+<h3>Lock Ordering and Deadlock</h3>
+<pre><span class="comment">// Classic deadlock pattern</span>
+<span class="kw">synchronized</span> (lockA) {
+    <span class="kw">synchronized</span> (lockB) { }  <span class="comment">// Thread 1: acquires A, then B</span>
+}
+
+<span class="kw">synchronized</span> (lockB) {
+    <span class="kw">synchronized</span> (lockA) { }  <span class="comment">// Thread 2: acquires B, then A → DEADLOCK</span>
+}
+
+<span class="comment">// Detect with: jstack -l &lt;pid&gt; → look for "Found one Java-level deadlock:"</span>
+
+<span class="comment">// Fix: always acquire locks in consistent global order</span>
+<span class="kw">if</span> (<span class="cls">System</span>.<span class="fn">identityHashCode</span>(lockA) &lt; <span class="cls">System</span>.<span class="fn">identityHashCode</span>(lockB)) {
+    <span class="kw">synchronized</span> (lockA) { <span class="kw">synchronized</span> (lockB) { } }
+} <span class="kw">else</span> {
+    <span class="kw">synchronized</span> (lockB) { <span class="kw">synchronized</span> (lockA) { } }
+}</pre>
+
+<h3>ThreadLocal Memory Leak</h3>
+<pre><span class="kw">static</span> <span class="cls">ThreadLocal</span>&lt;<span class="cls">HeavyObject</span>&gt; tl = <span class="kw">new</span> <span class="cls">ThreadLocal</span>&lt;&gt;();
+
+<span class="comment">// In a thread pool worker:</span>
+tl.<span class="fn">set</span>(<span class="kw">new</span> <span class="cls">HeavyObject</span>());
+<span class="fn">doWork</span>();
+<span class="comment">// FORGOT: tl.remove();</span>
+<span class="comment">// Thread returns to pool. ThreadLocal entry retained FOREVER.</span>
+<span class="comment">// HeavyObject is never GC'd as long as the thread is alive.</span>
+
+<span class="comment">// Fix: ALWAYS use try/finally to call tl.remove()</span>
+<span class="kw">try</span> {
+    tl.<span class="fn">set</span>(<span class="kw">new</span> <span class="cls">HeavyObject</span>());
+    <span class="fn">doWork</span>();
+} <span class="kw">finally</span> {
+    tl.<span class="fn">remove</span>();  <span class="comment">// mandatory!</span>
+}</pre>
+</section>
+
+<!-- Footer -->
+</div><!-- /content -->
+
+<footer>
+  <p><strong>JVM Deep-Dive Architecture Handbook</strong> — HotSpot VM Internals · JIT Compilation · GC Algorithms · Bytecode to Silicon</p>
+  <p style="margin-top:0.5rem">Sections: Java Pipeline · Architecture · HotSpot Source · Class Loading · Initialization · Bytecode · Runtime Areas · Object Layout · Heap · TLAB · GC · GC Barriers · Safepoints · JIT · Optimizations · Escape Analysis · Vectorization · JMM · Synchronization · String Pool · Machine Code · Performance · Failures · Tools · Memory Map · CPU Pipeline · Interview Traps</p>
+</footer>
+
+</div><!-- /main -->
+
+</body>
+</html>
