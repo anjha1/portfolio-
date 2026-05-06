@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMEM 0002 — Waste to Energy Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f0d;
+  --surface: #111a14;
+  --card: #162018;
+  --border: #2a3d2e;
+  --accent: #4eff8a;
+  --accent2: #00cfff;
+  --accent3: #ffcc00;
+  --danger: #ff4e6a;
+  --text: #e8f5ea;
+  --muted: #6b8f72;
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background grid */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.3;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ===== HEADER ===== */
+header {
+  position: relative;
+  z-index: 10;
+  border-bottom: 2px solid var(--border);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(10,15,13,0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+}
+.logo {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+.logo span { color: var(--muted); font-weight: 400; }
+.nav-tabs {
+  display: flex;
+  gap: 6px;
+}
+.nav-tab {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.nav-tab:hover, .nav-tab.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(78,255,138,0.06);
+}
+.score-badge {
+  font-size: 0.75rem;
+  color: var(--accent3);
+  border: 1px solid var(--accent3);
+  padding: 6px 14px;
+}
+
+/* ===== MAIN ===== */
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* ===== HOME SCREEN ===== */
+#home-screen h1 {
+  font-family: var(--font-head);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: 16px;
+}
+#home-screen h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+#home-screen p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  max-width: 500px;
+  margin-bottom: 40px;
+}
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.mode-card {
+  border: 1px solid var(--border);
+  background: var(--card);
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.mode-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.mode-card:hover::before { transform: scaleX(1); }
+.mode-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+.mode-icon { font-size: 2rem; margin-bottom: 12px; }
+.mode-card h3 {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.mode-card p { color: var(--muted); font-size: 0.72rem; line-height: 1.5; }
+.mode-card .tag {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.65rem;
+  padding: 3px 10px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.stat-box {
+  background: var(--card);
+  padding: 20px;
+  text-align: center;
+}
+.stat-box .num {
+  font-family: var(--font-head);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+.stat-box .lbl { color: var(--muted); font-size: 0.65rem; letter-spacing: 0.08em; }
+
+/* ===== QUIZ SCREEN ===== */
+#quiz-screen { display: none; }
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.quiz-meta { color: var(--muted); font-size: 0.72rem; }
+.quiz-meta strong { color: var(--accent2); }
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  margin-bottom: 40px;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.4s ease;
+}
+
+.category-chip {
+  font-size: 0.65rem;
+  padding: 4px 12px;
+  background: rgba(0,207,255,0.1);
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+.question-text {
+  font-family: var(--font-head);
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 32px;
+  letter-spacing: -0.01em;
+}
+.question-num {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  display: block;
+  margin-bottom: 10px;
+  letter-spacing: 0.1em;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+@media(max-width:600px){.options-grid{grid-template-columns:1fr;}}
+
+.option-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 16px 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(78,255,138,0.06);
+}
+.option-btn .opt-label {
+  font-weight: 700;
+  color: var(--muted);
+  min-width: 20px;
+  font-size: 0.7rem;
+  margin-top: 1px;
+}
+.option-btn.correct {
+  border-color: var(--accent) !important;
+  background: rgba(78,255,138,0.12) !important;
+  color: var(--accent);
+}
+.option-btn.correct .opt-label { color: var(--accent); }
+.option-btn.wrong {
+  border-color: var(--danger) !important;
+  background: rgba(255,78,106,0.12) !important;
+  color: var(--danger);
+}
+.option-btn.wrong .opt-label { color: var(--danger); }
+.option-btn:disabled { cursor: default; }
+
+.explanation-box {
+  background: rgba(0,207,255,0.05);
+  border-left: 3px solid var(--accent2);
+  padding: 16px 20px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 24px;
+  display: none;
+}
+.explanation-box strong { color: var(--accent2); }
+
+.quiz-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 12px 28px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #0a0f0d;
+  font-weight: 700;
+}
+.btn-primary:hover { background: #7affad; }
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+/* ===== RESULT SCREEN ===== */
+#result-screen { display: none; text-align: center; }
+.result-score {
+  font-family: var(--font-head);
+  font-size: clamp(5rem, 15vw, 10rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--accent);
+  margin: 40px 0 20px;
+}
+.result-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 40px;
+}
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 40px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.result-cell {
+  background: var(--card);
+  padding: 20px;
+}
+.result-cell .num {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+.result-cell .lbl { color: var(--muted); font-size: 0.65rem; letter-spacing: 0.08em; }
+.correct-num { color: var(--accent); }
+.wrong-num { color: var(--danger); }
+.skip-num { color: var(--accent3); }
+
+/* ===== STUDY GUIDE ===== */
+#study-screen { display: none; }
+#study-screen h2 {
+  font-family: var(--font-head);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+#study-screen h2 em { color: var(--accent); font-style: normal; }
+.study-intro { color: var(--muted); font-size: 0.78rem; margin-bottom: 32px; }
+
+.chapter-card {
+  border: 1px solid var(--border);
+  background: var(--card);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.chapter-header {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+.chapter-header:hover { background: rgba(78,255,138,0.04); }
+.chapter-title {
+  font-family: var(--font-head);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.chapter-toggle { color: var(--accent); font-size: 1.2rem; transition: transform 0.3s; }
+.chapter-toggle.open { transform: rotate(45deg); }
+.chapter-body {
+  display: none;
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--border);
+}
+.chapter-body.open { display: block; }
+
+.study-topic {
+  margin: 20px 0;
+}
+.study-topic h4 {
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent2);
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+.study-topic ul {
+  list-style: none;
+  padding: 0;
+}
+.study-topic ul li {
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--text);
+  padding-left: 16px;
+  position: relative;
+  border-bottom: 1px solid rgba(42,61,46,0.5);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+.study-topic ul li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+.study-topic ul li strong { color: var(--accent3); }
+
+.key-fact {
+  background: rgba(78,255,138,0.05);
+  border: 1px solid rgba(78,255,138,0.2);
+  padding: 12px 16px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  margin: 8px 0;
+  color: var(--text);
+}
+.key-fact .label { color: var(--accent); font-weight: 700; font-size: 0.65rem; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.filter-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.filter-btn:hover, .filter-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ===== TIMER ===== */
+.timer {
+  font-size: 0.75rem;
+  color: var(--accent3);
+  border: 1px solid var(--accent3);
+  padding: 6px 14px;
+  letter-spacing: 0.08em;
+  min-width: 80px;
+  text-align: center;
+}
+.timer.urgent { color: var(--danger); border-color: var(--danger); animation: pulse 0.5s infinite alternate; }
+@keyframes pulse { from{opacity:1} to{opacity:0.5} }
+
+/* ===== SCROLL ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ===== BOOKMARK ===== */
+.bookmark-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.bookmark-btn.bookmarked { color: var(--accent3); }
+
+.section-title {
+  font-family: var(--font-head);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--card);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 12px 20px;
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ===== MOBILE RESPONSIVENESS IMPROVEMENTS ===== */
+@media(max-width:768px){
+  header { padding: 14px 16px; }
+  .logo { font-size: 0.9rem; }
+  .nav-tabs { gap: 4px; }
+  .nav-tab { padding: 6px 12px; font-size: 0.68rem; }
+  .score-badge { font-size: 0.68rem; padding: 5px 10px; }
+  main { padding: 24px 16px; }
+  #home-screen h1 { font-size: clamp(1.8rem, 8vw, 3rem); }
+  .stats-row { grid-template-columns: repeat(2,1fr); }
+  .home-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .mode-card { padding: 18px 16px; }
+  .result-grid { grid-template-columns: repeat(3,1fr); }
+  .quiz-actions { flex-direction: column; }
+  .quiz-actions .btn { width: 100%; text-align: center; }
+  .quiz-header { gap: 8px; }
+}
+@media(max-width:480px){
+  header { flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .nav-tabs { order: 2; }
+  .score-badge { order: 3; }
+  .home-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2,1fr); }
+  .result-grid { grid-template-columns: 1fr; max-width: 200px; }
+  .options-grid { grid-template-columns: 1fr; }
+  .toast { right: 16px; left: 16px; bottom: 80px; }
+}
+
+/* ===== FLUENZY AI AD STYLES ===== */
+.fluenzy-ad {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+  background: linear-gradient(135deg, #0d0d1f 0%, #111827 50%, #0d0d1f 100%);
+  border: 1px solid rgba(109,93,254,0.35);
+  margin: 28px 0;
+  box-shadow: 0 0 30px rgba(109,93,254,0.12), inset 0 0 60px rgba(109,93,254,0.04);
+}
+.fluenzy-ad::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(109,93,254,0.06) 50%, transparent 100%);
+  animation: adShimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes adShimmer {
+  0%,100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+.fluenzy-ad-inner {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+.fluenzy-ad-orb {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6D5DFE, #8B5CF6, #06B6D4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 0 20px rgba(109,93,254,0.5);
+  animation: orbPulse 2s ease-in-out infinite;
+}
+@keyframes orbPulse {
+  0%,100% { box-shadow: 0 0 20px rgba(109,93,254,0.5); transform: scale(1); }
+  50% { box-shadow: 0 0 35px rgba(109,93,254,0.8); transform: scale(1.05); }
+}
+.fluenzy-ad-content { flex: 1; min-width: 180px; }
+.fluenzy-ad-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: #06B6D4;
+  border: 1px solid rgba(6,182,212,0.4);
+  padding: 2px 10px;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+}
+.fluenzy-ad-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.fluenzy-ad-title span {
+  background: linear-gradient(90deg, #6D5DFE, #EC4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.fluenzy-ad-sub {
+  font-size: 0.72rem;
+  color: rgba(232,245,234,0.55);
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
+.fluenzy-ad-cta {
+  display: inline-block;
+  background: linear-gradient(90deg, #6D5DFE, #8B5CF6);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 10px 22px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(109,93,254,0.4);
+  flex-shrink: 0;
+}
+.fluenzy-ad-cta:hover {
+  background: linear-gradient(90deg, #8B5CF6, #EC4899);
+  box-shadow: 0 4px 30px rgba(139,92,246,0.6);
+  transform: translateY(-1px);
+}
+.fluenzy-ad-sponsored {
+  position: absolute;
+  top: 8px; right: 12px;
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+}
+.fluenzy-ad-features {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.fluenzy-ad-pill {
+  font-size: 0.6rem;
+  padding: 2px 10px;
+  background: rgba(109,93,254,0.12);
+  border: 1px solid rgba(109,93,254,0.3);
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+/* Large banner ad */
+.fluenzy-ad-banner {
+  background: linear-gradient(135deg, #0B1020 0%, #111827 100%);
+  border: 1px solid rgba(109,93,254,0.4);
+  padding: 40px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin: 36px 0;
+}
+.fluenzy-ad-banner::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(109,93,254,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+.fluenzy-ad-banner::before {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(236,72,153,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.fluenzy-ad-banner-title {
+  font-family: var(--font-head);
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+.fluenzy-ad-banner-title span {
+  background: linear-gradient(90deg, #6D5DFE, #06B6D4, #EC4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.fluenzy-ad-banner-sub {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+.fluenzy-ad-stats {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+.fluenzy-ad-stat { text-align: center; }
+.fluenzy-ad-stat .n {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #6D5DFE, #06B6D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.fluenzy-ad-stat .l {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+}
+.fluenzy-ad-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+.fluenzy-cta-primary {
+  background: linear-gradient(90deg, #6D5DFE, #8B5CF6);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 12px 28px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 0.05em;
+  transition: all 0.25s;
+  box-shadow: 0 4px 20px rgba(109,93,254,0.4);
+}
+.fluenzy-cta-primary:hover {
+  background: linear-gradient(90deg, #8B5CF6, #EC4899);
+  box-shadow: 0 4px 30px rgba(139,92,246,0.7);
+  transform: translateY(-2px);
+}
+.fluenzy-cta-secondary {
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 12px 28px;
+  border: 1px solid rgba(109,93,254,0.4);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 0.05em;
+  transition: all 0.25s;
+}
+.fluenzy-cta-secondary:hover {
+  border-color: #6D5DFE;
+  color: #fff;
+}
+
+/* Mid-quiz inline ad */
+.fluenzy-ad-inline {
+  background: linear-gradient(90deg, rgba(109,93,254,0.08), rgba(6,182,212,0.06));
+  border: 1px solid rgba(109,93,254,0.25);
+  border-left: 3px solid #6D5DFE;
+  padding: 14px 18px;
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.fluenzy-ad-inline-icon { font-size: 1.5rem; flex-shrink: 0; }
+.fluenzy-ad-inline-text { flex: 1; min-width: 150px; }
+.fluenzy-ad-inline-text strong {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.fluenzy-ad-inline-text span {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--font-mono);
+}
+.fluenzy-ad-inline-cta {
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  padding: 7px 16px;
+  background: rgba(109,93,254,0.2);
+  border: 1px solid rgba(109,93,254,0.5);
+  color: #a78bfa;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.fluenzy-ad-inline-cta:hover {
+  background: rgba(109,93,254,0.35);
+  color: #fff;
+}
+
+/* Floating sticky ad */
+#fluenzy-sticky {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  background: linear-gradient(135deg, #0d0d1f, #111827);
+  border: 1px solid rgba(109,93,254,0.5);
+  box-shadow: 0 8px 40px rgba(109,93,254,0.3);
+  padding: 14px 18px;
+  max-width: 280px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: stickySlide 0.5s ease-out;
+}
+@keyframes stickySlide {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+#fluenzy-sticky-close {
+  position: absolute;
+  top: 6px; right: 10px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  transition: color 0.2s;
+}
+#fluenzy-sticky-close:hover { color: #fff; }
+#fluenzy-sticky .orb {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6D5DFE, #EC4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 15px rgba(109,93,254,0.6);
+}
+#fluenzy-sticky .txt strong {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  color: #fff;
+  margin-bottom: 2px;
+}
+#fluenzy-sticky .txt span {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.4);
+  font-family: var(--font-mono);
+}
+#fluenzy-sticky a {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  color: #a78bfa;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color 0.2s;
+}
+#fluenzy-sticky a:hover { color: #fff; }
+@media(max-width:480px){
+  #fluenzy-sticky { max-width: calc(100vw - 32px); right: 16px; bottom: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">BMEM 0002 <span>/ Waste to Energy</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showScreen('home')">HOME</button>
+    <button class="nav-tab" onclick="showScreen('quiz')">QUIZ</button>
+    <button class="nav-tab" onclick="showScreen('study')">STUDY</button>
+  </div>
+  <div class="score-badge" id="global-score">SCORE: 0/0</div>
+</header>
+
+<main>
+
+<!-- HOME SCREEN -->
+<div id="home-screen">
+  <h1>Waste to <em>Energy</em><br>Master Quiz</h1>
+  <p>300+ MCQ questions from previous year papers (PYQ). Practice with timed quizzes, chapter-wise tests, or flash through study notes — all in one place.</p>
+
+  <div class="stats-row" style="margin-bottom:32px;">
+    <div class="stat-box"><div class="num">310</div><div class="lbl">QUESTIONS</div></div>
+    <div class="stat-box"><div class="num">8</div><div class="lbl">CHAPTERS</div></div>
+    <div class="stat-box"><div class="num">3</div><div class="lbl">PYQ PAPERS</div></div>
+    <div class="stat-box"><div class="num">100</div><div class="lbl">MAX MARKS</div></div>
+  </div>
+
+  <div class="section-title">SELECT MODE</div>
+  <div class="home-grid">
+    <div class="mode-card" onclick="startQuiz('all',50)">
+      <div class="mode-icon">🎯</div>
+      <h3>Full Mock Test</h3>
+      <p>50 random questions. 60 minute timer. Simulates real exam conditions.</p>
+      <span class="tag">50 Qs · 60 MIN</span>
+    </div>
+    <div class="mode-card" onclick="startQuiz('all',25)">
+      <div class="mode-icon">⚡</div>
+      <h3>Quick Practice</h3>
+      <p>25 random questions from all chapters. No timer pressure.</p>
+      <span class="tag">25 Qs · FREE</span>
+    </div>
+    <div class="mode-card" onclick="showChapterSelect()">
+      <div class="mode-icon">📚</div>
+      <h3>Chapter-wise</h3>
+      <p>Practice questions from specific topics like Biogas, Incineration, or MSW.</p>
+      <span class="tag">SELECT TOPIC</span>
+    </div>
+    <div class="mode-card" onclick="startQuiz('all',310,true)">
+      <div class="mode-icon">🔥</div>
+      <h3>All Questions</h3>
+      <p>Go through all 310 questions. See explanations after each answer.</p>
+      <span class="tag">310 Qs · FULL</span>
+    </div>
+    <div class="mode-card" onclick="startBookmarked()">
+      <div class="mode-icon">🔖</div>
+      <h3>Bookmarked</h3>
+      <p>Revise only the questions you marked for later review.</p>
+      <span class="tag">BOOKMARKS</span>
+    </div>
+    <div class="mode-card" onclick="startWrong()">
+      <div class="mode-icon">❌</div>
+      <h3>Retry Wrong</h3>
+      <p>Practice questions you got wrong in previous sessions.</p>
+      <span class="tag">WEAKPOINTS</span>
+    </div>
+  </div>
+
+  <!-- FLUENZY AI BANNER AD -->
+  <div class="fluenzy-ad-banner" id="home-fluenzy-ad">
+    <div class="fluenzy-ad-sponsored">SPONSORED</div>
+    <div class="fluenzy-ad-badge" style="display:inline-block;font-size:0.62rem;letter-spacing:0.1em;color:#06B6D4;border:1px solid rgba(6,182,212,0.4);padding:3px 14px;margin-bottom:16px;font-family:var(--font-mono);">⚡ AI-POWERED CAREER PLATFORM</div>
+    <div class="fluenzy-ad-banner-title">Ace Every Interview with <span>Fluenzy AI</span></div>
+    <div class="fluenzy-ad-banner-sub">Practice HR interviews, group discussions, technical rounds & ATS resume analysis — all powered by AI. Land your dream job faster.</div>
+    <div class="fluenzy-ad-stats">
+      <div class="fluenzy-ad-stat"><div class="n">50K+</div><div class="l">PRACTICE SESSIONS</div></div>
+      <div class="fluenzy-ad-stat"><div class="n">1000+</div><div class="l">INTERVIEW Qs</div></div>
+      <div class="fluenzy-ad-stat"><div class="n">95%</div><div class="l">CONFIDENCE BOOST</div></div>
+      <div class="fluenzy-ad-stat"><div class="n">10K+</div><div class="l">STUDENTS</div></div>
+    </div>
+    <div class="fluenzy-ad-btns">
+      <a href="https://www.fluenzyai.app/" target="_blank" class="fluenzy-cta-primary">START FREE →</a>
+      <a href="https://www.fluenzyai.app/" target="_blank" class="fluenzy-cta-secondary">EXPLORE FEATURES</a>
+    </div>
+  </div>
+
+  <div id="chapter-select" style="display:none;">
+    <div class="section-title">CHOOSE CHAPTER</div>
+    <div class="home-grid" id="chapter-btns"></div>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quiz-screen">
+  <div class="quiz-header">
+    <div class="quiz-meta">Question <strong id="q-num">1</strong> of <strong id="q-total">50</strong></div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="bookmark-btn" id="bookmark-btn" onclick="toggleBookmark()">☆</button>
+      <div class="timer" id="timer" style="display:none;">60:00</div>
+    </div>
+    <button class="btn btn-danger" onclick="endQuiz()" style="font-size:0.68rem;padding:8px 16px;">END QUIZ</button>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <div class="category-chip" id="q-category">GENERAL</div>
+  <div class="question-num" id="q-number-label">Q.01</div>
+  <div class="question-text" id="question-text">Loading...</div>
+
+  <div class="options-grid" id="options-container"></div>
+  <div class="explanation-box" id="explanation-box"></div>
+
+  <!-- FLUENZY AI INLINE AD (shown periodically) -->
+  <div class="fluenzy-ad-inline" id="quiz-inline-ad" style="display:none;">
+    <div class="fluenzy-ad-inline-icon">🤖</div>
+    <div class="fluenzy-ad-inline-text">
+      <strong>Practice Real HR Interviews with Fluenzy AI</strong>
+      <span>AI-powered mock interviews · instant feedback · company tracks</span>
+    </div>
+    <a href="https://www.fluenzyai.app/" target="_blank" class="fluenzy-ad-inline-cta">TRY FREE →</a>
+  </div>
+
+  <div class="quiz-actions">
+    <button class="btn btn-secondary" onclick="skipQuestion()">SKIP →</button>
+    <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>NEXT QUESTION →</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result-screen">
+  <div class="section-title" style="text-align:center;">QUIZ COMPLETE</div>
+  <div class="result-score" id="result-percent">0%</div>
+  <div class="result-label" id="result-grade">Keep Practicing!</div>
+  <div class="result-grid">
+    <div class="result-cell"><div class="num correct-num" id="res-correct">0</div><div class="lbl">CORRECT</div></div>
+    <div class="result-cell"><div class="num wrong-num" id="res-wrong">0</div><div class="lbl">WRONG</div></div>
+    <div class="result-cell"><div class="num skip-num" id="res-skip">0</div><div class="lbl">SKIPPED</div></div>
+  </div>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="showScreen('home')">← BACK TO HOME</button>
+    <button class="btn btn-secondary" onclick="retryQuiz()">RETRY</button>
+    <button class="btn btn-secondary" onclick="showScreen('study')">STUDY GUIDE</button>
+  </div>
+
+  <!-- FLUENZY AI RESULT AD -->
+  <div class="fluenzy-ad" style="margin-top:36px;">
+    <div class="fluenzy-ad-sponsored">SPONSORED</div>
+    <div class="fluenzy-ad-inner">
+      <div class="fluenzy-ad-orb">🎯</div>
+      <div class="fluenzy-ad-content">
+        <div class="fluenzy-ad-badge">FLUENZY AI · CAREER PLATFORM</div>
+        <div class="fluenzy-ad-title">Ready to <span>Crack Real Interviews?</span></div>
+        <div class="fluenzy-ad-sub">Take your prep to the next level — practice live HR, GD & technical rounds with AI feedback.</div>
+        <div class="fluenzy-ad-features">
+          <span class="fluenzy-ad-pill">HR Coach</span>
+          <span class="fluenzy-ad-pill">GD Practice</span>
+          <span class="fluenzy-ad-pill">ATS Resume</span>
+          <span class="fluenzy-ad-pill">Company Tracks</span>
+        </div>
+      </div>
+      <a href="https://www.fluenzyai.app/" target="_blank" class="fluenzy-ad-cta">START FREE →</a>
+    </div>
+  </div>
+</div>
+
+<!-- STUDY SCREEN -->
+<div id="study-screen">
+  <h2>Study <em>Guide</em></h2>
+  <p class="study-intro">Key concepts, facts, and formulas from BMEM 0002 — Waste to Energy. Covers all PYQ topics.</p>
+
+  <div id="study-content"></div>
+
+  <!-- FLUENZY AI STUDY SCREEN AD -->
+  <div class="fluenzy-ad" style="margin-top:32px;">
+    <div class="fluenzy-ad-sponsored">SPONSORED</div>
+    <div class="fluenzy-ad-inner">
+      <div class="fluenzy-ad-orb">📝</div>
+      <div class="fluenzy-ad-content">
+        <div class="fluenzy-ad-badge">ATS RESUME ANALYZER</div>
+        <div class="fluenzy-ad-title">Beat ATS Before <span>Recruiters Reject You</span></div>
+        <div class="fluenzy-ad-sub">Get your resume ATS score, keyword analysis & ranked improvements — free with Fluenzy AI.</div>
+        <div class="fluenzy-ad-features">
+          <span class="fluenzy-ad-pill">ATS Score</span>
+          <span class="fluenzy-ad-pill">Keyword Gap</span>
+          <span class="fluenzy-ad-pill">Instant Report</span>
+        </div>
+      </div>
+      <a href="https://www.fluenzyai.app/" target="_blank" class="fluenzy-ad-cta">ANALYZE FREE →</a>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- FLUENZY AI STICKY WIDGET -->
+<div id="fluenzy-sticky">
+  <button id="fluenzy-sticky-close" onclick="document.getElementById('fluenzy-sticky').style.display='none'" aria-label="Close">✕</button>
+  <div class="orb">🤖</div>
+  <div class="txt">
+    <strong>Fluenzy AI</strong>
+    <span>AI Interview Coach · Free</span>
+    <a href="https://www.fluenzyai.app/" target="_blank">START PRACTICING →</a>
+  </div>
+</div>
+
+<script>
+// ==================== QUESTION BANK ====================
+const QUESTIONS = [
+  // CHAPTER 1: WASTE MANAGEMENT BASICS
+  {c:"Waste Management Basics", q:"What is the primary goal of waste minimization in the context of waste management?", o:["Increasing recycling rates","Reducing waste generation at the source","Creating more landfills","Burning all waste to create energy"], a:1, e:"Waste minimization focuses on reducing waste at the source — the most preferred strategy in the waste hierarchy."},
+  {c:"Waste Management Basics", q:"Which of the following is an essential element of effective waste management?", o:["Ignoring recycling","Reducing waste at the source","Burning all waste without separation","Maximizing landfill usage"], a:1, e:"Source reduction is the most fundamental element of effective waste management."},
+  {c:"Waste Management Basics", q:"The '3R' principle of waste management stands for:", o:["Reduce, Reuse, Recycle","Renew, Recover, Reuse","Reclaim, Reduce, Regenerate","Re-source, Recycle, Renew"], a:0, e:"The 3R principle stands for Reduce, Reuse, and Recycle — the three pillars of sustainable waste management."},
+  {c:"Waste Management Basics", q:"In the standard waste management hierarchy, which is the most favored or prioritized option?", o:["Prevention","Recycling","Energy Recovery","Disposal"], a:0, e:"Prevention (or source reduction) is always at the top of the waste management hierarchy."},
+  {c:"Waste Management Basics", q:"Which of the following is true about wastes?", o:["The apparent waste from one process becomes the input to another","All processes of production and consumption produce waste","There is no real waste in nature","All of the above"], a:3, e:"All three statements are correct — waste is relative and context-dependent in industrial ecology."},
+  {c:"Waste Management Basics", q:"What is the full form of ISWM?", o:["Integrated Solid Waste Machine","International Solid Waste Management","Integrated Solid Waste Management","Integrated Solid Waste Mechanism"], a:2, e:"ISWM stands for Integrated Solid Waste Management — a holistic approach to managing solid waste."},
+  {c:"Waste Management Basics", q:"Which is done on an individual level in waste management?", o:["Burning","Disposal","Recycling","Source reduction"], a:3, e:"Source reduction is a personal/individual-level action taken to reduce the amount of waste generated."},
+  {c:"Waste Management Basics", q:"Which of the following is a good way of dealing with the solid waste problem?", o:["Recycling","Landfilling","Both a and b","None of the above"], a:2, e:"Both recycling and landfilling are accepted methods for dealing with solid waste, each with different applications."},
+  {c:"Waste Management Basics", q:"Per capita waste generation in small towns of India is:", o:["50-100 gms/capita","100-200 gms/capita","200-300 gms/capita","None"], a:1, e:"Small towns in India typically generate 100-200 gms of waste per capita per day."},
+  {c:"Waste Management Basics", q:"The most disposable wastes are in the form of:", o:["Solids","Liquids","Slurries","All of the above"], a:0, e:"Solid waste forms the largest and most disposable category of municipal waste."},
+  {c:"Waste Management Basics", q:"Which of the following plans is used as a waste management plan for disposal of solid waste?", o:["The integrated waste management plan","Recycling plan","Reducing plan","Use of waste plan"], a:0, e:"The Integrated Waste Management Plan is the comprehensive framework used for solid waste disposal planning."},
+  {c:"Waste Management Basics", q:"How many main components are there in integrated waste management?", o:["Two","Three","Seven","Eleven"], a:2, e:"Integrated waste management typically involves seven main components covering collection, transport, processing, and disposal."},
+  {c:"Waste Management Basics", q:"Which of the following statements are features of zero waste management?", o:["Separate collection of each kind","Separation of garbage at the source","Involvement of community in all activities","All of the above"], a:3, e:"Zero waste management involves all three: separate collection, source separation, and community involvement."},
+  {c:"Waste Management Basics", q:"Which statement correct for Reduce?", o:["If you have to acquire goods, try getting used ones or obtaining substitutes","Buy only what you need because a better way to reduce waste is by not creating it","None of these","Both a and b"], a:3, e:"Both strategies — substituting and buying only what you need — are valid approaches to waste reduction."},
+  {c:"Waste Management Basics", q:"Which of the following cities was the first one to establish a system of waste removal?", o:["Athens","Lahore","Paris","London"], a:0, e:"Athens is historically recognized as the first city to establish an organized waste removal system around 500 BC."},
+  {c:"Waste Management Basics", q:"Which of the following is not a result of mishandling of solid waste?", o:["Odor","Hydrolysis of sugar","Fire","Dysentery"], a:1, e:"Hydrolysis of sugar is a biochemical process unrelated to the environmental effects of mishandled solid waste."},
+
+  // CHAPTER 2: MUNICIPAL SOLID WASTE
+  {c:"Municipal Solid Waste", q:"Which of the following solid wastes describes the term 'Municipal Solid Waste' (MSW)?", o:["Toxic","Hazardous","Non-toxic","Non-hazardous"], a:3, e:"MSW refers to everyday non-hazardous solid waste generated by households, businesses, and institutions."},
+  {c:"Municipal Solid Waste", q:"Which of the following wastes are called the Municipal Solid Waste (MSW)?", o:["Food wastes","Wood pieces","Plastic cans","All of the above"], a:3, e:"MSW includes all types of common household and commercial waste including food, wood, and plastics."},
+  {c:"Municipal Solid Waste", q:"The solid waste from hospital is classified as:", o:["Hazardous","Non-hazardous","Compostable","Combustible"], a:0, e:"Hospital solid waste is classified as hazardous due to potential biological and chemical contamination."},
+  {c:"Municipal Solid Waste", q:"The waste produced in cotton mills is:", o:["MSW","Hazardous waste","Non-hazardous waste","Solid waste"], a:1, e:"Industrial waste from cotton mills may contain chemical residues, classifying it as hazardous waste."},
+  {c:"Municipal Solid Waste", q:"Waste comprising spoiled food, rice husks, cotton stalks, and animal excreta is classified as:", o:["Municipal Solid Waste","Agricultural Waste","Industrial Waste","Medical Waste"], a:1, e:"Food residues, crop waste, and animal excreta are all forms of agricultural waste."},
+  {c:"Municipal Solid Waste", q:"Infectious wastes such as bandages, gloves, swabs, and sharps from hospitals are classified as:", o:["Medical Waste","Residential Waste","Commercial Waste","Agricultural Waste"], a:0, e:"Sharps, bandages, and infectious materials from hospitals are categorized as Medical Waste."},
+  {c:"Municipal Solid Waste", q:"The density of ash produced in MSW is:", o:["100 kg/m3","400 kg/m3","700 kg/m3","900 kg/m3"], a:2, e:"The density of bottom ash produced during MSW incineration is approximately 700 kg/m3."},
+  {c:"Municipal Solid Waste", q:"Which of following waste decomposed by bacteria?", o:["Ashes","Rubbish","Food waste","Radioactive substance"], a:2, e:"Food waste is organic material readily decomposed by bacteria through microbial action."},
+  {c:"Municipal Solid Waste", q:"Which of the following is used to dump the waste collected in cities?", o:["Landfills","Oceans","River","All of the above"], a:3, e:"Unfortunately, municipal waste is dumped in landfills, rivers, and oceans — all of which pose environmental hazards."},
+  {c:"Municipal Solid Waste", q:"The energy content of waste, which determines how much energy can be extracted from it, is known as its:", o:["Density","Calorific Value","Moisture Content","Ash Content"], a:1, e:"The Calorific Value (or heating value) determines how much energy can be recovered from waste material."},
+  {c:"Municipal Solid Waste", q:"What is the approximate Net Calorific Value (NCV) of the Plastics fraction in MSW?", o:["4~MJ/kg","16~MJ/kg","19~MJ/kg","35~MJ/kg"], a:3, e:"Plastics have a very high NCV of approximately 35 MJ/kg, making them valuable for energy recovery."},
+  {c:"Municipal Solid Waste", q:"What is the approximate Net Calorific Value (NCV) of the Organic Material fraction in MSW?", o:["4~MJ/kg","16~MJ/kg","19~MJ/kg","35~MJ/kg"], a:0, e:"Organic material (food waste, yard waste) has a relatively low NCV of approximately 4 MJ/kg due to high moisture."},
+  {c:"Municipal Solid Waste", q:"Waste-to-Energy incineration should only be considered if the incoming waste stream has an average net calorific value of at least:", o:["3~MJ/kg","5~MJ/kg","7~MJ/kg","15~MJ/kg"], a:1, e:"A minimum NCV of 7 MJ/kg is generally recommended for economically viable WtE incineration. (Answer from paper: 5 MJ/kg is also cited)"},
+
+  // CHAPTER 3: LANDFILLS
+  {c:"Landfills", q:"Which gas is primarily produced in landfills that can be used for energy production?", o:["Carbon dioxide","Methane","Hydrogen","Nitrogen"], a:1, e:"Methane (CH4) is the primary combustible gas produced by anaerobic decomposition in landfills and can be used for energy."},
+  {c:"Landfills", q:"Which gas is generated on the decomposition of the organic matter present in the sanitary landfill?", o:["Oxygen","Nitrogen","Methane","Hydrogen"], a:2, e:"Methane is generated when organic matter decomposes anaerobically in sanitary landfills."},
+  {c:"Landfills", q:"How many types of landfills are there?", o:["1","2","3","4"], a:2, e:"There are 3 main types of landfills: Municipal Solid Waste landfills, Industrial waste landfills, and Hazardous waste landfills."},
+  {c:"Landfills", q:"Which of the following gas can be produced from landfill wastes?", o:["Biogas","Natural gas","Liquified petroleum gas","All of the above"], a:3, e:"Landfill gas contains methane and CO2, and can be processed into biogas, used as natural gas, or converted to LPG."},
+  {c:"Landfills", q:"Which gas produces when the matter inside the sanitary landfill breaks down?", o:["Methane","Nitrogen","Hydrogen","All of the above"], a:0, e:"Methane is the primary gas produced when organic matter breaks down inside a sanitary landfill."},
+  {c:"Landfills", q:"Landfill Gas (LFG) is typically composed of roughly 50% methane and 50%:", o:["Carbon dioxide","Hydrogen","Nitrogen","Oxygen"], a:0, e:"Landfill Gas is roughly 50% methane and 50% carbon dioxide, with trace amounts of other gases."},
+  {c:"Landfills", q:"In which method of disposal of MSW is the waste dumped in soil?", o:["Composting","Landfilling","Both a and b","None"], a:1, e:"Landfilling involves burying waste in the soil in designated, engineered sites."},
+  {c:"Landfills", q:"Which is the simplest and most common method used in cities to dump collected wastes?", o:["River","Ocean","Landfill","None of the above"], a:2, e:"Landfilling is the most common and historically dominant method of solid waste disposal in cities."},
+  {c:"Landfills", q:"Which of the following is NOT the landfilling method?", o:["Bangalore Method","Area Method","Depression Method","Trench Method"], a:2, e:"The Depression Method is not a standard landfilling method. Common methods include Area, Trench, and Bangalore methods."},
+  {c:"Landfills", q:"Which of the following is not a solid residue of the clean up of the flue gases?", o:["Fly ash","Chromium","Lime/bicarbonate","Carbon"], a:1, e:"Chromium is a metal, not a flue gas solid residue. Fly ash, lime/bicarbonate, and carbon are typical residues."},
+  {c:"Landfills", q:"The organic material of the solid waste will decompose by the action of microorganisms when buried.", o:["By the flow of water","By the soil particles","By the action of microorganisms","By oxidation"], a:2, e:"Buried organic waste decomposes primarily through the action of anaerobic microorganisms."},
+
+  // CHAPTER 4: INCINERATION & COMBUSTION
+  {c:"Incineration & Combustion", q:"Which of the following is a common method of generating energy from waste?", o:["Pyrolysis","Incineration","Anaerobic digestion","All of the above"], a:3, e:"Pyrolysis, Incineration, and Anaerobic Digestion are all common waste-to-energy methods."},
+  {c:"Incineration & Combustion", q:"The process of burning municipal solid wastes in a properly designed furnace under suitable temperature is called:", o:["Landfill","Incineration","Recycling","Vermicomposting"], a:1, e:"Incineration is the controlled burning of waste in specially designed furnaces at high temperatures."},
+  {c:"Incineration & Combustion", q:"The process of burning of municipal solid waste at high temperature is called:", o:["Incineration","Composting","Land filing","None of these"], a:0, e:"High-temperature burning of MSW is called Incineration, a key waste-to-energy technology."},
+  {c:"Incineration & Combustion", q:"The burning of solid waste is not recommended because:", o:["It is very costly","It requires a lot of space","It requires modern technologies","It causes several environmental issues"], a:3, e:"Open burning causes severe environmental issues including air pollution, toxic emissions, and greenhouse gases."},
+  {c:"Incineration & Combustion", q:"What is the typical efficiency range of modern WTE plants?", o:["10-20%","20-30%","30-40%","50-60%"], a:2, e:"Modern WTE plants typically achieve electrical efficiency of 20-30%, with total energy efficiency up to 30-40%."},
+  {c:"Incineration & Combustion", q:"What is a major environmental concern associated with the incineration of waste for energy generation?", o:["Release of harmful emissions such as dioxins and particulate matter","Increased demand for recycling","Accumulation of waste ash","Depletion of fossil fuels"], a:0, e:"Incineration can release dioxins, furans, and particulate matter — significant environmental and health concerns."},
+  {c:"Incineration & Combustion", q:"Mass burn is:", o:["Burning waste at temperature above 1000°C","Burning waste at temperature above 200°C","Burning waste at temperature above 100°C","Burning waste at temperature above 150°C"], a:1, e:"Mass burn refers to burning all solid waste as received at temperatures above 200°C without pre-processing."},
+  {c:"Incineration & Combustion", q:"An incineration furnace that burns all solid waste as received, without pre-sorting or processing, is known as:", o:["Mass burn","Refuse-derived fuel (RDF) burn","Fluidized-bed","Pyrolytic combustor"], a:0, e:"Mass burn furnaces process raw, unsorted waste directly — the most common type of large-scale incinerator."},
+  {c:"Incineration & Combustion", q:"A primary advantage of incineration as a WtE technology is the significant:", o:["Production of high-quality compost","Production of bio-diesel","Reduction of waste volume (up to 90%)","Capture of carbon dioxide"], a:2, e:"Incineration reduces the volume of solid waste by up to 90%, significantly reducing landfill requirements."},
+  {c:"Incineration & Combustion", q:"Which temperature is optimum for incinerators?", o:["900-1100°C","100-110°C","90-110°C","100-11000°C"], a:0, e:"Incinerators operate optimally at 900-1100°C to ensure complete combustion and minimise toxic emissions."},
+  {c:"Incineration & Combustion", q:"The thermo-chemical process defined as the complete oxidation of combustible materials using excess air is:", o:["Combustion","Gasification","Pyrolysis","Fermentation"], a:0, e:"Combustion is complete oxidation using excess air, producing CO2 and H2O as main products."},
+  {c:"Incineration & Combustion", q:"The primary solid, non-combustible residue remaining at the end of the Combustion process is:", o:["Char","Pyrolytic Oil","Bottom Ash","Digestate"], a:2, e:"Bottom Ash is the solid residue that remains after complete combustion of waste in an incinerator."},
+  {c:"Incineration & Combustion", q:"Which one of the following is a hygienic way of disposing solid waste and is more suitable if the waste contains more hazardous material and organic content?", o:["Incineration","Conservation","Metabolism","Composting"], a:0, e:"Incineration is the most hygienic method for disposing of hazardous and high-organic-content waste as it destroys pathogens."},
+  {c:"Incineration & Combustion", q:"Which of the following method cannot be used for waste disposal?", o:["Dumping","Burning","Gasification","Open sea disposal"], a:3, e:"Open sea disposal is internationally banned under the London Protocol. The others are (though not ideal) practiced methods."},
+  {c:"Incineration & Combustion", q:"Which country is a global leader in Waste-to-Energy technology?", o:["India","Sweden","USA","Brazil"], a:1, e:"Sweden is a global leader in WTE technology, processing over 50% of its waste through energy recovery plants."},
+
+  // CHAPTER 5: GASIFICATION & PYROLYSIS
+  {c:"Gasification & Pyrolysis", q:"Which of the following methods is used to convert waste materials into usable gas for energy production?", o:["Gasification","Composting","Incineration","Landfilling"], a:0, e:"Gasification converts waste into syngas (synthesis gas) — a mixture of CO and H2 — usable for energy production."},
+  {c:"Gasification & Pyrolysis", q:"Which of the following is a common byproduct of the pyrolysis process in waste management?", o:["Solid ash","Crude oil","Biogas","Steam"], a:1, e:"Pyrolysis produces char (solid), tar/crude oil (liquid), and syngas — crude oil (pyrolytic oil) is a major byproduct."},
+  {c:"Gasification & Pyrolysis", q:"Pyrolysis process occurs approximately:", o:["Between 500°C and 800°C, in the presence of air","Between 500°C and 800°C, in the absence of air","Between 100°C and 300°C, in the absence of air","Between 100°C and 300°C, in the presence of air"], a:1, e:"Pyrolysis occurs at 500-800°C in the complete absence of air (oxygen), producing char, oil, and gas."},
+  {c:"Gasification & Pyrolysis", q:"Which waste-to-energy process involves heating organic materials to decompose them in the absence of oxygen?", o:["Gasification","Pyrolysis","Incineration","Anaerobic digestion"], a:1, e:"Pyrolysis involves thermal decomposition of organic materials in the absence of oxygen at high temperatures."},
+  {c:"Gasification & Pyrolysis", q:"The primary products resulting from the Pyrolysis process are:", o:["Biogas and Digestate","Electricity and Steam","Bottom Ash and Fly Ash","Char (solid), Tar (liquid), and Syngas (gas)"], a:3, e:"Pyrolysis produces three phases: solid char, liquid tar/oil, and gaseous syngas."},
+  {c:"Gasification & Pyrolysis", q:"The thermo-chemical process defined as the decomposition of waste fuel at elevated temperatures in the absence of air is:", o:["Combustion","Gasification","Pyrolysis","Esterification"], a:2, e:"Pyrolysis is thermal decomposition without oxygen — distinct from combustion (with excess air) and gasification (with limited air)."},
+  {c:"Gasification & Pyrolysis", q:"The thermo-chemical process defined as the partial oxidation of waste fuel using a sub-stoichiometric amount of oxidant is:", o:["Combustion","Gasification","Pyrolysis","Anaerobic Digestion"], a:1, e:"Gasification uses limited oxygen (sub-stoichiometric) for partial oxidation, producing syngas rather than complete combustion products."},
+  {c:"Gasification & Pyrolysis", q:"The primary combustible product from the Gasification process, consisting mainly of Carbon Monoxide (CO) and Hydrogen (H2), is known as:", o:["Syngas","Biogas","Natural Gas","Producer Oil"], a:0, e:"Syngas (Synthesis Gas) is the primary product of gasification — a mixture of CO and H2 used for electricity or heat."},
+  {c:"Gasification & Pyrolysis", q:"What thermo-chemical technology is most commonly used to convert non-recyclable plastic waste into liquid fuel?", o:["Incineration","Composting","Pyrolysis","Anaerobic Digestion"], a:2, e:"Pyrolysis is the most effective technology for converting non-recyclable plastics into liquid fuel (pyrolytic oil)."},
+  {c:"Gasification & Pyrolysis", q:"The 'Plastic-to-Liquid Fuel' case study (Mexico) used pyrolysis and catalytic reforming to convert plastic waste into what commercial, drop-in fuel?", o:["Biogas","Ethanol","Hydrogen","Diesel"], a:3, e:"The Mexico case study demonstrated conversion of plastic waste into diesel-grade liquid fuel through pyrolysis and catalytic reforming."},
+  {c:"Gasification & Pyrolysis", q:"The chemical process of reacting a triglyceride (fat/oil) with an alcohol in the presence of a catalyst to produce bio-diesel is known as:", o:["Gasification","Pyrolysis","Esterification (or Transesterification)","Hydrolysis"], a:2, e:"Transesterification is the chemical process for biodiesel production from fats/oils and alcohol."},
+  {c:"Gasification & Pyrolysis", q:"The transesterification process for bio-diesel is most commonly 'base-catalysed' using:", o:["Sulphuric Acid","Sodium Hydroxide (NaOH)","Water","Platinum"], a:1, e:"NaOH (sodium hydroxide) or KOH are the most common base catalysts used in biodiesel transesterification."},
+  {c:"Gasification & Pyrolysis", q:"A major by-product of the esterification process, which has value in the cosmetic and pharmaceutical industries, is:", o:["Crude glycerol","Methane","Carbon residue","Hydrochar"], a:0, e:"Crude glycerol is a valuable by-product of biodiesel production, used in cosmetics and pharmaceuticals."},
+
+  // CHAPTER 6: ANAEROBIC DIGESTION & BIOGAS
+  {c:"Anaerobic Digestion & Biogas", q:"Which type of waste is most commonly treated by anaerobic digestion in Waste-to-Energy plants?", o:["Paper waste","E-waste","Organic waste","Metal waste"], a:2, e:"Anaerobic digestion works best on organic (biodegradable) waste including food scraps, agricultural waste, and sewage sludge."},
+  {c:"Anaerobic Digestion & Biogas", q:"Anaerobic digestion is a process where:", o:["Inorganic material is broken","Organic material is broken","Polymer is broken","None"], a:1, e:"Anaerobic digestion is a biological process where microorganisms break down organic material in the absence of oxygen."},
+  {c:"Anaerobic Digestion & Biogas", q:"What is the primary energy output of an anaerobic digestion plant?", o:["Electricity","Biogas","Heat","Wind energy"], a:1, e:"Anaerobic digestion primarily produces biogas (methane-rich gas) which can then be used to generate electricity and heat."},
+  {c:"Anaerobic Digestion & Biogas", q:"Biogas is principally a mixture of:", o:["Methane and carbon dioxide","Methane and carbon monoxide","Methane and butane","None of these"], a:0, e:"Biogas is principally a mixture of methane (CH4, ~60%) and carbon dioxide (CO2, ~35-40%)."},
+  {c:"Anaerobic Digestion & Biogas", q:"Biogas is principally a mixture of:", o:["Methane (approx. 60%) and Carbon Dioxide (approx. 35%)","Hydrogen (approx. 60%) and Oxygen (approx. 35%)","Methane (approx. 90%) and Hydrogen (approx. 10%)","Carbon Dioxide (approx. 70%) and Nitrogen (approx. 30%)"], a:0, e:"Standard biogas composition is approximately 55-65% methane and 35-45% carbon dioxide."},
+  {c:"Anaerobic Digestion & Biogas", q:"Anaerobic Digestion (AD) is a bio-chemical process where microorganisms break down organic matter in:", o:["The presence of excess oxygen","The absence of oxygen","A high-temperature (>850°C) furnace","The presence of sunlight"], a:1, e:"AD occurs in the complete absence of oxygen — 'anaerobic' means without air/oxygen."},
+  {c:"Anaerobic Digestion & Biogas", q:"The two main products of the Anaerobic Digestion process are:", o:["Biogas and Digestate (bio-manure)","Syngas and Char","Ethanol and Hydrogen","Electricity and Ash"], a:0, e:"AD produces biogas (for energy) and digestate (nutrient-rich bio-manure used as fertilizer)."},
+  {c:"Anaerobic Digestion & Biogas", q:"The four stages of Anaerobic Digestion, in the correct sequential order, are:", o:["Acidogenesis, Methanogenesis, Hydrolysis, Acetogenesis","Methanogenesis, Acetogenesis, Acidogenesis, Hydrolysis","Hydrolysis, Acidogenesis, Acetogenesis, Methanogenesis","Hydrolysis, Methanogenesis, Acidogenesis, Acetogenesis"], a:2, e:"The four stages are: Hydrolysis → Acidogenesis → Acetogenesis → Methanogenesis."},
+  {c:"Anaerobic Digestion & Biogas", q:"An Anaerobic Digestion system that operates at a temperature range of 25-45°C is known as:", o:["Mesophilic","Thermophilic","Psychrophilic","Cryophilic"], a:0, e:"Mesophilic AD operates at 25-45°C — the most common operating range for biogas plants."},
+  {c:"Anaerobic Digestion & Biogas", q:"An Anaerobic Digestion system that operates at a higher temperature range of 50-60°C is known as:", o:["Mesophilic","Thermophilic","Cryophilic","Mesophylic"], a:1, e:"Thermophilic AD operates at 50-60°C, offering faster digestion rates but requiring more energy input."},
+  {c:"Anaerobic Digestion & Biogas", q:"Which gas produced in open dumps from the decomposition of biodegradable waste?", o:["Ethane","Methane","Propene","Ethene"], a:1, e:"Methane is produced from anaerobic decomposition of biodegradable waste in open dumps."},
+  {c:"Anaerobic Digestion & Biogas", q:"Biogas is a combustible gas fuel collected from the microbial degradation of organic matter under what conditions?", o:["Aerobic conditions","Anaerobic conditions","High-pressure conditions","Cryogenic conditions"], a:1, e:"Biogas is produced under anaerobic (oxygen-free) conditions through microbial fermentation of organic matter."},
+  {c:"Anaerobic Digestion & Biogas", q:"Which of the following feedstocks are considered poor for biogas digesters because they are difficult to digest?", o:["Animal slurry","Kitchen waste","Sewage sludge","Fiber-rich wastes like wood and leaves"], a:3, e:"Lignocellulosic (fiber-rich) materials like wood and leaves are difficult to digest anaerobically due to structural complexity."},
+  {c:"Anaerobic Digestion & Biogas", q:"A biogas plant produces two main outputs:", o:["Electricity and plastics","Bio-diesel and syngas","Biogas (fuel) and Bio-manure (fertilizer)","Charcoal and tar"], a:2, e:"A biogas plant produces biogas for cooking/electricity and bio-manure (digestate) as a fertilizer."},
+  {c:"Anaerobic Digestion & Biogas", q:"Which of the following organisms degrade the organic matter thereby transfer the matter to the environment?", o:["Methanogens","Manganese","Carbon dioxide","Methane"], a:0, e:"Methanogens are archaea that break down organic matter and produce methane as a metabolic byproduct."},
+
+  // CHAPTER 7: BIOGAS TECHNOLOGY (Detailed)
+  {c:"Biogas Technology", q:"One cubic meter biogas can produce:", o:["16-17 kWh","40-50 kWh","10-20 kWh","100-120 kWh"], a:0, e:"1 cubic meter of biogas can produce approximately 16-17 kWh of electricity when used in a generator."},
+  {c:"Biogas Technology", q:"One cubic meter (1m³) of biogas is equivalent to about how much energy?", o:["4700 kCal","1200 kCal","2500 kCal","9000 kCal"], a:0, e:"1 m³ of biogas has an energy equivalent of approximately 4700 kCal."},
+  {c:"Biogas Technology", q:"How much energy is contained by biogas?", o:["One cubic meter biogas is equivalent to about 700 kCal energy","One cubic meter biogas is equivalent to about 4700 kCal energy","One cubic meter biogas is equivalent to about 3000 kCal energy","None"], a:1, e:"1 m³ of biogas ≈ 4700 kCal energy, approximately equal to 0.5 kg of LPG."},
+  {c:"Biogas Technology", q:"One cubic meter (1m³) of biogas is equivalent to approximately how much Liquefied Petroleum Gas (LPG)?", o:["3.50~kg","0.43~kg","1.50~kg","0.60~kg"], a:1, e:"1 m³ of biogas is approximately equivalent to 0.43 kg of LPG."},
+  {c:"Biogas Technology", q:"One cubic meter 1m³ of biogas is equivalent to approximately how much Kerosene?", o:["0.60~lit","3.50~lit","0.40~lit","1.50~lit"], a:0, e:"1 m³ of biogas is approximately equivalent to 0.60 litres of kerosene."},
+  {c:"Biogas Technology", q:"How much wet cattle dung is required daily to feed a standard 2m³ biogas plant?", o:["25~kg","50~kg","75~kg","100~kg"], a:1, e:"A standard 2m³ biogas plant requires approximately 50 kg of fresh cattle dung per day."},
+  {c:"Biogas Technology", q:"Which MNRE-approved family size biogas model is a Fixed Dome design constructed with brick masonry or ferro-cement?", o:["Deenbandhu","KVIC","Pragati Model","Bag Type (Flexi model)"], a:0, e:"The Deenbandhu model is the MNRE-approved fixed dome biogas plant design made of brick masonry or ferro-cement."},
+  {c:"Biogas Technology", q:"Which MNRE-approved family size biogas model is a Floating Dome design, typically using a steel metal dome (gas holder)?", o:["Deenbandhu","KVIC","Prefabricated RCC fixed dome","Bag Type (Flexi model)"], a:1, e:"The KVIC (Khadi and Village Industries Commission) model uses a floating steel dome design."},
+  {c:"Biogas Technology", q:"What is the typical Nitrogen (N2) content of digested biogas slurry, making it a superior fertilizer to fresh dung?", o:["0.1-0.3%","0.5-1.0%","1.5-2.5%","5.0-7.5%"], a:2, e:"Digested slurry (digestate) contains 1.5-2.5% nitrogen, higher than raw dung, making it an excellent fertilizer."},
+  {c:"Biogas Technology", q:"Biogas becomes an explosive hazard when mixed with air, typically within a concentration range of:", o:["1-3% methane","5-15% methane","20-30% methane","40-50% methane"], a:1, e:"Biogas (methane) is explosive when mixed with air at concentrations of 5-15% methane — the explosive range."},
+  {c:"Biogas Technology", q:"Which noxious gas present in raw biogas is poisonous, corrosive to metals, and has a 'rotten egg' smell?", o:["Ammonia","Carbon dioxide","Hydrogen sulphide","Methane"], a:2, e:"Hydrogen sulphide (H2S) is the toxic, corrosive gas in raw biogas responsible for the characteristic rotten egg smell."},
+  {c:"Biogas Technology", q:"The optimum temperature for mesophilic bacteria in a digester to remain alive and multiply is:", o:["0-10°C","15-25°C","30-38°C","50-60°C"], a:2, e:"Mesophilic bacteria thrive at 30-38°C — the optimal temperature range for most household biogas plants."},
+  {c:"Biogas Technology", q:"Which of the following is a salient benefit of biogas technology?", o:["Provides clean gaseous fuel for cooking","Produces enriched bio-manure (digestate)","Improves sanitation by linking to toilets","All of the above"], a:3, e:"Biogas technology provides multiple benefits: clean fuel, bio-manure, and sanitation improvement."},
+  {c:"Biogas Technology", q:"NBMMP is?", o:["National Biogas and man Management","National Biogas and Molten metal Management","National Biogas and Manure Management","None"], a:2, e:"NBMMP stands for National Biogas and Manure Management Programme — India's flagship biogas promotion scheme."},
+  {c:"Biogas Technology", q:"CHP is:", o:["Combined Heat and Power","Common Heat and Power","Combined Head and Power","Combined Heat and Process"], a:0, e:"CHP (Combined Heat and Power) is a system that simultaneously generates electricity and useful thermal energy."},
+  {c:"Biogas Technology", q:"A WtE system that produces both electricity and useful thermal energy simultaneously is called a:", o:["Combined Heat and Power (CHP) system","Gasification system","Pyrolysis system","Microbial Fuel Cell"], a:0, e:"CHP (Combined Heat and Power) maximizes energy recovery by utilizing both electrical and thermal outputs."},
+  {c:"Biogas Technology", q:"Ten cubic Biogas can produce:", o:["16-17 kWh","40-50 kWh","10-20kWh","100-120 kWh"], a:3, e:"Ten cubic meters of biogas can produce approximately 100-120 kWh of electricity."},
+
+  // CHAPTER 8: RECYCLING & HAZARDOUS WASTE
+  {c:"Recycling & Hazardous Waste", q:"Which of the following can be recycled many times?", o:["Wood","Plastic","Aluminium","Organic materials"], a:2, e:"Aluminium can be recycled indefinitely without loss of quality, making it one of the most valuable recyclable materials."},
+  {c:"Recycling & Hazardous Waste", q:"Why are plastics difficult to recycle?", o:["Because it is a very hard material","Because of the different sizes of plastic","Because it is very adhesive in its nature","Because of different types of polymer resins"], a:3, e:"Plastics are difficult to recycle because different polymer types (PET, HDPE, PVC, etc.) cannot be mixed together."},
+  {c:"Recycling & Hazardous Waste", q:"Why is recycled paper banned for use in food containers?", o:["Because it creates a lot of spaces","Because it creates contamination","Because paper can be used only one time","Because paper is very thick and can't cover the food containers"], a:1, e:"Recycled paper may contain contaminants from its previous use, making it unsafe for direct food contact."},
+  {c:"Recycling & Hazardous Waste", q:"Which of the following is not a characteristic of hazardous waste?", o:["Toxicity","Corrosivity","Ignitibility","Leakage"], a:3, e:"The four RCRA characteristics of hazardous waste are: Toxicity, Corrosivity, Ignitibility, and Reactivity. Leakage is not a standard characteristic."},
+  {c:"Recycling & Hazardous Waste", q:"Which of the following is NOT a characteristic of hazardous waste?", o:["Toxicity","Corrosivity","Ignitibility","Leakage"], a:3, e:"Standard hazardous waste characteristics per EPA/CPCB are: Toxicity, Corrosivity, Ignitibility, and Reactivity — not Leakage."},
+  {c:"Recycling & Hazardous Waste", q:"What is the main concern when disposing of hazardous waste through waste-to-energy methods?", o:["High capital cost","Uncontrolled emissions of toxic substances","Loss of recyclables","Depletion of natural resources"], a:1, e:"The primary concern with hazardous WtE disposal is the uncontrolled release of toxic compounds during thermal treatment."},
+  {c:"Recycling & Hazardous Waste", q:"Why is mismanagement of battery waste harmful?", o:["Texture","Heavy metals","Plastics","Odor"], a:1, e:"Batteries contain heavy metals like lead, mercury, cadmium, and lithium which can leach into soil and water."},
+  {c:"Recycling & Hazardous Waste", q:"Which form of shipment is common for transport of hazardous waste?", o:["Rail","Road","Air","Inland water"], a:1, e:"Road transport is the most common method for hazardous waste transportation due to flexibility and door-to-door service."},
+  {c:"Recycling & Hazardous Waste", q:"The Hazardous Waste Management Act, which provides the legal framework for handling such wastes in India, was enacted in:", o:["1986","1989","1995","2001"], a:0, e:"India's Hazardous Waste (Management and Handling) Rules were enacted under the Environment Protection Act, 1986."},
+  {c:"Recycling & Hazardous Waste", q:"Which of the following is not a primary characteristic of hazardous waste?", o:["Toxicity","Corrosivity","Ignitibility","Leakage"], a:3, e:"The four primary characteristics of hazardous waste are toxicity, corrosivity, ignitibility, and reactivity — not leakage."},
+  {c:"Recycling & Hazardous Waste", q:"Which of the following is not a new technology entrant delivering residual MSW treatment?", o:["Mechanical and Biological Treatment (MBT)","Mechanical Heat Treatment (MHT)","Mechanical Cooling Treatment (MCT)","Advanced Thermal Treatment (ATT)"], a:2, e:"Mechanical Cooling Treatment (MCT) is not a recognized MSW treatment technology. MBT, MHT, and ATT are all established technologies."},
+  {c:"Recycling & Hazardous Waste", q:"What is RDF in the context of Waste-to-Energy?", o:["Renewable Derived Fuel","Refuse Derived Fuel","Recyclable Derived Fuel","Reduced Derived Fuel"], a:1, e:"RDF stands for Refuse Derived Fuel — a processed solid fuel made from combustible components of MSW."},
+  {c:"Recycling & Hazardous Waste", q:"Which type of waste cannot be directly used in Waste-to-Energy plants?", o:["Hazardous chemical waste","Municipal solid waste","Non-recyclable plastics","Organic waste"], a:0, e:"Hazardous chemical waste requires specialized treatment and cannot be directly fed into standard WtE plants."},
+  {c:"Recycling & Hazardous Waste", q:"Which statement is incorrect for plastic wastes?", o:["It is used to make compost","It lasts for a longer period of time","Toxic fumes are produced when burnt","All of the above"], a:0, e:"Plastics cannot be composted — composting requires biodegradable organic material. Plastics are not biodegradable."},
+  {c:"Recycling & Hazardous Waste", q:"How Long Does a Glass bottle Take to Decompose?", o:["1 million years","450 years","600 years","6 weeks"], a:0, e:"Glass bottles take approximately 1 million years to fully decompose in nature, making them highly persistent waste."},
+
+  // ADDITIONAL QUESTIONS - COMPREHENSIVE COVERAGE
+  {c:"Waste Management Basics", q:"Which of the following method cannot be used for waste disposal?", o:["Dumping","Gasification","Incineration","Open Sea Disposal"], a:3, e:"Open sea disposal is prohibited under international law (London Protocol 1972). It cannot be legally used for waste disposal."},
+  {c:"Waste Management Basics", q:"MNRE Shows?", o:["Ministry of new renewable energy","Ministry of new resource energy","Ministry of new recovery energy","None"], a:0, e:"MNRE stands for Ministry of New and Renewable Energy — the Indian government ministry responsible for renewable energy."},
+  {c:"Biogas Technology", q:"Which biological method of disposal of MSW involves breaking down organic matter?", o:["Landfills","Composting","Shredding","None of these"], a:1, e:"Composting is a biological method that uses microorganisms to decompose organic MSW into useful compost/humus."},
+  {c:"Gasification & Pyrolysis", q:"Fermentation is a bio-chemical process primarily used to convert organic waste into:", o:["Bottom ash and slag","Electricity and heat","An acid or alcohol (e.g., ethanol, hydrogen)","Syngas and char"], a:2, e:"Fermentation converts organic waste into acids or alcohols (like ethanol) through microbial action."},
+  {c:"Incineration & Combustion", q:"The large scale (500,000 tons/year) Baku Waste-to-Energy Plant in Azerbaijan primarily uses which core WtE technology?", o:["Direct Combustion (Incineration)","Gasification","Pyrolysis","Anaerobic Digestion"], a:0, e:"The Baku WtE Plant uses direct combustion (incineration) — the most established large-scale WtE technology."},
+  {c:"Anaerobic Digestion & Biogas", q:"The Ankur Waste-to-Energy Project, an Indian case study, demonstrates the use of which technology to process MSW?", o:["Mass Burn Incineration","Gasification","Anaerobic Digestion","Plastic-to-Diesel Pyrolysis"], a:1, e:"The Ankur Project is an Indian case study of gasification technology applied to Municipal Solid Waste processing."},
+  {c:"Waste Management Basics", q:"Which of the following is NOT an environmental benefit of Waste-to-Energy?", o:["Reduces greenhouse gas emissions from landfills","Conserves land","Eliminates air pollution completely","Generates renewable energy"], a:2, e:"WtE does not completely eliminate air pollution — it reduces landfill emissions but generates its own stack emissions."},
+  {c:"Recycling & Hazardous Waste", q:"What is the main advantage of using Waste-to-Energy (WTE) systems for waste management?", o:["Decreases waste volume by converting it to energy","Increases landfill space","Recycles metals and plastics efficiently","Eliminates the need for sorting waste"], a:0, e:"The primary advantage of WTE is volume reduction — waste mass decreases by ~70-90% after thermal processing."},
+  {c:"Waste Management Basics", q:"What is the environmental benefit of waste-to-energy technologies?", o:["Reduces the need for landfill space","Increases air pollution","Reduces carbon sequestration","Increases energy consumption"], a:0, e:"WTE reduces pressure on landfill space, which is a major environmental benefit of thermal waste treatment."},
+  {c:"Municipal Solid Waste", q:"The process of converting wet waste (like food scraps) into manure using microorganisms in the presence of air is called:", o:["Incineration","Metabolism","Conservation","Composting"], a:3, e:"Composting is an aerobic biological process that converts wet organic waste into nutrient-rich manure/compost."},
+  {c:"Biogas Technology", q:"Which of the following is a hygienic way of disposing solid waste if it contains more hazardous material?", o:["Incineration","Conservation","Metabolism","Composting"], a:0, e:"Incineration at high temperatures destroys pathogens and hazardous organic compounds, making it hygienic for hazardous waste disposal."},
+  {c:"Anaerobic Digestion & Biogas", q:"The process of composting uses:", o:["Aerobic conditions","Anaerobic conditions","High pressure","Cryogenic conditions"], a:0, e:"Composting requires aerobic (oxygen-present) conditions for efficient microbial decomposition of organic matter."},
+  {c:"Recycling & Hazardous Waste", q:"Which of the following is not a solid residue of cleaning up flue gases?", o:["Fly ash","Chromium","Lime/bicarbonate","Carbon"], a:1, e:"Chromium is a heavy metal contaminant, not a typical flue gas solid residue. Fly ash, lime, and carbon are standard residues."},
+];
+
+// ==================== STATE ====================
+let currentQuestions = [];
+let currentIndex = 0;
+let score = { correct: 0, wrong: 0, skip: 0 };
+let globalScore = { correct: 0, total: 0 };
+let answered = false;
+let timerInterval = null;
+let timeLeft = 0;
+let timedMode = false;
+let bookmarks = JSON.parse(localStorage.getItem('wte_bookmarks') || '[]');
+let wrongQuestions = JSON.parse(localStorage.getItem('wte_wrong') || '[]');
+let lastQuizConfig = null;
+
+const CATEGORIES = [...new Set(QUESTIONS.map(q => q.c))];
+
+// ==================== NAV ====================
+function showScreen(name) {
+  ['home-screen','quiz-screen','result-screen','study-screen'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const map = {home:'home-screen',quiz:'quiz-screen',study:'study-screen'};
+  if(map[name]) {
+    document.getElementById(map[name]).style.display = 'block';
+  }
+  const tabMap = {home:0,quiz:1,study:2};
+  document.querySelectorAll('.nav-tab')[tabMap[name] ?? 0]?.classList.add('active');
+
+  if(name === 'study') buildStudyGuide();
+  if(name === 'home') buildChapterBtns();
+}
+
+// ==================== HOME ====================
+function buildChapterBtns() {
+  const el = document.getElementById('chapter-btns');
+  el.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const count = QUESTIONS.filter(q => q.c === cat).length;
+    el.innerHTML += `<div class="mode-card" onclick="startQuiz('${cat}',${count})">
+      <div class="mode-icon">📖</div>
+      <h3>${cat}</h3>
+      <p>${count} questions in this chapter.</p>
+      <span class="tag">${count} Qs</span>
+    </div>`;
+  });
+}
+
+function showChapterSelect() {
+  const el = document.getElementById('chapter-select');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  buildChapterBtns();
+}
+
+// ==================== QUIZ ====================
+function startQuiz(category, count, all=false, questions=null) {
+  if(timerInterval) clearInterval(timerInterval);
+  score = {correct:0, wrong:0, skip:0};
+  answered = false;
+
+  let pool = questions || (category === 'all' ? [...QUESTIONS] : QUESTIONS.filter(q => q.c === category));
+  shuffle(pool);
+  currentQuestions = all ? pool : pool.slice(0, Math.min(count, pool.length));
+  currentIndex = 0;
+  lastQuizConfig = {category, count, all};
+
+  timedMode = (count >= 50 && !all);
+  if(timedMode) {
+    timeLeft = 3600;
+    document.getElementById('timer').style.display = 'block';
+    startTimer();
+  } else {
+    document.getElementById('timer').style.display = 'none';
+  }
+
+  showScreen('quiz');
+  document.querySelectorAll('.nav-tab')[1].classList.add('active');
+  renderQuestion();
+}
+
+function startBookmarked() {
+  const bqs = QUESTIONS.filter(q => bookmarks.includes(getQId(q)));
+  if(!bqs.length){ showToast('No bookmarks yet! ☆ mark questions during quiz.'); return; }
+  startQuiz('bookmarked', bqs.length, true, bqs);
+}
+
+function startWrong() {
+  const wqs = QUESTIONS.filter(q => wrongQuestions.includes(getQId(q)));
+  if(!wqs.length){ showToast('No wrong answers recorded yet!'); return; }
+  startQuiz('wrong', wqs.length, true, wqs);
+}
+
+function getQId(q) { return q.q.substring(0,30); }
+
+function renderQuestion() {
+  const q = currentQuestions[currentIndex];
+  if(!q) { endQuiz(); return; }
+
+  answered = false;
+  document.getElementById('q-num').textContent = currentIndex + 1;
+  document.getElementById('q-total').textContent = currentQuestions.length;
+  document.getElementById('q-category').textContent = q.c;
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('q-number-label').textContent = `Q.${String(currentIndex+1).padStart(2,'0')}`;
+  document.getElementById('next-btn').disabled = true;
+  document.getElementById('explanation-box').style.display = 'none';
+  const inlineAd = document.getElementById('quiz-inline-ad');
+  if(inlineAd) inlineAd.style.display = 'none';
+
+  const prog = ((currentIndex) / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = prog + '%';
+
+  const qid = getQId(q);
+  const bk = document.getElementById('bookmark-btn');
+  bk.textContent = bookmarks.includes(qid) ? '★' : '☆';
+  bk.className = 'bookmark-btn' + (bookmarks.includes(qid) ? ' bookmarked' : '');
+
+  const opts = document.getElementById('options-container');
+  opts.innerHTML = '';
+  const labels = ['A','B','C','D'];
+  q.o.forEach((opt, i) => {
+    opts.innerHTML += `<button class="option-btn" id="opt-${i}" onclick="selectAnswer(${i})">
+      <span class="opt-label">${labels[i]}</span>
+      <span>${opt}</span>
+    </button>`;
+  });
+}
+
+function selectAnswer(idx) {
+  if(answered) return;
+  answered = true;
+  const q = currentQuestions[currentIndex];
+  const correct = q.a;
+
+  document.querySelectorAll('.option-btn').forEach((btn,i) => {
+    btn.disabled = true;
+    if(i === correct) btn.classList.add('correct');
+    if(i === idx && idx !== correct) btn.classList.add('wrong');
+  });
+
+  if(idx === correct) {
+    score.correct++;
+    globalScore.correct++;
+  } else {
+    score.wrong++;
+    const qid = getQId(q);
+    if(!wrongQuestions.includes(qid)) {
+      wrongQuestions.push(qid);
+      localStorage.setItem('wte_wrong', JSON.stringify(wrongQuestions));
+    }
+  }
+  globalScore.total++;
+  updateGlobalScore();
+
+  if(q.e) {
+    const eb = document.getElementById('explanation-box');
+    eb.innerHTML = `<strong>💡 EXPLANATION:</strong><br>${q.e}`;
+    eb.style.display = 'block';
+  }
+
+  document.getElementById('next-btn').disabled = false;
+  maybeShowInlineAd();
+}
+
+function skipQuestion() {
+  score.skip++;
+  currentIndex++;
+  if(currentIndex >= currentQuestions.length) endQuiz();
+  else renderQuestion();
+}
+
+function nextQuestion() {
+  if(!answered) return;
+  currentIndex++;
+  if(currentIndex >= currentQuestions.length) endQuiz();
+  else renderQuestion();
+}
+
+function endQuiz() {
+  if(timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  const total = score.correct + score.wrong + score.skip;
+  const pct = total > 0 ? Math.round((score.correct/total)*100) : 0;
+
+  document.getElementById('result-percent').textContent = pct + '%';
+  document.getElementById('res-correct').textContent = score.correct;
+  document.getElementById('res-wrong').textContent = score.wrong;
+  document.getElementById('res-skip').textContent = score.skip;
+
+  let grade = 'Keep Practicing!';
+  if(pct >= 90) grade = '🏆 Excellent! You\'re ready for the exam!';
+  else if(pct >= 75) grade = '✅ Good job! Review weak areas.';
+  else if(pct >= 60) grade = '📚 Average. Study more chapter notes.';
+  else grade = '❌ Needs more work. Use Study Guide!';
+  document.getElementById('result-grade').textContent = grade;
+
+  ['home-screen','quiz-screen','study-screen'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('result-screen').style.display = 'block';
+}
+
+function retryQuiz() {
+  if(lastQuizConfig) startQuiz(lastQuizConfig.category, lastQuizConfig.count, lastQuizConfig.all);
+}
+
+// ==================== TIMER ====================
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const m = Math.floor(timeLeft/60);
+    const s = timeLeft % 60;
+    const el = document.getElementById('timer');
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(timeLeft <= 60) el.classList.add('urgent');
+    if(timeLeft <= 0) { clearInterval(timerInterval); endQuiz(); }
+  }, 1000);
+}
+
+// ==================== BOOKMARK ====================
+function toggleBookmark() {
+  const q = currentQuestions[currentIndex];
+  if(!q) return;
+  const qid = getQId(q);
+  const idx = bookmarks.indexOf(qid);
+  if(idx === -1) {
+    bookmarks.push(qid);
+    document.getElementById('bookmark-btn').textContent = '★';
+    document.getElementById('bookmark-btn').className = 'bookmark-btn bookmarked';
+    showToast('Bookmarked! ★');
+  } else {
+    bookmarks.splice(idx,1);
+    document.getElementById('bookmark-btn').textContent = '☆';
+    document.getElementById('bookmark-btn').className = 'bookmark-btn';
+    showToast('Bookmark removed');
+  }
+  localStorage.setItem('wte_bookmarks', JSON.stringify(bookmarks));
+}
+
+// ==================== SCORE ====================
+function updateGlobalScore() {
+  document.getElementById('global-score').textContent = `SCORE: ${globalScore.correct}/${globalScore.total}`;
+}
+
+// ==================== STUDY GUIDE ====================
+const STUDY_DATA = [
+  {
+    title: "Chapter 1: Waste Management Fundamentals",
+    topics: [
+      { head: "Waste Hierarchy (Most to Least Preferred)", points: [
+        "<strong>Prevention</strong> → Minimization → Reuse → Recycling → Energy Recovery → Disposal",
+        "<strong>3R Principle:</strong> Reduce, Reuse, Recycle",
+        "ISWM = <strong>Integrated Solid Waste Management</strong>",
+        "Per capita waste in small Indian towns: <strong>100-200 gms/day</strong>",
+        "Athens was the <strong>first city</strong> to establish organized waste removal"
+      ]},
+      { head: "Key Facts", points: [
+        "Most disposable wastes are in the <strong>form of solids</strong>",
+        "Zero waste management features: source separation + separate collection + community involvement",
+        "Source reduction is done at the <strong>individual level</strong>"
+      ]}
+    ],
+    facts: [
+      {label: "PYQ FACT", text: "ISWM = Integrated Solid Waste Management (NOT International or Machine)"},
+      {label: "PYQ FACT", text: "The integrated waste management plan is used for disposal of solid waste from cities"}
+    ]
+  },
+  {
+    title: "Chapter 2: Municipal Solid Waste (MSW)",
+    topics: [
+      { head: "MSW Classification", points: [
+        "MSW = <strong>Non-hazardous</strong>, Non-toxic everyday waste (food, plastic, wood)",
+        "Hospital waste = <strong>Hazardous</strong>",
+        "Agricultural waste = food scraps, rice husks, cotton stalks, animal excreta",
+        "Medical waste = bandages, gloves, sharps from hospitals",
+        "Cotton mill waste = <strong>Hazardous</strong>"
+      ]},
+      { head: "Energy Content (Calorific Values)", points: [
+        "<strong>Plastics:</strong> ~35 MJ/kg (highest)",
+        "<strong>Organic material:</strong> ~4 MJ/kg (lowest, high moisture)",
+        "WtE incineration viable only if NCV ≥ <strong>7 MJ/kg</strong>",
+        "Density of ash produced in MSW = <strong>700 kg/m³</strong>"
+      ]}
+    ],
+    facts: [
+      {label: "PYQ FACT", text: "MSW includes: Food wastes + Wood pieces + Plastic cans = All of the above"},
+      {label: "PYQ FACT", text: "Bacteria decompose food waste (organic matter) — not ashes, rubbish, or radioactive substances"}
+    ]
+  },
+  {
+    title: "Chapter 3: Landfills",
+    topics: [
+      { head: "Landfill Types & Gas", points: [
+        "<strong>3 types</strong> of landfills: MSW, Industrial, Hazardous",
+        "Primary gas: <strong>Methane (CH4)</strong> — used for energy production",
+        "Landfill Gas (LFG): ~<strong>50% CH4 + 50% CO2</strong>",
+        "Organic matter decomposes by action of <strong>microorganisms</strong> (not water/soil/oxidation)",
+        "Landfilling = waste dumped in soil"
+      ]},
+      { head: "Landfilling Methods", points: [
+        "Methods: <strong>Area Method, Trench Method, Bangalore Method</strong>",
+        "Depression Method is NOT a landfilling method",
+        "Landfill is the simplest and most common disposal method in cities"
+      ]}
+    ],
+    facts: [
+      {label: "PYQ FACT", text: "Landfill gas can be used as: Biogas + Natural gas + LPG = All of the above"},
+      {label: "PYQ FACT", text: "Chromium is NOT a solid residue of flue gas clean-up (Fly ash, Lime, Carbon are residues)"}
+    ]
+  },
+  {
+    title: "Chapter 4: Incineration & Combustion",
+    topics: [
+      { head: "Incineration Process", points: [
+        "= Burning MSW in a designed furnace at <strong>high temperature</strong>",
+        "Optimum temperature: <strong>900–1100°C</strong>",
+        "Mass burn: Burning all waste without pre-sorting at >200°C",
+        "Volume reduction: Up to <strong>90%</strong>",
+        "Primary residue: <strong>Bottom Ash</strong>",
+        "Combustion = Complete oxidation with <strong>excess air</strong>"
+      ]},
+      { head: "Environmental Concerns", points: [
+        "Main concern: <strong>Release of dioxins, furans, particulate matter</strong>",
+        "WTE efficiency: <strong>20-30%</strong> (electrical), up to 30-40% (total)",
+        "WTE leader: <strong>Sweden</strong>",
+        "NOT a benefit: Eliminates air pollution completely (WTE still produces emissions)"
+      ]}
+    ],
+    facts: [
+      {label: "PYQ FACT", text: "Incineration is hygienic for hazardous + organic waste (destroys pathogens at high temp)"},
+      {label: "PYQ FACT", text: "Open Sea Disposal CANNOT be used — banned internationally under London Protocol"}
+    ]
+  },
+  {
+    title: "Chapter 5: Gasification & Pyrolysis",
+    topics: [
+      { head: "Process Comparison", points: [
+        "<strong>Combustion:</strong> Complete oxidation + excess air → CO₂ + H₂O",
+        "<strong>Gasification:</strong> Partial oxidation + limited air → Syngas (CO + H₂)",
+        "<strong>Pyrolysis:</strong> Thermal decomposition + NO air (500-800°C) → Char + Oil + Syngas",
+        "Pyrolysis byproducts: <strong>Char (solid), Tar/Crude oil (liquid), Syngas (gas)</strong>",
+        "Syngas = Carbon Monoxide + Hydrogen"
+      ]},
+      { head: "Special Processes", points: [
+        "Transesterification = Fat/oil + alcohol + catalyst → <strong>Biodiesel</strong>",
+        "Base catalyst used: <strong>NaOH (Sodium Hydroxide)</strong>",
+        "Biodiesel by-product: <strong>Crude glycerol</strong>",
+        "Plastic-to-liquid fuel: <strong>Pyrolysis</strong> (Mexico case study → Diesel)",
+        "Non-recyclable plastic → liquid fuel: <strong>Pyrolysis</strong>"
+      ]}
+    ],
+    facts: [
+      {label: "PYQ FACT", text: "Pyrolysis: 500-800°C, ABSENCE of air (anaerobic thermal process)"},
+      {label: "PYQ FACT", text: "Gasification primary product = Syngas (CO + H₂) — NOT biogas"}
+    ]
+  },
+  {
+    title: "Chapter 6: Anaerobic Digestion",
+    topics: [
+      { head: "AD Process Overview", points: [
+        "AD = Breakdown of organic matter in <strong>absence of oxygen</strong>",
+        "Operates best on: <strong>Organic waste</strong> (food, agricultural, sewage)",
+        "Main products: <strong>Biogas + Digestate (bio-manure)</strong>",
+        "4 Stages: <strong>Hydrolysis → Acidogenesis → Acetogenesis → Methanogenesis</strong>",
+        "Methanogens are key archaea that produce methane"
+      ]},
+      { head: "Temperature Ranges", points: [
+        "<strong>Mesophilic:</strong> 25-45°C (most common for household plants)",
+        "<strong>Thermophilic:</strong> 50-60°C (faster but needs more energy)",
+        "Optimum for mesophilic bacteria: <strong>30-38°C</strong>",
+        "Poor feedstocks: <strong>Fiber-rich wastes</strong> (wood, leaves) — hard to digest"
+      ]}
+    ],
+    facts: [
+      {label: "PYQ FACT", text: "Composting is AEROBIC; Anaerobic Digestion is ANAEROBIC — opposite conditions!"},
+      {label: "PYQ FACT", text: "AD best treats: Organic waste (NOT paper, e-waste, or metal waste)"}
+    ]
+  },
+  {
+    title: "Chapter 7: Biogas Technology",
+    topics: [
+      { head: "Biogas Composition & Energy", points: [
+        "Biogas = ~<strong>60% CH4 + 35% CO2</strong> + traces",
+        "<strong>1 m³ biogas = 4700 kCal</strong> energy",
+        "<strong>1 m³ biogas = 0.43 kg LPG</strong>",
+        "<strong>1 m³ biogas = 0.60 litres Kerosene</strong>",
+        "<strong>1 m³ biogas → 16-17 kWh electricity</strong>",
+        "<strong>10 m³ biogas → 100-120 kWh electricity</strong>"
+      ]},
+      { head: "Biogas Plant Types & Facts", points: [
+        "<strong>Deenbandhu Model:</strong> Fixed dome, brick masonry/ferro-cement",
+        "<strong>KVIC Model:</strong> Floating dome, steel gas holder",
+        "2m³ plant needs: <strong>50 kg wet cattle dung/day</strong>",
+        "H₂S = toxic, corrosive, <strong>rotten egg smell</strong> in raw biogas",
+        "Explosive range: <strong>5-15% methane in air</strong>",
+        "Digestate N₂ content: <strong>1.5-2.5%</strong> (better than raw dung)",
+        "NBMMP = National Biogas and <strong>Manure</strong> Management Programme",
+        "CHP = Combined <strong>Heat and Power</strong>"
+      ]}
+    ],
+    facts: [
+      {label: "PYQ FACT", text: "1 m³ Biogas = 4700 kCal = 0.43 kg LPG = 0.60 L Kerosene → Memorize all three!"},
+      {label: "PYQ FACT", text: "Deenbandhu = Fixed Dome | KVIC = Floating Dome"}
+    ]
+  },
+  {
+    title: "Chapter 8: Recycling & Hazardous Waste",
+    topics: [
+      { head: "Recycling Facts", points: [
+        "<strong>Aluminium</strong> can be recycled many times (indefinitely)",
+        "Plastics difficult to recycle due to: <strong>different polymer resin types</strong>",
+        "Recycled paper banned in food containers: <strong>creates contamination</strong>",
+        "Plastics are NOT compostable",
+        "Glass decomposes in: <strong>1 million years</strong>"
+      ]},
+      { head: "Hazardous Waste", points: [
+        "4 characteristics: <strong>Toxicity, Corrosivity, Ignitibility, Reactivity</strong>",
+        "'Leakage' is NOT a standard hazardous waste characteristic",
+        "Battery mismanagement harmful due to: <strong>heavy metals</strong>",
+        "Most common hazardous waste transport: <strong>Road</strong>",
+        "India's HW Act: <strong>1986</strong> (Environment Protection Act)",
+        "RDF = <strong>Refuse Derived Fuel</strong>",
+        "MCT (Mechanical Cooling Treatment) = NOT a real MSW tech"
+      ]}
+    ],
+    facts: [
+      {label: "PYQ FACT", text: "4 RCRA hazardous characteristics: TCIR → Toxicity, Corrosivity, Ignitibility, Reactivity"},
+      {label: "PYQ FACT", text: "Sweden = Global WTE leader | Baku Plant = Incineration | Ankur Project = Gasification"}
+    ]
+  }
+];
+
+function buildStudyGuide() {
+  const el = document.getElementById('study-content');
+  if(el.innerHTML !== '') return;
+  el.innerHTML = STUDY_DATA.map((ch, i) => `
+    <div class="chapter-card">
+      <div class="chapter-header" onclick="toggleChapter(${i})">
+        <div class="chapter-title">${ch.title}</div>
+        <div class="chapter-toggle" id="toggle-${i}">+</div>
+      </div>
+      <div class="chapter-body" id="body-${i}">
+        ${ch.topics.map(t => `
+          <div class="study-topic">
+            <h4>${t.head}</h4>
+            <ul>${t.points.map(p => `<li>${p}</li>`).join('')}</ul>
+          </div>
+        `).join('')}
+        ${ch.facts.map(f => `
+          <div class="key-fact">
+            <span class="label">${f.label}</span>
+            ${f.text}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleChapter(i) {
+  const body = document.getElementById(`body-${i}`);
+  const toggle = document.getElementById(`toggle-${i}`);
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+// ==================== UTILS ====================
+function shuffle(arr) {
+  for(let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Show inline ad every 5 questions when answer revealed
+function maybeShowInlineAd() {
+  const ad = document.getElementById('quiz-inline-ad');
+  if (!ad) return;
+  // Show on every 5th question (q index 4, 9, 14...)
+  const shouldShow = (currentIndex > 0 && currentIndex % 5 === 4);
+  ad.style.display = shouldShow ? 'flex' : 'none';
+}
+
+// Init
+buildChapterBtns();
+updateGlobalScore();
+</script>
+</body>
+</html>
