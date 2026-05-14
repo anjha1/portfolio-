@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FullStack Exam Portal — Node.js & Express</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0d0f14;
+  --surface: #141720;
+  --surface2: #1c2130;
+  --border: #2a3045;
+  --accent: #5b9bd5;
+  --accent2: #7ec8a4;
+  --accent3: #f0a04b;
+  --danger: #e05c5c;
+  --text: #e8eaf2;
+  --text-muted: #7a849e;
+  --code-bg: #0a0c10;
+  --tab-active: #5b9bd5;
+  --correct: #2ecc71;
+  --wrong: #e74c3c;
+  --js-color: #f7df1e;
+  --html-color: #e34c26;
+  --json-color: #5b9bd5;
+}
+.light {
+  --bg: #f0f2f8;
+  --surface: #ffffff;
+  --surface2: #e8ebf4;
+  --border: #c8d0e4;
+  --accent: #3a78c9;
+  --accent2: #27ae60;
+  --accent3: #e67e22;
+  --danger: #c0392b;
+  --text: #1a1e2e;
+  --text-muted: #5a6480;
+  --code-bg: #1a1e2e;
+  --tab-active: #3a78c9;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+code,pre,kbd,.mono{font-family:'JetBrains Mono',monospace;}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);}
+.logo{font-size:1.2rem;font-weight:800;letter-spacing:-.5px;}
+.logo span{color:var(--accent);}
+.header-right{display:flex;align-items:center;gap:12px;}
+.theme-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:.85rem;transition:all .2s;}
+.theme-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.progress-badge{background:var(--surface2);border:1px solid var(--border);padding:6px 14px;border-radius:8px;font-size:.85rem;color:var(--text-muted);}
+.progress-badge span{color:var(--accent2);font-weight:700;}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 61px);}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:16px;overflow-y:auto;max-height:calc(100vh - 61px);position:sticky;top:61px;}
+.sidebar-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:12px;}
+.q-list{display:flex;flex-direction:column;gap:4px;}
+.q-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .2s;font-size:.88rem;}
+.q-item:hover{background:var(--surface2);border-color:var(--border);}
+.q-item.active{background:color-mix(in srgb,var(--accent) 15%,transparent);border-color:var(--accent);}
+.q-item.solved{border-left:3px solid var(--correct);}
+.q-num{width:26px;height:26px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;}
+.q-item.active .q-num{background:var(--accent);color:#fff;}
+.q-item.solved .q-num{background:var(--correct);color:#fff;}
+.q-label{line-height:1.3;color:var(--text-muted);}
+.q-item.active .q-label{color:var(--text);}
+
+/* ── MAIN ── */
+.main{padding:24px;overflow-y:auto;}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+.q-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;}
+.q-title{font-size:1.3rem;font-weight:800;}
+.marks-badge{background:var(--accent3);color:#1a1000;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:700;white-space:nowrap;}
+.type-badge{display:inline-block;background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);border:1px solid var(--accent);padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600;margin-bottom:12px;}
+.q-desc{color:var(--text-muted);line-height:1.7;font-size:.95rem;}
+.q-desc strong{color:var(--text);}
+
+/* ── CODE TABS ── */
+.code-section{margin-top:20px;}
+.section-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px;}
+.code-tabs{display:flex;gap:6px;margin-bottom:0;border-bottom:1px solid var(--border);}
+.code-tab{padding:8px 16px;border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;font-weight:600;background:var(--surface2);color:var(--text-muted);transition:all .2s;display:flex;align-items:center;gap:6px;}
+.code-tab:hover{color:var(--text);}
+.code-tab.active{background:var(--code-bg);color:var(--text);border-color:var(--border);}
+.code-tab .dot{width:8px;height:8px;border-radius:50%;}
+.dot-js{background:var(--js-color);}
+.dot-html{background:var(--html-color);}
+.dot-json{background:var(--json-color);}
+.code-pane{display:none;background:var(--code-bg);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;position:relative;}
+.code-pane.active{display:block;}
+.copy-btn{position:absolute;top:10px;right:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:.75rem;font-family:inherit;transition:all .2s;z-index:2;}
+.copy-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+pre{padding:20px;overflow-x:auto;font-size:.82rem;line-height:1.7;color:#abb2bf;}
+
+/* Syntax Colors */
+.kw{color:#c678dd;}
+.str{color:#98c379;}
+.fn{color:#61afef;}
+.num{color:#d19a66;}
+.cm{color:#5c6370;font-style:italic;}
+.op{color:#56b6c2;}
+.tag{color:#e06c75;}
+.attr{color:#d19a66;}
+.val{color:#98c379;}
+.key{color:#e06c75;}
+
+/* ── PREVIEW SECTION ── */
+.preview-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+.preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.preview-title{font-size:1rem;font-weight:700;}
+.run-btn{background:var(--accent);color:#fff;border:none;padding:9px 20px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;font-size:.88rem;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.run-btn:hover{background:color-mix(in srgb,var(--accent) 80%,#fff);}
+.run-btn:active{transform:scale(.97);}
+.sim-container{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;min-height:120px;}
+.sim-table{width:100%;border-collapse:collapse;font-size:.88rem;}
+.sim-table th{background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);padding:10px 14px;text-align:left;border:1px solid var(--border);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;}
+.sim-table td{padding:9px 14px;border:1px solid var(--border);color:var(--text-muted);}
+.sim-table tr:nth-child(even) td{background:var(--surface2);}
+.sim-table tr:hover td{color:var(--text);}
+.sim-output{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent2);}
+.sim-empty{color:var(--text-muted);font-size:.9rem;text-align:center;padding:30px;}
+.sim-btn{background:var(--accent);color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;font-size:.88rem;margin-bottom:14px;}
+
+/* ── NAV ── */
+.nav-bar{display:flex;gap:10px;margin-bottom:24px;}
+.nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:9px 20px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:.88rem;transition:all .2s;}
+.nav-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.nav-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── OVERVIEW ── */
+.overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-bottom:24px;}
+.ov-item{aspect-ratio:1;border-radius:8px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;background:var(--surface);}
+.ov-item:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);}
+.ov-item.current{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 20%,transparent);}
+.ov-item.solved{border-color:var(--correct);background:color-mix(in srgb,var(--correct) 15%,transparent);}
+.ov-num{font-size:1rem;font-weight:800;}
+.ov-label{font-size:.65rem;color:var(--text-muted);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+}
+
+/* ── CODE EDITOR SECTION ── */
+.editor-section{margin-top:20px;}
+.editor-tabs{display:flex;gap:6px;margin-bottom:0;border-bottom:1px solid var(--border);}
+.editor-tab{padding:8px 16px;border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;font-weight:600;background:var(--surface2);color:var(--text-muted);transition:all .2s;display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;}
+.editor-tab:hover{color:var(--text);}
+.editor-tab.active{background:var(--code-bg);color:var(--text);border-color:var(--border);}
+.editor-pane{display:none;background:var(--code-bg);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;position:relative;}
+.editor-pane.active{display:block;}
+.code-editor{width:100%;min-height:220px;background:transparent;border:none;outline:none;color:#abb2bf;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;padding:20px;resize:vertical;box-sizing:border-box;tab-size:2;}
+.code-editor::placeholder{color:#5c6370;}
+.editor-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);border-radius:0;}
+.editor-file-label{font-size:.75rem;font-family:'JetBrains Mono',monospace;color:var(--text-muted);}
+.editor-actions{display:flex;gap:8px;}
+.btn-run{background:var(--accent2);color:#fff;border:none;padding:7px 18px;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:700;font-size:.82rem;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.btn-run:hover{opacity:.85;transform:scale(.98);}
+.btn-solution{background:var(--accent3);color:#1a1000;border:none;padding:7px 18px;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:700;font-size:.82rem;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.btn-solution:hover{opacity:.85;transform:scale(.98);}
+.btn-clear{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);padding:7px 14px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:.82rem;transition:all .2s;}
+.btn-clear:hover{border-color:var(--danger);color:var(--danger);}
+.missing-hint{background:color-mix(in srgb,var(--accent3) 12%,transparent);border:1px dashed var(--accent3);border-radius:8px;padding:10px 14px;margin:10px 20px;font-size:.8rem;color:var(--accent3);font-family:'JetBrains Mono',monospace;}
+.solution-revealed{border:1px solid var(--accent2);border-radius:8px;margin:8px;overflow:hidden;}
+.solution-revealed pre{margin:0;padding:16px;font-size:.8rem;}
+.run-result-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;margin-top:10px;font-size:.85rem;font-weight:600;}
+.run-result-bar.success{background:color-mix(in srgb,var(--correct) 15%,transparent);color:var(--correct);border:1px solid color-mix(in srgb,var(--correct) 40%,transparent);}
+.run-result-bar.info{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">FullStack <span>Exam</span> Portal</div>
+  <div class="header-right">
+    <div class="progress-badge">Solved: <span id="solvedCount">0</span>/30</div>
+    <button class="theme-btn" onclick="toggleTheme()">☀ Light / 🌙 Dark</button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Questions</div>
+    <div class="q-list" id="qList"></div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="mainContent">
+    <div class="nav-bar">
+      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">← Previous</button>
+      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">Next →</button>
+    </div>
+    <div id="questionArea"></div>
+  </main>
+</div>
+
+<script type="application/json" id="qFilesData">
+[{"id": 1, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\n<span class=\"kw\">const</span> PORT <span class=\"op\">=</span> <span class=\"num\">3000</span>;\n\n<span class=\"cm\">// Middleware — do not remove</span>\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">json</span>());\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\n\n<span class=\"kw\">const</span> students <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\n\n<span class=\"cm\">// Write your API routes below this line</span>\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> {\n  res.<span class=\"fn\">send</span>(students);\n});\n\napp.<span class=\"fn\">listen</span>(PORT, () <span class=\"op\">=></span> {\n  console.<span class=\"fn\">log</span>(<span class=\"str\">'Server running on http://localhost:'</span> <span class=\"op\">+</span> PORT);\n});", "html": "<span class=\"tag\">&lt;!DOCTYPE html&gt;</span>\n<span class=\"tag\">&lt;html</span> <span class=\"attr\">lang</span><span class=\"op\">=</span><span class=\"val\">\"en\"</span><span class=\"tag\">&gt;</span>\n<span class=\"tag\">&lt;head&gt;</span>\n  <span class=\"tag\">&lt;meta</span> <span class=\"attr\">charset</span><span class=\"op\">=</span><span class=\"val\">\"UTF-8\"</span><span class=\"tag\">/&gt;</span>\n  <span class=\"tag\">&lt;title&gt;</span>Exam<span class=\"tag\">&lt;/title&gt;</span>\n  <span class=\"tag\">&lt;style&gt;</span>\n    body { font-family: Arial; padding: 20px; }\n    table { border-collapse: collapse; width: 100%; }\n    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }\n    th { background: #f5f5f5; }\n  <span class=\"tag\">&lt;/style&gt;</span>\n<span class=\"tag\">&lt;/head&gt;</span>\n<span class=\"tag\">&lt;body&gt;</span>\n  <span class=\"tag\">&lt;h1&gt;</span>Student Details<span class=\"tag\">&lt;/h1&gt;</span>\n  <span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getStudents()\"</span><span class=\"tag\">&gt;</span>Show Students<span class=\"tag\">&lt;/button&gt;</span>\n  <span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"studentTable\"</span><span class=\"tag\">&gt;</span>\n    <span class=\"tag\">&lt;thead&gt;&lt;tr&gt;</span>\n      <span class=\"tag\">&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Course<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Year<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Email<span class=\"tag\">&lt;/th&gt;</span>\n    <span class=\"tag\">&lt;/tr&gt;&lt;/thead&gt;</span>\n    <span class=\"tag\">&lt;tbody&gt;&lt;/tbody&gt;</span>\n  <span class=\"tag\">&lt;/table&gt;</span>\n  <span class=\"tag\">&lt;script&gt;</span>\n    <span class=\"kw\">async function</span> <span class=\"fn\">getStudents</span>() {\n      <span class=\"kw\">const</span> res <span class=\"op\">=</span> <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/students'</span>);\n      <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> res.<span class=\"fn\">json</span>();\n      <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#studentTable tbody'</span>);\n      tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n      data.<span class=\"fn\">forEach</span>(s <span class=\"op\">=></span> {\n        tb.innerHTML <span class=\"op\">+=</span> <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${s.id}&lt;/td&gt;&lt;td&gt;\\${s.name}&lt;/td&gt;&lt;td&gt;\\${s.course}&lt;/td&gt;&lt;td&gt;\\${s.year}&lt;/td&gt;&lt;td&gt;\\${s.email}&lt;/td&gt;&lt;/tr&gt;\\`</span>;\n      });\n    }\n  <span class=\"tag\">&lt;/script&gt;</span>\n<span class=\"tag\">&lt;/body&gt;&lt;/html&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>: <span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>: <span class=\"str\">\"Aarav Sharma\"</span>, <span class=\"key\">\"course\"</span>: <span class=\"str\">\"B.Tech CSE\"</span>, <span class=\"key\">\"year\"</span>: <span class=\"num\">2</span>, <span class=\"key\">\"email\"</span>: <span class=\"str\">\"aarav@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>: <span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>: <span class=\"str\">\"Priya Verma\"</span>, <span class=\"key\">\"course\"</span>: <span class=\"str\">\"B.Tech IT\"</span>, <span class=\"key\">\"year\"</span>: <span class=\"num\">3</span>, <span class=\"key\">\"email\"</span>: <span class=\"str\">\"priya@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>: <span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>: <span class=\"str\">\"Rohan Mehta\"</span>, <span class=\"key\">\"course\"</span>: <span class=\"str\">\"BCA\"</span>, <span class=\"key\">\"year\"</span>: <span class=\"num\">1</span>, <span class=\"key\">\"email\"</span>: <span class=\"str\">\"rohan@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>: <span class=\"num\">4</span>, <span class=\"key\">\"name\"</span>: <span class=\"str\">\"Sneha Gupta\"</span>, <span class=\"key\">\"course\"</span>: <span class=\"str\">\"MCA\"</span>, <span class=\"key\">\"year\"</span>: <span class=\"num\">2</span>, <span class=\"key\">\"email\"</span>: <span class=\"str\">\"sneha@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>: <span class=\"num\">5</span>, <span class=\"key\">\"name\"</span>: <span class=\"str\">\"Aditya Singh\"</span>, <span class=\"key\">\"course\"</span>: <span class=\"str\">\"B.Tech CSE\"</span>, <span class=\"key\">\"year\"</span>: <span class=\"num\">4</span>, <span class=\"key\">\"email\"</span>: <span class=\"str\">\"aditya@example.com\"</span> }\n]"}}, {"id": 2, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\n<span class=\"kw\">const</span> PORT <span class=\"op\">=</span> <span class=\"num\">3000</span>;\n\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">json</span>());\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\n\n<span class=\"kw\">const</span> products <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\n\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/products'</span>, (req, res) <span class=\"op\">=></span> {\n  res.<span class=\"fn\">send</span>(products);\n});\n\napp.<span class=\"fn\">listen</span>(PORT, () <span class=\"op\">=></span> console.<span class=\"fn\">log</span>(<span class=\"str\">\\`Server on http://localhost:\\${PORT}\\`</span>));", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getProducts()\"</span><span class=\"tag\">&gt;</span>Show Products<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"productTable\"</span><span class=\"tag\">&gt;</span>\n  <span class=\"tag\">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Category<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Price<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Stock<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>\n  <span class=\"tag\">&lt;tbody&gt;&lt;/tbody&gt;</span>\n<span class=\"tag\">&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getProducts</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/products'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#productTable tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(p <span class=\"op\">=></span> tb.innerHTML <span class=\"op\">+=</span> <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${p.id}&lt;/td&gt;&lt;td&gt;\\${p.name}&lt;/td&gt;&lt;td&gt;\\${p.category}&lt;/td&gt;&lt;td&gt;₹\\${p.price}&lt;/td&gt;&lt;td&gt;\\${p.stock}&lt;/td&gt;&lt;/tr&gt;\\`</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Laptop\"</span>, <span class=\"key\">\"category\"</span>:<span class=\"str\">\"Electronics\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">45000</span>, <span class=\"key\">\"stock\"</span>:<span class=\"num\">10</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Mouse\"</span>, <span class=\"key\">\"category\"</span>:<span class=\"str\">\"Accessories\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">599</span>, <span class=\"key\">\"stock\"</span>:<span class=\"num\">50</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Keyboard\"</span>, <span class=\"key\">\"category\"</span>:<span class=\"str\">\"Accessories\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">999</span>, <span class=\"key\">\"stock\"</span>:<span class=\"num\">30</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Monitor\"</span>, <span class=\"key\">\"category\"</span>:<span class=\"str\">\"Electronics\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">12000</span>, <span class=\"key\">\"stock\"</span>:<span class=\"num\">8</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">5</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Headphones\"</span>, <span class=\"key\">\"category\"</span>:<span class=\"str\">\"Audio\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">2499</span>, <span class=\"key\">\"stock\"</span>:<span class=\"num\">25</span> }\n]"}}, {"id": 3, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\n<span class=\"kw\">const</span> PORT <span class=\"op\">=</span> <span class=\"num\">3000</span>;\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">json</span>());\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\n<span class=\"kw\">const</span> employees <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/employees'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">send</span>(employees));\napp.<span class=\"fn\">listen</span>(PORT, () <span class=\"op\">=></span> console.<span class=\"fn\">log</span>(<span class=\"str\">'Server on port 3000'</span>));", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getEmployees()\"</span><span class=\"tag\">&gt;</span>Show Employees<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"empTable\"</span><span class=\"tag\">&gt;</span>\n  <span class=\"tag\">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Department<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Salary<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>City<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>\n  <span class=\"tag\">&lt;tbody&gt;&lt;/tbody&gt;</span>\n<span class=\"tag\">&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getEmployees</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/employees'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#empTable tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(e <span class=\"op\">=></span> tb.innerHTML <span class=\"op\">+=</span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${e.id}&lt;/td&gt;&lt;td&gt;\\${e.name}&lt;/td&gt;&lt;td&gt;\\${e.department}&lt;/td&gt;&lt;td&gt;₹\\${e.salary}&lt;/td&gt;&lt;td&gt;\\${e.city}&lt;/td&gt;&lt;/tr&gt;\\`</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Rahul Verma\"</span>, <span class=\"key\">\"department\"</span>:<span class=\"str\">\"IT\"</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">55000</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Delhi\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Anjali Rao\"</span>, <span class=\"key\">\"department\"</span>:<span class=\"str\">\"HR\"</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">42000</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Mumbai\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Karan Singh\"</span>, <span class=\"key\">\"department\"</span>:<span class=\"str\">\"Finance\"</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">60000</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Pune\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Neha Joshi\"</span>, <span class=\"key\">\"department\"</span>:<span class=\"str\">\"Marketing\"</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">38000</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Hyderabad\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">5</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Amit Tiwari\"</span>, <span class=\"key\">\"department\"</span>:<span class=\"str\">\"IT\"</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">70000</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Bangalore\"</span> }\n]"}}, {"id": 4, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\n<span class=\"kw\">const</span> books <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/books'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">send</span>(books));\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getBooks()\"</span><span class=\"tag\">&gt;</span>Show Books<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"bookTable\"</span><span class=\"tag\">&gt;</span>\n  <span class=\"tag\">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Title<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Author<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Genre<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Price<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>\n  <span class=\"tag\">&lt;tbody&gt;&lt;/tbody&gt;</span>\n<span class=\"tag\">&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getBooks</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/books'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#bookTable tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(b <span class=\"op\">=></span> tb.innerHTML <span class=\"op\">+=</span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${b.id}&lt;/td&gt;&lt;td&gt;\\${b.title}&lt;/td&gt;&lt;td&gt;\\${b.author}&lt;/td&gt;&lt;td&gt;\\${b.genre}&lt;/td&gt;&lt;td&gt;₹\\${b.price}&lt;/td&gt;&lt;/tr&gt;\\`</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"The Alchemist\"</span>, <span class=\"key\">\"author\"</span>:<span class=\"str\">\"Paulo Coelho\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Fiction\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">250</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"Atomic Habits\"</span>, <span class=\"key\">\"author\"</span>:<span class=\"str\">\"James Clear\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Self-Help\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">399</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"Deep Work\"</span>, <span class=\"key\">\"author\"</span>:<span class=\"str\">\"Cal Newport\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Productivity\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">320</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"Wings of Fire\"</span>, <span class=\"key\">\"author\"</span>:<span class=\"str\">\"A.P.J. Kalam\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Biography\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">180</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">5</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"Rich Dad Poor Dad\"</span>, <span class=\"key\">\"author\"</span>:<span class=\"str\">\"Robert Kiyosaki\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Finance\"</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">299</span> }\n]"}}, {"id": 5, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\n<span class=\"kw\">const</span> movies <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/movies'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(movies));\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getMovies()\"</span><span class=\"tag\">&gt;</span>Show Movies<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"movieTable\"</span><span class=\"tag\">&gt;</span>\n  <span class=\"tag\">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Title<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Director<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Genre<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Rating<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>\n  <span class=\"tag\">&lt;tbody&gt;&lt;/tbody&gt;</span>\n<span class=\"tag\">&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getMovies</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/movies'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#movieTable tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(m <span class=\"op\">=></span> tb.innerHTML <span class=\"op\">+=</span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${m.id}&lt;/td&gt;&lt;td&gt;\\${m.title}&lt;/td&gt;&lt;td&gt;\\${m.director}&lt;/td&gt;&lt;td&gt;\\${m.genre}&lt;/td&gt;&lt;td&gt;⭐\\${m.rating}&lt;/td&gt;&lt;/tr&gt;\\`</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"3 Idiots\"</span>, <span class=\"key\">\"director\"</span>:<span class=\"str\">\"Rajkumar Hirani\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Drama\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">8.4</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"Dangal\"</span>, <span class=\"key\">\"director\"</span>:<span class=\"str\">\"Nitesh Tiwari\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Sports\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">8.3</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"Lagaan\"</span>, <span class=\"key\">\"director\"</span>:<span class=\"str\">\"Ashutosh Gowariker\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Historical\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">8.1</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"PK\"</span>, <span class=\"key\">\"director\"</span>:<span class=\"str\">\"Rajkumar Hirani\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Comedy\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">8.2</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">5</span>, <span class=\"key\">\"title\"</span>:<span class=\"str\">\"Sholay\"</span>, <span class=\"key\">\"director\"</span>:<span class=\"str\">\"Ramesh Sippy\"</span>, <span class=\"key\">\"genre\"</span>:<span class=\"str\">\"Action\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">8.2</span> }\n]"}}, {"id": 6, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\n<span class=\"kw\">const</span> students <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\n\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/students/:id'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> student <span class=\"op\">=</span> students.<span class=\"fn\">find</span>(s <span class=\"op\">=></span> s.id <span class=\"op\">==</span> req.params.id);\n  <span class=\"kw\">if</span> (!student) <span class=\"kw\">return</span> res.<span class=\"fn\">status</span>(<span class=\"num\">404</span>).<span class=\"fn\">json</span>({ message: <span class=\"str\">'Not found'</span> });\n  res.<span class=\"fn\">json</span>(student);\n});\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"sid\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Enter Student ID\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getById()\"</span><span class=\"tag\">&gt;</span>Search<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;div</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"result\"</span><span class=\"tag\">&gt;&lt;/div&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getById</span>() {\n    <span class=\"kw\">const</span> id <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'sid'</span>).value;\n    <span class=\"kw\">const</span> res <span class=\"op\">=</span> <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/students/\\${id}\\`</span>);\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> res.<span class=\"fn\">json</span>();\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'result'</span>).innerHTML <span class=\"op\">=</span> data.message\n      ? <span class=\"str\">\\`&lt;p&gt;\\${data.message}&lt;/p&gt;\\`</span>\n      : <span class=\"str\">\\`&lt;p&gt;\\${data.id} | \\${data.name} | \\${data.course} | Year \\${data.year}&lt;/p&gt;\\`</span>;\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Same student.json as Q1</span>\n[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Aarav Sharma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech CSE\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"aarav@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Priya Verma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech IT\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"priya@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Rohan Mehta\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"BCA\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"rohan@example.com\"</span> }\n]"}}, {"id": 7, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">json</span>());\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\n<span class=\"kw\">let</span> students <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\n\napp.<span class=\"fn\">post</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> { name, course, year, email } <span class=\"op\">=</span> req.body;\n  <span class=\"kw\">const</span> newStudent <span class=\"op\">=</span> { id: students.length <span class=\"op\">+</span> <span class=\"num\">1</span>, name, course, year, email };\n  students.<span class=\"fn\">push</span>(newStudent);\n  res.<span class=\"fn\">status</span>(<span class=\"num\">201</span>).<span class=\"fn\">json</span>(newStudent);\n});\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"name\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Name\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"course\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Course\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"year\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Year\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"email\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Email\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"addStudent()\"</span><span class=\"tag\">&gt;</span>Add Student<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;div</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"msg\"</span><span class=\"tag\">&gt;&lt;/div&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">addStudent</span>() {\n    <span class=\"kw\">const</span> body <span class=\"op\">=</span> {\n      name: document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'name'</span>).value,\n      course: document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'course'</span>).value,\n      year: document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'year'</span>).value,\n      email: document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'email'</span>).value\n    };\n    <span class=\"kw\">const</span> res <span class=\"op\">=</span> <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/students'</span>, {\n      method: <span class=\"str\">'POST'</span>,\n      headers: { <span class=\"str\">'Content-Type'</span>: <span class=\"str\">'application/json'</span> },\n      body: <span class=\"fn\">JSON.stringify</span>(body)\n    });\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> res.<span class=\"fn\">json</span>();\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'msg'</span>).textContent <span class=\"op\">=</span> <span class=\"str\">\\`Added: \\${data.name} (ID: \\${data.id})\\`</span>;\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Aarav Sharma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech CSE\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"aarav@example.com\"</span> }\n]"}}, {"id": 8, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">json</span>());\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\n<span class=\"kw\">let</span> students <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\n\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(students));\n\napp.<span class=\"fn\">delete</span>(<span class=\"str\">'/students/:id'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> idx <span class=\"op\">=</span> students.<span class=\"fn\">findIndex</span>(s <span class=\"op\">=></span> s.id <span class=\"op\">==</span> req.params.id);\n  <span class=\"kw\">if</span> (idx <span class=\"op\">===</span> <span class=\"op\">-</span><span class=\"num\">1</span>) <span class=\"kw\">return</span> res.<span class=\"fn\">status</span>(<span class=\"num\">404</span>).<span class=\"fn\">json</span>({ message: <span class=\"str\">'Not found'</span> });\n  students.<span class=\"fn\">splice</span>(idx, <span class=\"num\">1</span>);\n  res.<span class=\"fn\">json</span>({ message: <span class=\"str\">'Student deleted'</span> });\n});\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"load()\"</span><span class=\"tag\">&gt;</span>Load Students<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;</span>\n  <span class=\"tag\">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Action<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>\n  <span class=\"tag\">&lt;tbody&gt;&lt;/tbody&gt;</span>\n<span class=\"tag\">&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">load</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/students'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(s <span class=\"op\">=></span> tb.innerHTML <span class=\"op\">+=</span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${s.id}&lt;/td&gt;&lt;td&gt;\\${s.name}&lt;/td&gt;&lt;td&gt;&lt;button onclick=\"del(\\${s.id})\"&gt;Delete&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;\\`</span>);\n  }\n  <span class=\"kw\">async function</span> <span class=\"fn\">del</span>(id) {\n    <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/students/\\${id}\\`</span>, { method:<span class=\"str\">'DELETE'</span> });\n    <span class=\"fn\">load</span>();\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Aarav Sharma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech CSE\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Priya Verma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech IT\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Rohan Mehta\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"BCA\"</span> }\n]"}}, {"id": 9, "files": {"js": "app.<span class=\"fn\">put</span>(<span class=\"str\">'/students/:id'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> s <span class=\"op\">=</span> students.<span class=\"fn\">find</span>(s <span class=\"op\">=></span> s.id <span class=\"op\">==</span> req.params.id);\n  <span class=\"kw\">if</span> (!s) <span class=\"kw\">return</span> res.<span class=\"fn\">status</span>(<span class=\"num\">404</span>).<span class=\"fn\">json</span>({ message: <span class=\"str\">'Not found'</span> });\n  <span class=\"kw\">const</span> { course, year } <span class=\"op\">=</span> req.body;\n  <span class=\"kw\">if</span> (course) s.course <span class=\"op\">=</span> course;\n  <span class=\"kw\">if</span> (year) s.year <span class=\"op\">=</span> year;\n  res.<span class=\"fn\">json</span>(s);\n});", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"uid\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Student ID\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"ucourse\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"New Course\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"uyear\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"New Year\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"update()\"</span><span class=\"tag\">&gt;</span>Update<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">update</span>() {\n    <span class=\"kw\">const</span> id <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'uid'</span>).value;\n    <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/students/\\${id}\\`</span>, {\n      method:<span class=\"str\">'PUT'</span>,\n      headers:{<span class=\"str\">'Content-Type'</span>:<span class=\"str\">'application/json'</span>},\n      body:<span class=\"fn\">JSON.stringify</span>({ course: uid_course.value, year: uid_year.value })\n    });\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Aarav Sharma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech CSE\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Priya Verma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech IT\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">3</span> }\n]"}}, {"id": 10, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\n<span class=\"kw\">const</span> teachers <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/teachers'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(teachers));\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getTeachers()\"</span><span class=\"tag\">&gt;</span>Show Teachers<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;</span>\n  <span class=\"tag\">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Subject<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Exp<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Salary<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>\n  <span class=\"tag\">&lt;tbody&gt;&lt;/tbody&gt;</span>\n<span class=\"tag\">&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getTeachers</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/teachers'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(t <span class=\"op\">=></span> tb.innerHTML <span class=\"op\">+=</span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${t.id}&lt;/td&gt;&lt;td&gt;\\${t.name}&lt;/td&gt;&lt;td&gt;\\${t.subject}&lt;/td&gt;&lt;td&gt;\\${t.experience}y&lt;/td&gt;&lt;td&gt;₹\\${t.salary}&lt;/td&gt;&lt;/tr&gt;\\`</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Dr. Sharma\"</span>, <span class=\"key\">\"subject\"</span>:<span class=\"str\">\"Mathematics\"</span>, <span class=\"key\">\"experience\"</span>:<span class=\"num\">10</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">65000</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Prof. Rao\"</span>, <span class=\"key\">\"subject\"</span>:<span class=\"str\">\"Physics\"</span>, <span class=\"key\">\"experience\"</span>:<span class=\"num\">8</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">58000</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Ms. Nair\"</span>, <span class=\"key\">\"subject\"</span>:<span class=\"str\">\"Chemistry\"</span>, <span class=\"key\">\"experience\"</span>:<span class=\"num\">5</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">48000</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Mr. Patel\"</span>, <span class=\"key\">\"subject\"</span>:<span class=\"str\">\"Computer Science\"</span>, <span class=\"key\">\"experience\"</span>:<span class=\"num\">12</span>, <span class=\"key\">\"salary\"</span>:<span class=\"num\">72000</span> }\n]"}}, {"id": 11, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> { course } <span class=\"op\">=</span> req.query;\n  <span class=\"kw\">if</span> (course) {\n    <span class=\"kw\">return</span> res.<span class=\"fn\">json</span>(students.<span class=\"fn\">filter</span>(s <span class=\"op\">=></span> s.course.<span class=\"fn\">toLowerCase</span>() <span class=\"op\">===</span> course.<span class=\"fn\">toLowerCase</span>()));\n  }\n  res.<span class=\"fn\">json</span>(students);\n});", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"courseFilter\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Enter course (e.g. BCA)\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"filterStudents()\"</span><span class=\"tag\">&gt;</span>Filter<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;</span><span class=\"tag\">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Course<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Year<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">filterStudents</span>() {\n    <span class=\"kw\">const</span> c <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'courseFilter'</span>).value;\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/students?course=\\${c}\\`</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(s <span class=\"op\">=></span> tb.innerHTML <span class=\"op\">+=</span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${s.id}&lt;/td&gt;&lt;td&gt;\\${s.name}&lt;/td&gt;&lt;td&gt;\\${s.course}&lt;/td&gt;&lt;td&gt;\\${s.year}&lt;/td&gt;&lt;/tr&gt;\\`</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Same data as Q1 — 5 students with different courses</span>"}}, {"id": 12, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/courses'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> courses <span class=\"op\">=</span> [...<span class=\"kw\">new</span> <span class=\"fn\">Set</span>(students.<span class=\"fn\">map</span>(s <span class=\"op\">=></span> s.course))];\n  res.<span class=\"fn\">json</span>(courses);\n});", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getCourses()\"</span><span class=\"tag\">&gt;</span>Show Courses<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;ul</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"courseList\"</span><span class=\"tag\">&gt;&lt;/ul&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getCourses</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/courses'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> ul <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'courseList'</span>);\n    ul.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(c <span class=\"op\">=></span> ul.innerHTML <span class=\"op\">+=</span> <span class=\"str\">\\`&lt;li&gt;\\${c}&lt;/li&gt;\\`</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Same student data</span>"}}, {"id": 13, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/departments'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> counts <span class=\"op\">=</span> {};\n  employees.<span class=\"fn\">forEach</span>(e <span class=\"op\">=></span> counts[e.department] <span class=\"op\">=</span> (counts[e.department] || <span class=\"num\">0</span>) <span class=\"op\">+</span> <span class=\"num\">1</span>);\n  <span class=\"kw\">const</span> result <span class=\"op\">=</span> Object.<span class=\"fn\">entries</span>(counts).<span class=\"fn\">map</span>(([dept, count]) <span class=\"op\">=></span> ({ dept, count }));\n  res.<span class=\"fn\">json</span>(result);\n});", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getDepts()\"</span><span class=\"tag\">&gt;</span>Show Departments<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>Department<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Count<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getDepts</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/departments'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> <span class=\"str\">''</span>;\n    data.<span class=\"fn\">forEach</span>(d <span class=\"op\">=></span> tb.innerHTML <span class=\"op\">+=</span> <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${d.dept}&lt;/td&gt;&lt;td&gt;\\${d.count}&lt;/td&gt;&lt;/tr&gt;\\`</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Employee data with department field</span>"}}, {"id": 14, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/employees/sorted'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> sorted <span class=\"op\">=</span> [...employees].<span class=\"fn\">sort</span>((a, b) <span class=\"op\">=></span> b.salary <span class=\"op\">-</span> a.salary);\n  res.<span class=\"fn\">json</span>(sorted);\n});", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getSorted()\"</span><span class=\"tag\">&gt;</span>Sort by Salary ↓<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Dept<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Salary<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getSorted</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/employees/sorted'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(e <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${e.id}&lt;/td&gt;&lt;td&gt;\\${e.name}&lt;/td&gt;&lt;td&gt;\\${e.department}&lt;/td&gt;&lt;td&gt;₹\\${e.salary}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Same employee data as Q3</span>"}}, {"id": 15, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/students/count'</span>, (req, res) <span class=\"op\">=></span> {\n  res.<span class=\"fn\">json</span>({ total: students.length });\n});", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getCount()\"</span><span class=\"tag\">&gt;</span>Get Total<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;p</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"result\"</span><span class=\"tag\">&gt;&lt;/p&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getCount</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/students/count'</span>)).<span class=\"fn\">json</span>();\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'result'</span>).textContent <span class=\"op\">=</span> <span class=\"str\">\\`Total Students: \\${data.total}\\`</span>;\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// 5 student records</span>"}}, {"id": 16, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/students/search'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> { name } <span class=\"op\">=</span> req.query;\n  <span class=\"kw\">const</span> result <span class=\"op\">=</span> students.<span class=\"fn\">filter</span>(s <span class=\"op\">=></span>\n    s.name.<span class=\"fn\">toLowerCase</span>().<span class=\"fn\">includes</span>(name ? name.<span class=\"fn\">toLowerCase</span>() : <span class=\"str\">''</span>)\n  );\n  res.<span class=\"fn\">json</span>(result);\n});", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"nameQ\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Search by name...\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"search()\"</span><span class=\"tag\">&gt;</span>Search<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Course<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">search</span>() {\n    <span class=\"kw\">const</span> q <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'nameQ'</span>).value;\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/students/search?name=\\${q}\\`</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(s <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${s.id}&lt;/td&gt;&lt;td&gt;\\${s.name}&lt;/td&gt;&lt;td&gt;\\${s.course}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Student data</span>"}}, {"id": 17, "files": {"js": "<span class=\"kw\">const</span> hospitals <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/hospitals'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(hospitals));", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getHospitals()\"</span><span class=\"tag\">&gt;</span>Show Hospitals<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>City<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Beds<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Rating<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getHospitals</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/hospitals'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(h <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${h.id}&lt;/td&gt;&lt;td&gt;\\${h.name}&lt;/td&gt;&lt;td&gt;\\${h.city}&lt;/td&gt;&lt;td&gt;\\${h.beds}&lt;/td&gt;&lt;td&gt;⭐\\${h.rating}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"AIIMS Delhi\"</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Delhi\"</span>, <span class=\"key\">\"beds\"</span>:<span class=\"num\">2500</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">4.8</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Fortis Mumbai\"</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Mumbai\"</span>, <span class=\"key\">\"beds\"</span>:<span class=\"num\">400</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">4.5</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Apollo Chennai\"</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Chennai\"</span>, <span class=\"key\">\"beds\"</span>:<span class=\"num\">700</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">4.7</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Medanta Gurugram\"</span>, <span class=\"key\">\"city\"</span>:<span class=\"str\">\"Gurugram\"</span>, <span class=\"key\">\"beds\"</span>:<span class=\"num\">1250</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">4.6</span> }\n]"}}, {"id": 18, "files": {"js": "<span class=\"kw\">const</span> restaurants <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/restaurants'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(restaurants));", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getRestaurants()\"</span><span class=\"tag\">&gt;</span>Show Restaurants<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Cuisine<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Location<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Rating<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getRestaurants</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/restaurants'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(r <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${r.id}&lt;/td&gt;&lt;td&gt;\\${r.name}&lt;/td&gt;&lt;td&gt;\\${r.cuisine}&lt;/td&gt;&lt;td&gt;\\${r.location}&lt;/td&gt;&lt;td&gt;⭐\\${r.rating}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Bukhara\"</span>, <span class=\"key\">\"cuisine\"</span>:<span class=\"str\">\"North Indian\"</span>, <span class=\"key\">\"location\"</span>:<span class=\"str\">\"Delhi\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">4.6</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Trishna\"</span>, <span class=\"key\">\"cuisine\"</span>:<span class=\"str\">\"Seafood\"</span>, <span class=\"key\">\"location\"</span>:<span class=\"str\">\"Mumbai\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">4.4</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Junior Kuppanna\"</span>, <span class=\"key\">\"cuisine\"</span>:<span class=\"str\">\"South Indian\"</span>, <span class=\"key\">\"location\"</span>:<span class=\"str\">\"Bangalore\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">4.3</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Karim's\"</span>, <span class=\"key\">\"cuisine\"</span>:<span class=\"str\">\"Mughlai\"</span>, <span class=\"key\">\"location\"</span>:<span class=\"str\">\"Delhi\"</span>, <span class=\"key\">\"rating\"</span>:<span class=\"num\">4.2</span> }\n]"}}, {"id": 19, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\n\n<span class=\"cm\">// Custom Logger Middleware</span>\napp.<span class=\"fn\">use</span>((req, res, next) <span class=\"op\">=></span> {\n  console.<span class=\"fn\">log</span>(<span class=\"str\">\\`\\${req.method} \\${req.url} — \\${new Date().toISOString()}\\`</span>);\n  <span class=\"fn\">next</span>(); <span class=\"cm\">// Pass to next middleware/route</span>\n});\n\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\n<span class=\"kw\">const</span> students <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(students));\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getStudents()\"</span><span class=\"tag\">&gt;</span>Fetch (check console for log)<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getStudents</span>() {\n    <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/students'</span>);\n    <span class=\"cm\">// Server console will log: GET /students — timestamp</span>\n    alert(<span class=\"str\">'Check server console for log!'</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Student data</span>"}}, {"id": 20, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(students));\n\n<span class=\"cm\">// 404 handler — must be LAST</span>\napp.<span class=\"fn\">use</span>((req, res) <span class=\"op\">=></span> {\n  res.<span class=\"fn\">status</span>(<span class=\"num\">404</span>).<span class=\"fn\">json</span>({ error: <span class=\"str\">'Route not found'</span> });\n});\n\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"testNotFound()\"</span><span class=\"tag\">&gt;</span>Test 404<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;pre</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"out\"</span><span class=\"tag\">&gt;&lt;/pre&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">testNotFound</span>() {\n    <span class=\"kw\">const</span> res <span class=\"op\">=</span> <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/unknownroute'</span>);\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> res.<span class=\"fn\">json</span>();\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'out'</span>).textContent <span class=\"op\">=</span>\n      <span class=\"str\">\\`Status: \\${res.status}\\\\n\\${JSON.stringify(data, null, 2)}\\`</span>;\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Any JSON data file</span>"}}, {"id": 21, "files": {"js": "<span class=\"kw\">const</span> cars <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/cars'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(cars));", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getCars()\"</span><span class=\"tag\">&gt;</span>Show Cars<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Make<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Model<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Year<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Price<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getCars</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/cars'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(c <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${c.id}&lt;/td&gt;&lt;td&gt;\\${c.make}&lt;/td&gt;&lt;td&gt;\\${c.model}&lt;/td&gt;&lt;td&gt;\\${c.year}&lt;/td&gt;&lt;td&gt;₹\\${c.price}L&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"make\"</span>:<span class=\"str\">\"Maruti\"</span>, <span class=\"key\">\"model\"</span>:<span class=\"str\">\"Swift\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2022</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">7.5</span>, <span class=\"key\">\"fuel\"</span>:<span class=\"str\">\"Petrol\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"make\"</span>:<span class=\"str\">\"Hyundai\"</span>, <span class=\"key\">\"model\"</span>:<span class=\"str\">\"Creta\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2023</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">15.2</span>, <span class=\"key\">\"fuel\"</span>:<span class=\"str\">\"Diesel\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"make\"</span>:<span class=\"str\">\"Tata\"</span>, <span class=\"key\">\"model\"</span>:<span class=\"str\">\"Nexon EV\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2024</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">18.5</span>, <span class=\"key\">\"fuel\"</span>:<span class=\"str\">\"Electric\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"make\"</span>:<span class=\"str\">\"Honda\"</span>, <span class=\"key\">\"model\"</span>:<span class=\"str\">\"City\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2022</span>, <span class=\"key\">\"price\"</span>:<span class=\"num\">12.8</span>, <span class=\"key\">\"fuel\"</span>:<span class=\"str\">\"Petrol\"</span> }\n]"}}, {"id": 22, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/courses/:coursename/students'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> { coursename } <span class=\"op\">=</span> req.params;\n  <span class=\"kw\">const</span> result <span class=\"op\">=</span> students.<span class=\"fn\">filter</span>(s <span class=\"op\">=></span>\n    s.course.<span class=\"fn\">toLowerCase</span>() <span class=\"op\">===</span> coursename.<span class=\"fn\">toLowerCase</span>()\n  );\n  res.<span class=\"fn\">json</span>(result);\n});", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"cname\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Course name (e.g. BCA)\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getStudentsByCourse()\"</span><span class=\"tag\">&gt;</span>Get Students<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Year<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getStudentsByCourse</span>() {\n    <span class=\"kw\">const</span> c <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'cname'</span>).value;\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/courses/\\${c}/students\\`</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(s <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${s.id}&lt;/td&gt;&lt;td&gt;\\${s.name}&lt;/td&gt;&lt;td&gt;\\${s.year}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Student data with course field</span>"}}, {"id": 23, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">let</span> { page <span class=\"op\">=</span> <span class=\"num\">1</span>, limit <span class=\"op\">=</span> <span class=\"num\">2</span> } <span class=\"op\">=</span> req.query;\n  page <span class=\"op\">=</span> <span class=\"fn\">parseInt</span>(page);\n  limit <span class=\"op\">=</span> <span class=\"fn\">parseInt</span>(limit);\n  <span class=\"kw\">const</span> start <span class=\"op\">=</span> (page <span class=\"op\">-</span> <span class=\"num\">1</span>) <span class=\"op\">*</span> limit;\n  <span class=\"kw\">const</span> paginated <span class=\"op\">=</span> students.<span class=\"fn\">slice</span>(start, start <span class=\"op\">+</span> limit);\n  res.<span class=\"fn\">json</span>({ page, limit, total: students.length, data: paginated });\n});", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"pg\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Page (1,2...)\"</span> <span class=\"attr\">value</span><span class=\"op\">=</span><span class=\"val\">\"1\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getPage()\"</span><span class=\"tag\">&gt;</span>Load Page<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;p</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"info\"</span><span class=\"tag\">&gt;&lt;/p&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Course<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getPage</span>() {\n    <span class=\"kw\">const</span> p <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'pg'</span>).value;\n    <span class=\"kw\">const</span> res <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/students?page=\\${p}&limit=2\\`</span>)).<span class=\"fn\">json</span>();\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'info'</span>).textContent <span class=\"op\">=</span> <span class=\"str\">\\`Page \\${res.page} | Total: \\${res.total}\\`</span>;\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> res.data.<span class=\"fn\">map</span>(s <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${s.id}&lt;/td&gt;&lt;td&gt;\\${s.name}&lt;/td&gt;&lt;td&gt;\\${s.course}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// 5 student records to paginate over</span>"}}, {"id": 24, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/about'</span>, (req, res) <span class=\"op\">=></span> {\n  res.<span class=\"fn\">json</span>({ name: <span class=\"str\">'MyApp'</span>, version: <span class=\"str\">'1.0'</span>, description: <span class=\"str\">'Student Management System'</span> });\n});\n\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/contact'</span>, (req, res) <span class=\"op\">=></span> {\n  res.<span class=\"fn\">json</span>({ email: <span class=\"str\">'admin@example.com'</span>, phone: <span class=\"str\">'9876543210'</span>, address: <span class=\"str\">'Delhi, India'</span> });\n});", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"fetchAbout()\"</span><span class=\"tag\">&gt;</span>About<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"fetchContact()\"</span><span class=\"tag\">&gt;</span>Contact<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;pre</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"out\"</span><span class=\"tag\">&gt;&lt;/pre&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">fetchAbout</span>() {\n    <span class=\"kw\">const</span> d <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/about'</span>)).<span class=\"fn\">json</span>();\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'out'</span>).textContent <span class=\"op\">=</span> <span class=\"fn\">JSON.stringify</span>(d, <span class=\"kw\">null</span>, <span class=\"num\">2</span>);\n  }\n  <span class=\"kw\">async function</span> <span class=\"fn\">fetchContact</span>() {\n    <span class=\"kw\">const</span> d <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/contact'</span>)).<span class=\"fn\">json</span>();\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'out'</span>).textContent <span class=\"op\">=</span> <span class=\"fn\">JSON.stringify</span>(d, <span class=\"kw\">null</span>, <span class=\"num\">2</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Optional: no JSON file needed for this question</span>\n{}"}}, {"id": 25, "files": {"js": "<span class=\"kw\">const</span> flights <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/flights'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(flights));", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getFlights()\"</span><span class=\"tag\">&gt;</span>Show Flights<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Flight<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>From<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>To<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Status<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getFlights</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/flights'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(f <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${f.id}&lt;/td&gt;&lt;td&gt;\\${f.flightNo}&lt;/td&gt;&lt;td&gt;\\${f.origin}&lt;/td&gt;&lt;td&gt;\\${f.destination}&lt;/td&gt;&lt;td&gt;\\${f.status}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"flightNo\"</span>:<span class=\"str\">\"AI101\"</span>, <span class=\"key\">\"origin\"</span>:<span class=\"str\">\"Delhi\"</span>, <span class=\"key\">\"destination\"</span>:<span class=\"str\">\"Mumbai\"</span>, <span class=\"key\">\"status\"</span>:<span class=\"str\">\"On Time\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"flightNo\"</span>:<span class=\"str\">\"SG201\"</span>, <span class=\"key\">\"origin\"</span>:<span class=\"str\">\"Bangalore\"</span>, <span class=\"key\">\"destination\"</span>:<span class=\"str\">\"Chennai\"</span>, <span class=\"key\">\"status\"</span>:<span class=\"str\">\"Delayed\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"flightNo\"</span>:<span class=\"str\">\"6E301\"</span>, <span class=\"key\">\"origin\"</span>:<span class=\"str\">\"Kolkata\"</span>, <span class=\"key\">\"destination\"</span>:<span class=\"str\">\"Hyderabad\"</span>, <span class=\"key\">\"status\"</span>:<span class=\"str\">\"On Time\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"flightNo\"</span>:<span class=\"str\">\"UK401\"</span>, <span class=\"key\">\"origin\"</span>:<span class=\"str\">\"Pune\"</span>, <span class=\"key\">\"destination\"</span>:<span class=\"str\">\"Delhi\"</span>, <span class=\"key\">\"status\"</span>:<span class=\"str\">\"Cancelled\"</span> }\n]"}}, {"id": 26, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/students/year/:yr'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> result <span class=\"op\">=</span> students.<span class=\"fn\">filter</span>(s <span class=\"op\">=></span> s.year <span class=\"op\">==</span> req.params.yr);\n  res.<span class=\"fn\">json</span>(result);\n});", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"yr\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Enter Year (1/2/3/4)\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getByYear()\"</span><span class=\"tag\">&gt;</span>Get<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Course<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Year<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getByYear</span>() {\n    <span class=\"kw\">const</span> yr <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'yr'</span>).value;\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/students/year/\\${yr}\\`</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(s <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${s.id}&lt;/td&gt;&lt;td&gt;\\${s.name}&lt;/td&gt;&lt;td&gt;\\${s.course}&lt;/td&gt;&lt;td&gt;\\${s.year}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Student data with year field</span>"}}, {"id": 27, "files": {"js": "app.<span class=\"fn\">get</span>(<span class=\"str\">'/employees/avg-salary'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> total <span class=\"op\">=</span> employees.<span class=\"fn\">reduce</span>((sum, e) <span class=\"op\">=></span> sum <span class=\"op\">+</span> e.salary, <span class=\"num\">0</span>);\n  <span class=\"kw\">const</span> avg <span class=\"op\">=</span> total <span class=\"op\">/</span> employees.length;\n  res.<span class=\"fn\">json</span>({ average: avg.<span class=\"fn\">toFixed</span>(<span class=\"num\">2</span>) });\n});", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"getAvg()\"</span><span class=\"tag\">&gt;</span>Get Average Salary<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;p</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"result\"</span><span class=\"tag\">&gt;&lt;/p&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">getAvg</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/employees/avg-salary'</span>)).<span class=\"fn\">json</span>();\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'result'</span>).textContent <span class=\"op\">=</span> <span class=\"str\">\\`Average Salary: ₹\\${data.average}\\`</span>;\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Employee data with salary field</span>"}}, {"id": 28, "files": {"js": "app.<span class=\"fn\">patch</span>(<span class=\"str\">'/students/:id'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> student <span class=\"op\">=</span> students.<span class=\"fn\">find</span>(s <span class=\"op\">=></span> s.id <span class=\"op\">==</span> req.params.id);\n  <span class=\"kw\">if</span> (!student) <span class=\"kw\">return</span> res.<span class=\"fn\">status</span>(<span class=\"num\">404</span>).<span class=\"fn\">json</span>({ message: <span class=\"str\">'Not found'</span> });\n  <span class=\"cm\">// Merge only provided fields</span>\n  Object.<span class=\"fn\">assign</span>(student, req.body);\n  res.<span class=\"fn\">json</span>(student);\n});", "html": "<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"pid\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"Student ID\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"pfield\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">'Field name (e.g. \"year\")'</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;input</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"pvalue\"</span> <span class=\"attr\">placeholder</span><span class=\"op\">=</span><span class=\"val\">\"New Value\"</span><span class=\"tag\">/&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"patch()\"</span><span class=\"tag\">&gt;</span>Patch<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;pre</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"out\"</span><span class=\"tag\">&gt;&lt;/pre&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">patch</span>() {\n    <span class=\"kw\">const</span> id <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'pid'</span>).value;\n    <span class=\"kw\">const</span> field <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'pfield'</span>).value;\n    <span class=\"kw\">const</span> value <span class=\"op\">=</span> document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'pvalue'</span>).value;\n    <span class=\"kw\">const</span> body <span class=\"op\">=</span> {};\n    body[field] <span class=\"op\">=</span> value;\n    <span class=\"kw\">const</span> res <span class=\"op\">=</span> <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">\\`/students/\\${id}\\`</span>, {\n      method: <span class=\"str\">'PATCH'</span>,\n      headers: { <span class=\"str\">'Content-Type'</span>: <span class=\"str\">'application/json'</span> },\n      body: <span class=\"fn\">JSON.stringify</span>(body)\n    });\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'out'</span>).textContent <span class=\"op\">=</span> <span class=\"fn\">JSON.stringify</span>(<span class=\"kw\">await</span> res.<span class=\"fn\">json</span>(), <span class=\"kw\">null</span>, <span class=\"num\">2</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Student data</span>"}}, {"id": 29, "files": {"js": "<span class=\"cm\">// res.json() — sets Content-Type: application/json automatically</span>\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/json-demo'</span>, (req, res) <span class=\"op\">=></span> {\n  res.<span class=\"fn\">json</span>(students); <span class=\"cm\">// Recommended for API routes</span>\n});\n\n<span class=\"cm\">// res.send() — general purpose sender</span>\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/send-demo'</span>, (req, res) <span class=\"op\">=></span> {\n  res.<span class=\"fn\">send</span>(students); <span class=\"cm\">// Also works for objects</span>\n});\n\n<span class=\"cm\">// Key difference: res.json() always sets JSON headers</span>\n<span class=\"cm\">// res.send() adapts to data type (string → text/html, object → JSON)</span>", "html": "<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"testJson()\"</span><span class=\"tag\">&gt;</span>Test res.json()<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"testSend()\"</span><span class=\"tag\">&gt;</span>Test res.send()<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;pre</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"out\"</span><span class=\"tag\">&gt;&lt;/pre&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">testJson</span>() {\n    <span class=\"kw\">const</span> r <span class=\"op\">=</span> <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/json-demo'</span>);\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'out'</span>).textContent <span class=\"op\">=</span>\n      <span class=\"str\">'Content-Type: '</span> <span class=\"op\">+</span> r.headers.<span class=\"fn\">get</span>(<span class=\"str\">'content-type'</span>);\n  }\n  <span class=\"kw\">async function</span> <span class=\"fn\">testSend</span>() {\n    <span class=\"kw\">const</span> r <span class=\"op\">=</span> <span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/send-demo'</span>);\n    document.<span class=\"fn\">getElementById</span>(<span class=\"str\">'out'</span>).textContent <span class=\"op\">=</span>\n      <span class=\"str\">'Content-Type: '</span> <span class=\"op\">+</span> r.headers.<span class=\"fn\">get</span>(<span class=\"str\">'content-type'</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "<span class=\"cm\">// Any student data</span>"}}, {"id": 30, "files": {"js": "<span class=\"kw\">const</span> express <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'express'</span>);\n<span class=\"kw\">const</span> app <span class=\"op\">=</span> <span class=\"fn\">express</span>();\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">json</span>());\napp.<span class=\"fn\">use</span>(express.<span class=\"fn\">static</span>(<span class=\"str\">'.'</span>));\n<span class=\"kw\">let</span> students <span class=\"op\">=</span> <span class=\"fn\">require</span>(<span class=\"str\">'./data.json'</span>);\n\n<span class=\"cm\">// READ ALL</span>\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> res.<span class=\"fn\">json</span>(students));\n\n<span class=\"cm\">// READ ONE</span>\napp.<span class=\"fn\">get</span>(<span class=\"str\">'/students/:id'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> s <span class=\"op\">=</span> students.<span class=\"fn\">find</span>(s <span class=\"op\">=></span> s.id <span class=\"op\">==</span> req.params.id);\n  s ? res.<span class=\"fn\">json</span>(s) : res.<span class=\"fn\">status</span>(<span class=\"num\">404</span>).<span class=\"fn\">json</span>({ message: <span class=\"str\">'Not found'</span> });\n});\n\n<span class=\"cm\">// CREATE</span>\napp.<span class=\"fn\">post</span>(<span class=\"str\">'/students'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> ns <span class=\"op\">=</span> { id: students.length <span class=\"op\">+</span> <span class=\"num\">1</span>, ...req.body };\n  students.<span class=\"fn\">push</span>(ns);\n  res.<span class=\"fn\">status</span>(<span class=\"num\">201</span>).<span class=\"fn\">json</span>(ns);\n});\n\n<span class=\"cm\">// UPDATE</span>\napp.<span class=\"fn\">put</span>(<span class=\"str\">'/students/:id'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> s <span class=\"op\">=</span> students.<span class=\"fn\">find</span>(s <span class=\"op\">=></span> s.id <span class=\"op\">==</span> req.params.id);\n  <span class=\"kw\">if</span> (!s) <span class=\"kw\">return</span> res.<span class=\"fn\">status</span>(<span class=\"num\">404</span>).<span class=\"fn\">json</span>({ message: <span class=\"str\">'Not found'</span> });\n  Object.<span class=\"fn\">assign</span>(s, req.body);\n  res.<span class=\"fn\">json</span>(s);\n});\n\n<span class=\"cm\">// DELETE</span>\napp.<span class=\"fn\">delete</span>(<span class=\"str\">'/students/:id'</span>, (req, res) <span class=\"op\">=></span> {\n  <span class=\"kw\">const</span> idx <span class=\"op\">=</span> students.<span class=\"fn\">findIndex</span>(s <span class=\"op\">=></span> s.id <span class=\"op\">==</span> req.params.id);\n  <span class=\"kw\">if</span> (idx <span class=\"op\">===</span> <span class=\"op\">-</span><span class=\"num\">1</span>) <span class=\"kw\">return</span> res.<span class=\"fn\">status</span>(<span class=\"num\">404</span>).<span class=\"fn\">json</span>({ message: <span class=\"str\">'Not found'</span> });\n  students.<span class=\"fn\">splice</span>(idx, <span class=\"num\">1</span>);\n  res.<span class=\"fn\">json</span>({ message: <span class=\"str\">'Deleted'</span> });\n});\n\napp.<span class=\"fn\">listen</span>(<span class=\"num\">3000</span>);", "html": "<span class=\"tag\">&lt;h2&gt;</span>Full CRUD Interface<span class=\"tag\">&lt;/h2&gt;</span>\n<span class=\"tag\">&lt;button</span> <span class=\"attr\">onclick</span><span class=\"op\">=</span><span class=\"val\">\"loadAll()\"</span><span class=\"tag\">&gt;</span>Show All<span class=\"tag\">&lt;/button&gt;</span>\n<span class=\"tag\">&lt;table</span> <span class=\"attr\">id</span><span class=\"op\">=</span><span class=\"val\">\"tbl\"</span><span class=\"tag\">&gt;</span>\n  <span class=\"tag\">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>ID<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Name<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Course<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Year<span class=\"tag\">&lt;/th&gt;&lt;th&gt;</span>Email<span class=\"tag\">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>\n  <span class=\"tag\">&lt;tbody&gt;&lt;/tbody&gt;</span>\n<span class=\"tag\">&lt;/table&gt;</span>\n<span class=\"tag\">&lt;script&gt;</span>\n  <span class=\"kw\">async function</span> <span class=\"fn\">loadAll</span>() {\n    <span class=\"kw\">const</span> data <span class=\"op\">=</span> <span class=\"kw\">await</span> (<span class=\"kw\">await</span> <span class=\"fn\">fetch</span>(<span class=\"str\">'/students'</span>)).<span class=\"fn\">json</span>();\n    <span class=\"kw\">const</span> tb <span class=\"op\">=</span> document.<span class=\"fn\">querySelector</span>(<span class=\"str\">'#tbl tbody'</span>);\n    tb.innerHTML <span class=\"op\">=</span> data.<span class=\"fn\">map</span>(s <span class=\"op\">=></span>\n      <span class=\"str\">\\`&lt;tr&gt;&lt;td&gt;\\${s.id}&lt;/td&gt;&lt;td&gt;\\${s.name}&lt;/td&gt;&lt;td&gt;\\${s.course}&lt;/td&gt;&lt;td&gt;\\${s.year}&lt;/td&gt;&lt;td&gt;\\${s.email}&lt;/td&gt;&lt;/tr&gt;\\`</span>\n    ).<span class=\"fn\">join</span>(<span class=\"str\">''</span>);\n  }\n<span class=\"tag\">&lt;/script&gt;</span>", "json": "[\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Aarav Sharma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech CSE\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"aarav@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Priya Verma\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech IT\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"priya@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">3</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Rohan Mehta\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"BCA\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">1</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"rohan@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Sneha Gupta\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"MCA\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">2</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"sneha@example.com\"</span> },\n  { <span class=\"key\">\"id\"</span>:<span class=\"num\">5</span>, <span class=\"key\">\"name\"</span>:<span class=\"str\">\"Aditya Singh\"</span>, <span class=\"key\">\"course\"</span>:<span class=\"str\">\"B.Tech CSE\"</span>, <span class=\"key\">\"year\"</span>:<span class=\"num\">4</span>, <span class=\"key\">\"email\"</span>:<span class=\"str\">\"aditya@example.com\"</span> }\n]"}}]
+</script>
+<script>
+const questions = [
+  {id:1,title:"Get Students",desc:"Create a Node.js Express app where <strong>student.json</strong> is imported using <code>require()</code>. Create a GET route <code>/students</code> that returns the data using <code>res.send()</code>. In <code>index.html</code>, a button calls <code>fetch('/students')</code> and dynamically fills a table. Use <code>express.static('.')</code> to serve HTML.",marks:5,simulate:{
+    type:"table",
+    cols:["ID","Name","Course","Year","Email"],
+    dataKey:"students"
+  }},
+  {id:2,title:"Get Products",desc:"Create an Express app that imports <strong>data.json</strong> containing products. Create GET route <code>/products</code>. In <code>index.html</code>, fetch and display product data in a table when a button is clicked.",marks:5,simulate:{type:"table",cols:["ID","Product Name","Category","Price","Stock"],dataKey:"products"}},
+  {id:3,title:"Get Employees",desc:"Build an Express server with a GET route <code>/employees</code> that sends employee data from <strong>data.json</strong>. Display Name, Department, Salary, and City in a table on button click.",marks:5,simulate:{type:"table",cols:["ID","Name","Department","Salary","City"],dataKey:"employees"}},
+  {id:4,title:"Get Books",desc:"Create an Express server that serves <strong>data.json</strong> (books list) via GET <code>/books</code>. HTML page displays Title, Author, Genre, Year, and Price columns.",marks:5,simulate:{type:"table",cols:["ID","Title","Author","Genre","Price"],dataKey:"books"}},
+  {id:5,title:"Get Movies",desc:"Create Express GET route <code>/movies</code> returning movie data. HTML displays Title, Director, Genre, Year, Rating in a dynamic table.",marks:5,simulate:{type:"table",cols:["ID","Title","Director","Genre","Rating"],dataKey:"movies"}},
+  {id:6,title:"GET by ID \u2014 Student",desc:"Create Express route <code>/students/:id</code> that returns a single student by ID. If not found, send <code>{ message: 'Not found' }</code>. In HTML, take ID input and fetch that student's details.",marks:5,simulate:{type:"single",cols:["ID","Name","Course","Year","Email"],dataKey:"students",idField:true}},
+  {id:7,title:"POST \u2014 Add Student",desc:"Create a POST route <code>/students</code> that accepts name, course, year, email in request body and pushes to the array. Return the newly added student. Use <code>express.json()</code> middleware.",marks:5,simulate:{type:"form",fields:["name","course","year","email"],endpoint:"/students",dataKey:"students"}},
+  {id:8,title:"DELETE \u2014 Remove Student by ID",desc:"Create DELETE route <code>/students/:id</code> that removes a student from the array. Return success message. HTML shows all students with a Delete button per row.",marks:5,simulate:{type:"table",cols:["ID","Name","Course","Action"],dataKey:"students"}},
+  {id:9,title:"PUT \u2014 Update Student",desc:"Create a PUT route <code>/students/:id</code> to update student's course and year. HTML has an input for ID, new Course, new Year \u2014 clicking Update sends a PUT request.",marks:5,simulate:{type:"table",cols:["ID","Name","Course","Year"],dataKey:"students"}},
+  {id:10,title:"Get Teachers",desc:"Serve teacher data from <strong>data.json</strong> via GET <code>/teachers</code>. Display Name, Subject, Experience (years), and Salary in HTML table.",marks:5,simulate:{type:"table",cols:["ID","Name","Subject","Experience","Salary"],dataKey:"teachers"}},
+  {id:11,title:"Query Param \u2014 Filter by Course",desc:"Create GET <code>/students?course=BCA</code> that filters students by course using query parameters (<code>req.query.course</code>). Display filtered results in table.",marks:5,simulate:{type:"table",cols:["ID","Name","Course","Year"],dataKey:"students"}},
+  {id:12,title:"Get Courses \u2014 Unique List",desc:"Create GET <code>/courses</code> that returns a unique list of course names from student data. Display as a list in HTML.",marks:5,simulate:{type:"list",label:"Courses",data:["B.Tech CSE","B.Tech IT","BCA","MCA"]}},
+  {id:13,title:"Get Departments \u2014 Count",desc:"Create GET <code>/departments</code> that returns department name and count of employees in each department. Display Department and Count in a table.",marks:5,simulate:{type:"table",cols:["Department","Count"],dataKey:"departments"}},
+  {id:14,title:"Sort by Salary",desc:"Create GET <code>/employees/sorted</code> that returns employees sorted by salary in descending order. Display in table on button click.",marks:5,simulate:{type:"table",cols:["ID","Name","Department","Salary"],dataKey:"employees"}},
+  {id:15,title:"Count \u2014 Total Students",desc:"Create GET <code>/students/count</code> that returns <code>{ total: N }</code>. HTML displays the count on button click.",marks:5,simulate:{type:"count",label:"Total Students",value:5}},
+  {id:16,title:"Search by Name",desc:"Create GET <code>/students/search?name=Aarav</code> that returns students whose name contains the search query (case-insensitive). Display results in table.",marks:5,simulate:{type:"table",cols:["ID","Name","Course"],dataKey:"students"}},
+  {id:17,title:"Get Hospitals",desc:"Create GET <code>/hospitals</code> returning hospital data. Display Name, City, Beds, Type, and Rating in HTML table.",marks:5,simulate:{type:"table",cols:["ID","Name","City","Beds","Rating"],dataKey:"hospitals"}},
+  {id:18,title:"Get Restaurants",desc:"Serve restaurant data via GET <code>/restaurants</code>. Display Name, Cuisine, Location, Rating, and Price Range in a table.",marks:5,simulate:{type:"table",cols:["ID","Name","Cuisine","Location","Rating"],dataKey:"restaurants"}},
+  {id:19,title:"Middleware \u2014 Logger",desc:"Add a custom middleware that logs method, URL, and timestamp for every request. Use <code>app.use()</code> with a function that calls <code>next()</code>.",marks:5,simulate:{type:"output",lines:["GET /students — 2024-01-15T10:30:00.000Z","Request logged!"]}},
+  {id:20,title:"Error Handler \u2014 404",desc:"Add a 404 error handler at the end of all routes in Express. If no route matches, respond with status 404 and <code>{ error: 'Route not found' }</code>.",marks:5,simulate:{type:"output",lines:['Status: 404','{ "error": "Route not found" }']}},
+  {id:21,title:"GET Cars",desc:"Serve car data via <code>/cars</code> route. Display Make, Model, Year, Price, and Fuel Type in a table.",marks:5,simulate:{type:"table",cols:["ID","Make","Model","Year","Price"],dataKey:"cars"}},
+  {id:22,title:"GET Courses with Students",desc:"Create route <code>/courses/:coursename/students</code> that filters all students enrolled in that course. Display results on button click.",marks:5,simulate:{type:"table",cols:["ID","Name","Year","Email"],dataKey:"students"}},
+  {id:23,title:"Pagination \u2014 Students",desc:"Create GET <code>/students?page=1&limit=2</code> that returns paginated results. Use <code>req.query</code> for page and limit.",marks:5,simulate:{type:"table",cols:["ID","Name","Course"],dataKey:"students"}},
+  {id:24,title:"Multiple Routes \u2014 /about & /contact",desc:"Create two GET routes: <code>/about</code> returns <code>{ name: 'MyApp', version: '1.0' }</code> and <code>/contact</code> returns contact info. HTML fetches and displays both.",marks:5,simulate:{type:"output",lines:['GET /about → { name: "MyApp", version: "1.0" }','GET /contact → { email: "admin@example.com" }']}},
+  {id:25,title:"GET Flights",desc:"Serve flight data from <strong>data.json</strong> via <code>/flights</code>. Display Flight No, Origin, Destination, Departure, and Status.",marks:5,simulate:{type:"table",cols:["ID","Flight No","Origin","Destination","Status"],dataKey:"flights"}},
+  {id:26,title:"GET Year-wise Students",desc:"Create GET <code>/students/year/:yr</code> that returns all students of a specific year. Display in table.",marks:5,simulate:{type:"table",cols:["ID","Name","Course","Year"],dataKey:"students"}},
+  {id:27,title:"Average Salary",desc:"Create GET <code>/employees/avg-salary</code> that computes and returns the average salary from employee data. Display result on button click.",marks:5,simulate:{type:"count",label:"Average Salary (₹)",value:53000}},
+  {id:28,title:"PATCH \u2014 Partial Update",desc:"Create PATCH <code>/students/:id</code> to partially update any field. Unlike PUT, PATCH only updates the fields provided in the body.",marks:5,simulate:{type:"table",cols:["ID","Name","Course","Year"],dataKey:"students"}},
+  {id:29,title:"res.json vs res.send",desc:"Demonstrate the difference: <code>/json-demo</code> uses <code>res.json()</code> while <code>/send-demo</code> uses <code>res.send()</code>. Both return student data. HTML fetches and shows type.",marks:5,simulate:{type:"output",lines:["res.json() → sets Content-Type: application/json automatically","res.send() → auto-detects type; for objects, works same as res.json()"]}},
+  {id:30,title:"Full CRUD \u2014 Students",desc:"Implement complete CRUD: GET /students (all), GET /students/:id, POST /students (add), PUT /students/:id (update), DELETE /students/:id (delete). HTML has full interface.",marks:10,simulate:{type:"table",cols:["ID","Name","Course","Year","Email"],dataKey:"students"}},
+];
+
+// Load files from JSON data block and merge into questions
+(function() {
+  var filesData = JSON.parse(document.getElementById('qFilesData').textContent);
+  filesData.forEach(function(f) {
+    var q = questions.find(function(x){ return x.id === f.id; });
+    if (q) q.files = f.files;
+  });
+})();
+
+
+// ══════════════════════════════════════════════════════════
+//  SAMPLE DATA for simulations
+// ══════════════════════════════════════════════════════════
+const sampleData = {
+  students:[
+    {id:1,name:"Aarav Sharma",course:"B.Tech CSE",year:2,email:"aarav@example.com"},
+    {id:2,name:"Priya Verma",course:"B.Tech IT",year:3,email:"priya@example.com"},
+    {id:3,name:"Rohan Mehta",course:"BCA",year:1,email:"rohan@example.com"},
+    {id:4,name:"Sneha Gupta",course:"MCA",year:2,email:"sneha@example.com"},
+    {id:5,name:"Aditya Singh",course:"B.Tech CSE",year:4,email:"aditya@example.com"}
+  ],
+  products:[
+    {id:1,name:"Laptop",category:"Electronics",price:45000,stock:10},
+    {id:2,name:"Mouse",category:"Accessories",price:599,stock:50},
+    {id:3,name:"Keyboard",category:"Accessories",price:999,stock:30},
+    {id:4,name:"Monitor",category:"Electronics",price:12000,stock:8},
+    {id:5,name:"Headphones",category:"Audio",price:2499,stock:25}
+  ],
+  employees:[
+    {id:1,name:"Rahul Verma",department:"IT",salary:55000,city:"Delhi"},
+    {id:2,name:"Anjali Rao",department:"HR",salary:42000,city:"Mumbai"},
+    {id:3,name:"Karan Singh",department:"Finance",salary:60000,city:"Pune"},
+    {id:4,name:"Neha Joshi",department:"Marketing",salary:38000,city:"Hyderabad"},
+    {id:5,name:"Amit Tiwari",department:"IT",salary:70000,city:"Bangalore"}
+  ],
+  books:[
+    {id:1,title:"The Alchemist",author:"Paulo Coelho",genre:"Fiction",price:250},
+    {id:2,title:"Atomic Habits",author:"James Clear",genre:"Self-Help",price:399},
+    {id:3,title:"Deep Work",author:"Cal Newport",genre:"Productivity",price:320},
+    {id:4,title:"Wings of Fire",author:"A.P.J. Kalam",genre:"Biography",price:180}
+  ],
+  movies:[
+    {id:1,title:"3 Idiots",director:"Rajkumar Hirani",genre:"Drama",rating:8.4},
+    {id:2,title:"Dangal",director:"Nitesh Tiwari",genre:"Sports",rating:8.3},
+    {id:3,title:"Lagaan",director:"Ashutosh Gowariker",genre:"Historical",rating:8.1},
+    {id:4,title:"PK",director:"Rajkumar Hirani",genre:"Comedy",rating:8.2}
+  ],
+  teachers:[
+    {id:1,name:"Dr. Sharma",subject:"Mathematics",experience:10,salary:65000},
+    {id:2,name:"Prof. Rao",subject:"Physics",experience:8,salary:58000},
+    {id:3,name:"Ms. Nair",subject:"Chemistry",experience:5,salary:48000},
+    {id:4,name:"Mr. Patel",subject:"Computer Science",experience:12,salary:72000}
+  ],
+  hospitals:[
+    {id:1,name:"AIIMS Delhi",city:"Delhi",beds:2500,rating:4.8},
+    {id:2,name:"Fortis Mumbai",city:"Mumbai",beds:400,rating:4.5},
+    {id:3,name:"Apollo Chennai",city:"Chennai",beds:700,rating:4.7},
+    {id:4,name:"Medanta Gurugram",city:"Gurugram",beds:1250,rating:4.6}
+  ],
+  restaurants:[
+    {id:1,name:"Bukhara",cuisine:"North Indian",location:"Delhi",rating:4.6},
+    {id:2,name:"Trishna",cuisine:"Seafood",location:"Mumbai",rating:4.4},
+    {id:3,name:"Junior Kuppanna",cuisine:"South Indian",location:"Bangalore",rating:4.3},
+    {id:4,name:"Karim's",cuisine:"Mughlai",location:"Delhi",rating:4.2}
+  ],
+  cars:[
+    {id:1,make:"Maruti",model:"Swift",year:2022,price:7.5,fuel:"Petrol"},
+    {id:2,make:"Hyundai",model:"Creta",year:2023,price:15.2,fuel:"Diesel"},
+    {id:3,make:"Tata",model:"Nexon EV",year:2024,price:18.5,fuel:"Electric"},
+    {id:4,make:"Honda",model:"City",year:2022,price:12.8,fuel:"Petrol"}
+  ],
+  flights:[
+    {id:1,flightNo:"AI101",origin:"Delhi",destination:"Mumbai",status:"On Time"},
+    {id:2,flightNo:"SG201",origin:"Bangalore",destination:"Chennai",status:"Delayed"},
+    {id:3,flightNo:"6E301",origin:"Kolkata",destination:"Hyderabad",status:"On Time"},
+    {id:4,flightNo:"UK401",origin:"Pune",destination:"Delhi",status:"Cancelled"}
+  ],
+  departments:[
+    {dept:"IT",count:2},{dept:"HR",count:1},{dept:"Finance",count:1},{dept:"Marketing",count:1}
+  ]
+};
+
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+let currentQ = 0;
+let solved = new Set();
+let isDark = true;
+
+// ══════════════════════════════════════════════════════════
+//  RENDER SIDEBAR
+// ══════════════════════════════════════════════════════════
+function renderSidebar() {
+  const list = document.getElementById('qList');
+  list.innerHTML = questions.map((q, i) => `
+    <div class="q-item ${i === currentQ ? 'active' : ''} ${solved.has(i) ? 'solved' : ''}"
+         onclick="goToQ(${i})">
+      <div class="q-num">${solved.has(i) ? '✓' : q.id}</div>
+      <div class="q-label">${q.title}</div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  STRIP HTML TAGS — get plain text from syntax-highlighted HTML
+// ══════════════════════════════════════════════════════════
+function stripHtml(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
+
+// ══════════════════════════════════════════════════════════
+//  GET STARTER CODE — skeleton like GLA exam portal
+// ══════════════════════════════════════════════════════════
+function getStarterCode(qId, fileType) {
+  var q = questions.find(function(x){ return x.id === qId; });
+  if (!q) return '';
+  var rawJs   = stripHtml(q.files.js   || '');
+  var rawHtml = stripHtml(q.files.html || '');
+  var rawJson = stripHtml(q.files.json || '');
+
+  if (fileType === 'json') return rawJson.trim();
+
+  if (fileType === 'js') {
+    var varM    = rawJs.match(/(?:const|let)\s+(\w+)\s*=\s*require\s*\(\s*['"]\.\/data\.json['"]\s*\)/);
+    var dataVar = varM ? varM[1] : 'data';
+    var rM      = rawJs.match(/app\.(get|post|put|delete|patch)\s*\(\s*['"]([^'"]+)['"]/);
+    var method  = rM ? rM[1] : 'get';
+    var endpoint = rM ? rM[2] : '/endpoint';
+    var routeLines = rawJs.split('\n').filter(function(l){
+      return /app\.(get|post|put|delete|patch)\s*\(/.test(l) && l.indexOf('=>') !== -1;
+    });
+    var out = [];
+    out.push("const express = require('express');");
+    out.push('const app = express();');
+    out.push('const PORT = 3000;');
+    out.push('');
+    out.push('// Middleware — do not remove');
+    out.push('app.use(express.json());');
+    out.push("app.use(express.static('.'));");
+    out.push('');
+    out.push('const ' + dataVar + " = require('./data.json');");
+    out.push('');
+    out.push('// ─────────────────────────────────────────');
+    out.push('// Write your API routes below this line');
+    out.push('// ─────────────────────────────────────────');
+    out.push('');
+    if (routeLines.length > 0) {
+      routeLines.forEach(function(rl) {
+        var sig = rl.trim().replace(/\{.*$/, '{').trim();
+        out.push(sig.endsWith('{') ? sig : sig + ' {');
+        out.push('  // TODO: Write your route logic here');
+        out.push('});');
+        out.push('');
+      });
+    } else {
+      out.push("// app." + method + "('" + endpoint + "', (req, res) => {");
+      out.push('//   // Write your logic here');
+      out.push('// });');
+      out.push('');
+    }
+    out.push('// ─────────────────────────────────────────');
+    out.push('');
+    out.push('app.listen(PORT, () => {');
+    out.push("  console.log('Server running on http://localhost:' + PORT);");
+    out.push('});');
+    return out.join('\n');
+  }
+
+  if (fileType === 'html') {
+    var title = q.title || 'Exam';
+    var fM    = rawHtml.match(/fetch\s*\(\s*['"`]([^'"`\n]+)['"`]/);
+    var ep    = fM ? fM[1].split('?')[0] : '/endpoint';
+    var lines = [];
+    lines.push('<!DOCTYPE html>');
+    lines.push('<html lang="en">');
+    lines.push('<head>');
+    lines.push('  <meta charset="UTF-8"/>');
+    lines.push('  <title>' + title + '<\/title>');
+    lines.push('  <style>');
+    lines.push('    body  { font-family: Arial; padding: 20px; }');
+    lines.push('    table { border-collapse: collapse; width: 100%; }');
+    lines.push('    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }');
+    lines.push('    th    { background: #f0f0f0; }');
+    lines.push('    button { padding: 8px 16px; cursor: pointer; margin-bottom: 12px; }');
+    lines.push('  <\/style>');
+    lines.push('<\/head>');
+    lines.push('<body>');
+    lines.push('');
+    lines.push('  <h1>' + title + '<\/h1>');
+    lines.push('');
+    lines.push('  <!-- TODO: Add your HTML elements here (button, table, inputs, etc.) -->');
+    lines.push('');
+    lines.push('  <script>');
+    lines.push("    // TODO: Write your fetch('" + ep + "') logic here");
+    lines.push('    // Example:');
+    lines.push('    // async function loadData() {');
+    lines.push("    //   const res  = await fetch('" + ep + "');");
+    lines.push('    //   const data = await res.json();');
+    lines.push('    //   // render data to the page');
+    lines.push('    // }');
+    lines.push('  <\/script>');
+    lines.push('<\/body>');
+    lines.push('<\/html>');
+    return lines.join('\n');
+  }
+  return '';
+}
+
+// ══════════════════════════════════════════════════════════
+//  RUN CODE — validate then simulate
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  VALIDATE ALL 3 FILES AND RETURN ERROR LIST
+// ══════════════════════════════════════════════════════════
+function validateAllFiles(qId) {
+  var errors = [];
+
+  var jsCode   = (document.getElementById('editor-js-'   + qId) || {}).value || '';
+  var htmlCode = (document.getElementById('editor-html-' + qId) || {}).value || '';
+  var jsonCode = (document.getElementById('editor-json-' + qId) || {}).value || '';
+
+  // ── index.js checks ──────────────────────────────────────
+  var jsStripped = jsCode.replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '').trim();
+
+  if (jsStripped.length < 20) {
+    errors.push({ file: 'index.js', msg: 'File is empty — write your Express route code here.' });
+  } else {
+    // Strip all comments so commented-out code does not pass checks
+    var jsNoComments = jsCode
+      .replace(/\/\/[^\n]*/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .trim();
+
+    var hasRoute = /app\.(get|post|put|delete|patch)\s*\(\s*['"`][^'"`]+['"`]\s*,\s*(function|\(req|\(req,\s*res\)|async)/.test(jsNoComments);
+    if (!hasRoute) {
+      errors.push({ file: 'index.js', msg: 'No valid Express route found. Write: app.get(\'/path\', (req, res) => { ... });' });
+    }
+    var hasRes = /res\.(json|send|status)\s*\(/.test(jsNoComments);
+    if (hasRoute && !hasRes) {
+      errors.push({ file: 'index.js', msg: 'Response missing inside route — add res.json(...) or res.send(...) inside your route handler.' });
+    }
+    // Check mismatched braces only in the user-written route section
+    // Extract only the part after "Write your API routes below this line"
+    var routeSection = jsCode;
+    var markerIdx = jsCode.indexOf('Write your API routes below this line');
+    if (markerIdx !== -1) {
+      routeSection = jsCode.substring(markerIdx);
+    }
+    // Remove app.listen(...) block from check to avoid false positives
+    var checkSection = routeSection.replace(/app\.listen[\s\S]*$/, '').replace(/\/\/[^\n]*/g, '').trim();
+
+    var openB  = (checkSection.match(/\{/g) || []).length;
+    var closeB = (checkSection.match(/\}/g) || []).length;
+    if (openB !== closeB) {
+      errors.push({ file: 'index.js', msg: 'Mismatched curly braces { } in your route — ' + openB + ' opening vs ' + closeB + ' closing. Check your brackets.' });
+    }
+    var openP  = (checkSection.match(/\(/g) || []).length;
+    var closeP = (checkSection.match(/\)/g) || []).length;
+    if (openP !== closeP) {
+      errors.push({ file: 'index.js', msg: 'Mismatched parentheses ( ) in your route — ' + openP + ' opening vs ' + closeP + ' closing. Check your syntax.' });
+    }
+  }
+
+  // ── index.html checks ────────────────────────────────────
+  // Strip HTML comments AND JS single-line comments to check real code only
+  var htmlNoComments = htmlCode
+    .replace(/<!--[\s\S]*?-->/g, '')       // remove HTML comments
+    .replace(/\/\/[^\n]*/g, '')             // remove JS // comments
+    .replace(/\/\*[\s\S]*?\*\//g, '')       // remove JS /* */ comments
+    .trim();
+
+  if (htmlNoComments.length < 30) {
+    errors.push({ file: 'index.html', msg: 'File is empty — write your HTML elements and fetch() code here.' });
+  } else {
+    // Check fetch() only in uncommented code
+    var hasFetch = /fetch\s*\(/.test(htmlNoComments);
+    if (!hasFetch) {
+      errors.push({ file: 'index.html', msg: 'No fetch() call found — you need fetch(\'/endpoint\') to call your API.' });
+    }
+    // Check for actual function definition (not just commented example)
+    var hasRealFunction = /(async\s+function|function\s+\w+)\s*\(/.test(htmlNoComments);
+    if (!hasRealFunction) {
+      errors.push({ file: 'index.html', msg: 'No JavaScript function found — write an actual function (e.g. async function getStudents() { ... }).' });
+    }
+    var hasScriptTag = /<script[\s>]/.test(htmlCode);
+    if (!hasScriptTag) {
+      errors.push({ file: 'index.html', msg: 'No <script> tag found — write your JavaScript inside a <script> block.' });
+    }
+    // Unclosed common tags check
+    ['<script', '<body', '<head'].forEach(function(tag) {
+      var closeTag = tag.replace('<', '</');
+      if (htmlCode.indexOf(tag) !== -1 && htmlCode.indexOf(closeTag) === -1) {
+        errors.push({ file: 'index.html', msg: tag + '> tag is open but ' + closeTag + '> closing tag is missing.' });
+      }
+    });
+  }
+
+  // ── data.json checks ─────────────────────────────────────
+  var jsonTrimmed = jsonCode.trim();
+
+  if (jsonTrimmed.length > 5 && jsonTrimmed !== '// data.json content goes here...') {
+    // Remove JS-style comments before parsing (common mistake)
+    var cleanJson = jsonTrimmed.replace(/\/\/[^\n]*/g, '').trim();
+    try {
+      var parsed = JSON.parse(cleanJson);
+      if (!Array.isArray(parsed) && typeof parsed !== 'object') {
+        errors.push({ file: 'data.json', msg: 'Invalid JSON — must be an array [ ] or object { }.' });
+      }
+    } catch(e) {
+      // Try to give a helpful line hint
+      var msg = e.message || 'Invalid JSON';
+      errors.push({ file: 'data.json', msg: 'JSON parse error: ' + msg + ' — check your quotes, commas, and brackets.' });
+    }
+  }
+
+  return errors;
+}
+
+function runUserCode(qId) {
+  var q = questions.find(function(x){ return x.id === qId; });
+  if (!q) return;
+  var bar = document.getElementById('run-bar-' + qId);
+
+  var errors = validateAllFiles(qId);
+
+  if (errors.length > 0) {
+    // Build error display grouped by file with colored file badges
+    var fileColors = { 'index.js': '#f7df1e', 'index.html': '#e34c26', 'data.json': '#5b9bd5' };
+    var html = '<div style="width:100%">';
+    html += '<b style="font-size:.9rem">❌ ' + errors.length + ' error(s) found — fix them and click Run again:</b>';
+    html += '<div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;">';
+    errors.forEach(function(err) {
+      var col = fileColors[err.file] || '#aaa';
+      html += '<div style="display:flex;align-items:flex-start;gap:8px;">'
+            + '<span style="background:' + col + ';color:#111;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:700;white-space:nowrap;flex-shrink:0;">' + err.file + '</span>'
+            + '<span style="color:var(--text);font-size:.83rem">' + err.msg + '</span>'
+            + '</div>';
+    });
+    html += '</div></div>';
+    if (bar) {
+      bar.className = 'run-result-bar';
+      bar.style.background = 'color-mix(in srgb,var(--danger) 12%,transparent)';
+      bar.style.border = '1px solid color-mix(in srgb,var(--danger) 40%,transparent)';
+      bar.style.color = 'var(--text)';
+      bar.style.flexDirection = 'column';
+      bar.style.alignItems = 'flex-start';
+      bar.innerHTML = html;
+      bar.style.display = 'flex';
+    }
+    return;
+  }
+
+  // All 3 files passed — run simulation
+  if (bar) {
+    bar.className = 'run-result-bar success';
+    bar.style.flexDirection = '';
+    bar.style.alignItems = '';
+    bar.style.background = '';
+    bar.style.border = '';
+    bar.style.color = '';
+    bar.innerHTML = '✓ All 3 files look good! Code executed → Data rendered below ↓';
+    bar.style.display = 'flex';
+  }
+  solved.add(currentQ);
+  renderSidebar();
+  document.getElementById('solvedCount').textContent = solved.size;
+  runSimulation(qId);
+}
+function switchEditorTab(tabEl, paneId) {
+  const tabs = tabEl.parentElement.querySelectorAll('.editor-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  const pane = document.getElementById(paneId);
+  if (!pane) return;
+  pane.parentElement.querySelectorAll('.editor-pane').forEach(p => p.classList.remove('active'));
+  pane.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+//  SHOW SOLUTION in editor
+// ══════════════════════════════════════════════════════════
+function showSolution(qId) {
+  const q = questions.find(x => x.id === qId);
+  if (!q) return;
+  ['js','html','json'].forEach(type => {
+    const ta = document.getElementById(`editor-${type}-${qId}`);
+    if (ta) {
+      ta.value = stripHtml(q.files[type] || '');
+      ta.style.border = '1px solid var(--accent2)';
+      ta.style.boxShadow = '0 0 0 2px color-mix(in srgb,var(--accent2) 25%,transparent)';
+    }
+  });
+  const bar = document.getElementById(`run-bar-${qId}`);
+  if (bar) {
+    bar.className = 'run-result-bar success';
+    bar.innerHTML = '✓ Solution loaded in all editors — study it, then try modifying!';
+    bar.style.display = 'flex';
+  }
+}
+
+
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const area = document.getElementById('questionArea');
+
+  area.innerHTML = `
+    <div class="question-card">
+      <div class="q-header">
+        <div class="q-title">Q${q.id}. ${q.title}</div>
+        <div class="marks-badge">★ ${q.marks} Marks</div>
+      </div>
+      <div class="type-badge">FullStack</div>
+      <p class="q-desc">${q.desc}</p>
+
+      <div class="editor-section">
+        <div class="section-label">✏ Write Your Code — Like the GLA Exam Portal</div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="editor-tabs" id="etabs-${q.id}">
+            <div class="editor-tab active" onclick="switchEditorTab(this,'epane-js-${q.id}')">
+              <span class="dot dot-js"></span>index.js
+            </div>
+            <div class="editor-tab" onclick="switchEditorTab(this,'epane-html-${q.id}')">
+              <span class="dot dot-html"></span>index.html
+            </div>
+            <div class="editor-tab" onclick="switchEditorTab(this,'epane-json-${q.id}')">
+              <span class="dot dot-json"></span>data.json
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;padding-bottom:1px;">
+            <button class="btn-run" onclick="runUserCode(${q.id})">▶ Run / Fetch</button>
+            <button class="btn-solution" onclick="showSolution(${q.id})">💡 Show Solution</button>
+          </div>
+        </div>
+
+        <div class="editor-pane active" id="epane-js-${q.id}">
+          <div class="editor-toolbar">
+            <span class="editor-file-label">📄 index.js — Node.js / Express route</span>
+            <div class="editor-actions">
+              <button class="btn-clear" onclick="document.getElementById('editor-js-${q.id}').value=''">↺ Clear</button>
+              <button class="copy-btn" style="position:relative;top:0;right:0;" onclick="navigator.clipboard.writeText(document.getElementById('editor-js-${q.id}').value)">Copy</button>
+            </div>
+          </div>
+          <textarea class="code-editor" id="editor-js-${q.id}" spellcheck="false" placeholder="// Write your Express route here...
+// Example: app.get('/students', (req, res) => { res.send(students); });"></textarea>
+        </div>
+
+        <div class="editor-pane" id="epane-html-${q.id}">
+          <div class="editor-toolbar">
+            <span class="editor-file-label">📄 index.html — Frontend / fetch() code</span>
+            <div class="editor-actions">
+              <button class="btn-clear" onclick="document.getElementById('editor-html-${q.id}').value=''">↺ Clear</button>
+              <button class="copy-btn" style="position:relative;top:0;right:0;" onclick="navigator.clipboard.writeText(document.getElementById('editor-html-${q.id}').value)">Copy</button>
+            </div>
+          </div>
+          <textarea class="code-editor" id="editor-html-${q.id}" spellcheck="false" placeholder="<!-- Write your HTML with fetch() call here -->"></textarea>
+        </div>
+
+        <div class="editor-pane" id="epane-json-${q.id}">
+          <div class="editor-toolbar">
+            <span class="editor-file-label">📄 data.json — Sample JSON data</span>
+            <div class="editor-actions">
+              <button class="btn-clear" onclick="document.getElementById('editor-json-${q.id}').value=''">↺ Clear</button>
+              <button class="copy-btn" style="position:relative;top:0;right:0;" onclick="navigator.clipboard.writeText(document.getElementById('editor-json-${q.id}').value)">Copy</button>
+            </div>
+          </div>
+          <textarea class="code-editor" id="editor-json-${q.id}" spellcheck="false" placeholder="// data.json content goes here..."></textarea>
+        </div>
+
+        <div id="run-bar-${q.id}" class="run-result-bar info" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-header">
+        <div class="preview-title">🟢 Live Simulation — API fetch output</div>
+        <button class="run-btn" onclick="runUserCode(${q.id})">
+          ▶ Run / Fetch Data
+        </button>
+      </div>
+      <div class="sim-container" id="sim-${q.id}">
+        <div class="sim-empty">Click "Run / Fetch Data" to simulate the API response</div>
+      </div>
+    </div>
+  `;
+
+  // Initialize editor content with starter code
+  setTimeout(() => {
+    const jsEl = document.getElementById(`editor-js-${q.id}`);
+    const htmlEl = document.getElementById(`editor-html-${q.id}`);
+    const jsonEl = document.getElementById(`editor-json-${q.id}`);
+    if (jsEl && !jsEl.value) jsEl.value = getStarterCode(q.id, 'js');
+    if (htmlEl && !htmlEl.value) htmlEl.value = getStarterCode(q.id, 'html');
+    if (jsonEl && !jsonEl.value) jsonEl.value = getStarterCode(q.id, 'json');
+  }, 10);
+
+  document.getElementById('prevBtn').disabled = currentQ === 0;
+  document.getElementById('nextBtn').disabled = currentQ === questions.length - 1;
+}
+
+// ══════════════════════════════════════════════════════════
+//  SIMULATION ENGINE
+// ══════════════════════════════════════════════════════════
+function getUserJsonData(qId, dataKey) {
+  // Try to parse user's data.json editor content first
+  const jsonEl = document.getElementById('editor-json-' + qId);
+  if (jsonEl && jsonEl.value.trim()) {
+    try {
+      const parsed = JSON.parse(jsonEl.value.trim());
+      // Accept array directly, or object with matching key
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed[dataKey]) return parsed[dataKey];
+    } catch(e) {
+      // If JSON is invalid, show error in container
+      return null;
+    }
+  }
+  // Fallback to built-in sampleData
+  return sampleData[dataKey] || [];
+}
+
+function runSimulation(qId) {
+  const q = questions.find(x => x.id === qId);
+  const sim = q.simulate;
+  const container = document.getElementById(`sim-${qId}`);
+
+  solved.add(currentQ);
+  renderSidebar();
+  document.getElementById('solvedCount').textContent = solved.size;
+
+  if (sim.type === 'table') {
+    const data = getUserJsonData(qId, sim.dataKey);
+    if (data === null) {
+      container.innerHTML = `<div style="padding:16px;color:var(--danger)">⚠ data.json mein invalid JSON hai! Please fix it and run again.</div>`;
+      return;
+    }
+    const headers = sim.cols.map(c => `<th>${c}</th>`).join('');
+    const rows = data.map(row => {
+      const vals = Object.values(row);
+      return '<tr>' + vals.map(v => `<td>${v}</td>`).join('') + '</tr>';
+    }).join('');
+    container.innerHTML = `
+      <table class="sim-table">
+        <thead><tr>${headers}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } else if (sim.type === 'count') {
+    // For count, compute from user's data if available
+    const data = getUserJsonData(qId, sim.dataKey);
+    const countVal = (data && data !== null) ? data.length : sim.value;
+    container.innerHTML = `
+      <div style="text-align:center;padding:24px;">
+        <div style="font-size:2.5rem;font-weight:800;color:var(--accent2)">${countVal}</div>
+        <div style="color:var(--text-muted);margin-top:6px">${sim.label}</div>
+      </div>
+    `;
+  } else if (sim.type === 'list') {
+    const items = sim.data.map(d => `<li style="padding:6px 0;border-bottom:1px solid var(--border)">${d}</li>`).join('');
+    container.innerHTML = `<ul style="list-style:none;padding:8px">${items}</ul>`;
+  } else if (sim.type === 'output') {
+    const lines = sim.lines.map(l => `<div class="sim-output">→ ${l}</div>`).join('');
+    container.innerHTML = `<div style="padding:8px">${lines}</div>`;
+  } else if (sim.type === 'single') {
+    const data = getUserJsonData(qId, sim.dataKey);
+    const row = (data && data !== null) ? data[0] : (sampleData[sim.dataKey] || [])[0];
+    if (row) {
+      container.innerHTML = `
+        <div style="padding:12px">
+          ${Object.entries(row).map(([k,v]) => `
+            <div style="display:flex;gap:16px;padding:8px;border-bottom:1px solid var(--border)">
+              <span style="color:var(--accent);width:80px;font-weight:700">${k}</span>
+              <span>${v}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+  } else if (sim.type === 'form') {
+    const data = getUserJsonData(qId, 'students');
+    const newId = (data && data !== null && data.length > 0) ? data.length + 1 : 6;
+    container.innerHTML = `
+      <div style="padding:12px;color:var(--accent2)">
+        ✓ POST /students → 201 Created<br>
+        <pre style="margin-top:8px;color:var(--text)">${JSON.stringify({id:newId,name:"New Student",course:"B.Tech CSE",year:1,email:"new@example.com"},null,2)}</pre>
+      </div>
+    `;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════════════════════════
+function switchTab(tabEl, paneId) {
+  const tabs = tabEl.parentElement.querySelectorAll('.code-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+
+  const pane = document.getElementById(paneId);
+  if (!pane) return;
+  const allPanes = pane.parentElement.querySelectorAll('.code-pane');
+  allPanes.forEach(p => p.classList.remove('active'));
+  pane.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+//  COPY CODE
+// ══════════════════════════════════════════════════════════
+function copyCode(paneId) {
+  const pre = document.getElementById(paneId).querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(paneId).querySelector('.copy-btn');
+    btn.textContent = '✓ Copied!';
+    btn.style.background = 'var(--accent2)';
+    btn.style.color = '#fff';
+    setTimeout(() => { btn.textContent = 'Copy'; btn.style.background = ''; btn.style.color = ''; }, 1500);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════════
+function navigate(dir) {
+  currentQ = Math.max(0, Math.min(questions.length - 1, currentQ + dir));
+  renderSidebar();
+  renderQuestion();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goToQ(i) {
+  currentQ = i;
+  renderSidebar();
+  renderQuestion();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══════════════════════════════════════════════════════════
+//  THEME
+// ══════════════════════════════════════════════════════════
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+renderSidebar();
+renderQuestion();
+</script>
+
+</body>
+</html>
