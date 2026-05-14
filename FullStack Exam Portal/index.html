@@ -172,6 +172,152 @@ pre{padding:20px;overflow-x:auto;font-size:.82rem;line-height:1.7;color:#abb2bf;
 .run-result-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;margin-top:10px;font-size:.85rem;font-weight:600;}
 .run-result-bar.success{background:color-mix(in srgb,var(--correct) 15%,transparent);color:var(--correct);border:1px solid color-mix(in srgb,var(--correct) 40%,transparent);}
 .run-result-bar.info{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);}
+
+/* ── FLUENZY AD BANNER ── */
+.fluenzy-top-banner {
+  background: linear-gradient(90deg, #1a0533 0%, #2d0f5e 40%, #1a2a4a 100%);
+  border-bottom: 2px solid #7c3aed;
+  padding: 10px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 61px;
+  z-index: 99;
+}
+.fluenzy-top-banner .ad-label {
+  font-size: .65rem;
+  color: #9d7ec9;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  background: rgba(124,58,237,.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #7c3aed;
+  white-space: nowrap;
+}
+.fluenzy-top-banner .ad-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+.fluenzy-top-banner .ad-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.fluenzy-top-banner .ad-text strong {
+  color: #e2d4ff;
+  font-size: .92rem;
+  display: block;
+}
+.fluenzy-top-banner .ad-text span {
+  color: #9d7ec9;
+  font-size: .78rem;
+}
+.fluenzy-top-banner .ad-cta {
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  color: #fff;
+  text-decoration: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: .82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all .2s;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 0 16px rgba(124,58,237,.4);
+}
+.fluenzy-top-banner .ad-cta:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 24px rgba(124,58,237,.7);
+}
+.fluenzy-top-banner .ad-close {
+  background: none;
+  border: none;
+  color: #9d7ec9;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  transition: color .2s;
+}
+.fluenzy-top-banner .ad-close:hover { color: #e2d4ff; }
+
+/* ── FLUENZY SIDEBAR AD ── */
+.fluenzy-sidebar-ad {
+  margin-top: 24px;
+  background: linear-gradient(160deg, #1a0533 0%, #0d1a3a 100%);
+  border: 1px solid #7c3aed;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.fluenzy-sidebar-ad::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle, rgba(124,58,237,.4), transparent 70%);
+  pointer-events: none;
+}
+.fluenzy-sidebar-ad .sb-ad-label {
+  font-size: .6rem;
+  color: #9d7ec9;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.fluenzy-sidebar-ad .sb-ad-logo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #e2d4ff;
+  margin-bottom: 6px;
+}
+.fluenzy-sidebar-ad .sb-ad-logo span { color: #a78bfa; }
+.fluenzy-sidebar-ad .sb-ad-tagline {
+  font-size: .75rem;
+  color: #9d7ec9;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.fluenzy-sidebar-ad .sb-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 12px;
+}
+.fluenzy-sidebar-ad .sb-stat strong {
+  display: block;
+  font-size: .95rem;
+  color: #a78bfa;
+  font-weight: 800;
+}
+.fluenzy-sidebar-ad .sb-stat span {
+  font-size: .65rem;
+  color: #7a5fa0;
+}
+.fluenzy-sidebar-ad .sb-cta {
+  display: block;
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  color: #fff;
+  text-decoration: none;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: .8rem;
+  font-weight: 700;
+  transition: all .2s;
+  box-shadow: 0 0 12px rgba(124,58,237,.4);
+}
+.fluenzy-sidebar-ad .sb-cta:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(124,58,237,.7);
+}
 </style>
 </head>
 <body>
@@ -184,11 +330,38 @@ pre{padding:20px;overflow-x:auto;font-size:.82rem;line-height:1.7;color:#abb2bf;
   </div>
 </header>
 
+<!-- ✦ SPONSORED BANNER — Fluenzy AI ✦ -->
+<div class="fluenzy-top-banner" id="fluenzyBanner">
+  <span class="ad-label">Sponsored</span>
+  <div class="ad-content">
+    <span class="ad-icon">🎯</span>
+    <div class="ad-text">
+      <strong>Crack FAANG Interviews with AI — Fluenzy AI</strong>
+      <span>Real-time behavioral analytics · HR + Technical + GD Training · 50K+ candidates placed</span>
+    </div>
+  </div>
+  <a href="https://www.fluenzyai.app/" target="_blank" class="ad-cta">Train Free →</a>
+  <button class="ad-close" onclick="document.getElementById('fluenzyBanner').style.display='none'" title="Close">✕</button>
+</div>
+
 <div class="layout">
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-title">Questions</div>
     <div class="q-list" id="qList"></div>
+
+    <!-- ✦ SIDEBAR AD — Fluenzy AI ✦ -->
+    <div class="fluenzy-sidebar-ad">
+      <div class="sb-ad-label">Sponsored · Fluenzy AI</div>
+      <div class="sb-ad-logo">Fluenzy <span>AI</span></div>
+      <div class="sb-ad-tagline">AI-powered interview training.<br>FAANG-ready in weeks, not months.</div>
+      <div class="sb-stats">
+        <div class="sb-stat"><strong>92%</strong><span>Avg Score</span></div>
+        <div class="sb-stat"><strong>50K+</strong><span>Trained</span></div>
+        <div class="sb-stat"><strong>91%</strong><span>Placed</span></div>
+      </div>
+      <a href="https://www.fluenzyai.app/" target="_blank" class="sb-cta">Start Free Training →</a>
+    </div>
   </aside>
 
   <!-- MAIN CONTENT -->
